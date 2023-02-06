@@ -1,4 +1,4 @@
-﻿namespace Application.UserInformation;
+﻿namespace Application;
 
 public static class LoginInfomation
 {

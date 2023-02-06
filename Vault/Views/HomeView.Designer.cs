@@ -1,6 +1,6 @@
-﻿namespace Application.Forms
+﻿namespace Application.Views
 {
-    partial class HomePage
+    partial class HomeView
     {
         /// <summary>
         /// Required designer variable.
@@ -28,46 +28,12 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.HomepageList = new System.Windows.Forms.ListView();
-            this.FileName = new System.Windows.Forms.ColumnHeader();
-            this.FileType = new System.Windows.Forms.ColumnHeader();
-            this.FileSize = new System.Windows.Forms.ColumnHeader();
             this.UploadButton = new System.Windows.Forms.Button();
             this.Logo = new System.Windows.Forms.Label();
             this.DownloadButton = new System.Windows.Forms.Button();
+            this.dataGridView = new System.Windows.Forms.DataGridView();
+            ((System.ComponentModel.ISupportInitialize)(this.dataGridView)).BeginInit();
             this.SuspendLayout();
-            // 
-            // HomepageList
-            // 
-            this.HomepageList.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
-            this.FileName,
-            this.FileType,
-            this.FileSize});
-            this.HomepageList.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.Nonclickable;
-            this.HomepageList.Location = new System.Drawing.Point(216, 12);
-            this.HomepageList.Name = "HomepageList";
-            this.HomepageList.Size = new System.Drawing.Size(836, 601);
-            this.HomepageList.Sorting = System.Windows.Forms.SortOrder.Ascending;
-            this.HomepageList.TabIndex = 0;
-            this.HomepageList.UseCompatibleStateImageBehavior = false;
-            this.HomepageList.View = System.Windows.Forms.View.Details;
-            this.HomepageList.ColumnWidthChanging += new System.Windows.Forms.ColumnWidthChangingEventHandler(this.HomepageList_ColumnWidthChanging);
-            this.HomepageList.SelectedIndexChanged += new System.EventHandler(this.HomepageList_SelectedIndexChanged);
-            // 
-            // FileName
-            // 
-            this.FileName.Text = "File Name";
-            this.FileName.Width = 650;
-            // 
-            // FileType
-            // 
-            this.FileType.Text = "Type";
-            this.FileType.Width = 80;
-            // 
-            // FileSize
-            // 
-            this.FileSize.Text = "Size";
-            this.FileSize.Width = 80;
             // 
             // UploadButton
             // 
@@ -78,7 +44,6 @@
             this.UploadButton.TabIndex = 1;
             this.UploadButton.Text = "Add File To Vault";
             this.UploadButton.UseVisualStyleBackColor = true;
-            this.UploadButton.Click += new System.EventHandler(this.UploadButton_Click);
             // 
             // Logo
             // 
@@ -90,7 +55,6 @@
             this.Logo.Size = new System.Drawing.Size(203, 40);
             this.Logo.TabIndex = 2;
             this.Logo.Text = "Personal Vault";
-            this.Logo.Click += new System.EventHandler(this.label1_Click);
             // 
             // DownloadButton
             // 
@@ -101,35 +65,50 @@
             this.DownloadButton.TabIndex = 3;
             this.DownloadButton.Text = "Download Selected File";
             this.DownloadButton.UseVisualStyleBackColor = true;
-            this.DownloadButton.Click += new System.EventHandler(this.DownloadButton_Click);
             // 
-            // HomePage
+            // dataGridView
+            // 
+            this.dataGridView.AllowUserToAddRows = false;
+            this.dataGridView.AllowUserToDeleteRows = false;
+            this.dataGridView.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.dataGridView.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
+            this.dataGridView.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dataGridView.GridColor = System.Drawing.SystemColors.ControlDarkDark;
+            this.dataGridView.Location = new System.Drawing.Point(233, 75);
+            this.dataGridView.MultiSelect = false;
+            this.dataGridView.Name = "dataGridView";
+            this.dataGridView.ReadOnly = true;
+            this.dataGridView.RowHeadersWidthSizeMode = System.Windows.Forms.DataGridViewRowHeadersWidthSizeMode.DisableResizing;
+            this.dataGridView.RowTemplate.Height = 25;
+            this.dataGridView.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullColumnSelect;
+            this.dataGridView.Size = new System.Drawing.Size(819, 538);
+            this.dataGridView.TabIndex = 4;
+            // 
+            // HomeView
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
             this.ClientSize = new System.Drawing.Size(1064, 625);
+            this.Controls.Add(this.dataGridView);
             this.Controls.Add(this.DownloadButton);
             this.Controls.Add(this.Logo);
             this.Controls.Add(this.UploadButton);
-            this.Controls.Add(this.HomepageList);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.Fixed3D;
-            this.Name = "HomePage";
+            this.Name = "HomeView";
             this.Text = "Vault";
-            this.Load += new System.EventHandler(this.HomePage_Load);
+            ((System.ComponentModel.ISupportInitialize)(this.dataGridView)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
         }
 
         #endregion
-
-        private ListView HomepageList;
-        private ColumnHeader FileName;
-        private ColumnHeader FileType;
-        private ColumnHeader FileSize;
         private Button UploadButton;
         private Label Logo;
         private Button DownloadButton;
+        private DataGridView dataGridView;
     }
 }

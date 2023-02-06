@@ -10,9 +10,9 @@ using System.Security.Cryptography;
 using System.Text;
 using Array = System.Array;
 
-namespace Application.Helpers;
+namespace Application.Managers;
 
-public static class EncryptionHelper
+public class EncryptionManager : IEncryptionManager
 {
     // These allow for the adjustment of the encryption algorithm variables. In this class AES encryption is used.
     // Please note that the adjustment of these values will cause previously encrypted files to not be able to be decrypted!
@@ -89,8 +89,12 @@ public static class EncryptionHelper
     /// <param name="sourceFilePath">The full path and name of the file to be encrypted.</param>
     /// <param name="password">The password for the encryption.</param>
     /// <returns>The encrypted files path</returns>
-    public static string EncryptFile(string sourceFilePath, string password)
+    public string EncryptFile(string sourceFilePath, string? password = null)
     {
+        if (password == null)
+        {
+            password = LoginInfomation.Password;
+        }
         var initilisationVector = GenerateInitilisationVector();
         var salt = GenerateSalt();
         var key = GenerateKeyFromPassword(password, salt);
@@ -127,8 +131,17 @@ public static class EncryptionHelper
     /// <remarks>NB: "Padding is invalid and cannot be removed." is the Universal CryptoServices error.  Make sure the password, salt and iterations are correct before getting nervous.</remarks>
     /// <returns>The path of the DecryptedFile</returns>
     /// <exception cref="ApplicationException"></exception>
-    public static string DecryptFile(string sourceFilePath, string password, string destinationPath = DecryptedFilePath)
+    public string DecryptFile(string sourceFilePath, string? password = null, string? destinationPath = null)
     {
+        if (destinationPath == null)
+        {
+            destinationPath = DecryptedFilePath;
+        }
+        if (password == null)
+        {
+            password = LoginInfomation.Password;
+        }
+
         // Create an Aes object
         // with the specified key and IV.
         using Aes aesAlg = Aes.Create();
@@ -221,11 +234,16 @@ public static class EncryptionHelper
     /// <param name="encryptedFileName">A combiniation of the ciphertext, nonce and salt in the form of a file name</param>
     /// <param name="password">the password which was used as the key</param>
     /// <returns>The decrypted string</returns>
-    public static string DecryptFileName(string encryptedFileName, string password)
+    public string DecryptFileName(string encryptedFileName, string? password = null)
     {
+        if (password == null)
+        {
+            password = LoginInfomation.Password;
+        }
+
         // Decode the base64.
         byte[] ciphertextAndNonceAndSalt = Convert.FromBase64String(encryptedFileName.Replace("_", @"/")); // The .Replace is important here as / cannot be in file names in windows.
-                                                                                                                            // There are several other illegal characters in windows but this is the only
+                                                                                                                            // There are several other illegal characters in windows only this is relevant for this flow.
         byte[] salt = new byte[PBKDF2_SaltSize];                                                                            // Retrieve the salt and ciphertextAndNonce. This process is inverted for Encrypting.
         byte[] ciphertextAndNonce = new byte[ciphertextAndNonceAndSalt.Length - PBKDF2_SaltSize];
         Array.Copy(ciphertextAndNonceAndSalt, 0, salt, 0, salt.Length);
@@ -262,8 +280,9 @@ public static class EncryptionHelper
         return plaintext;
     }
 
-    public static bool VerifyPassword(string password)
+    public bool VerifyPassword(string password)
     {
+        // Change this to check against the key in the database
         var encryptedFile = Directory.GetFiles(EncryptedFilePath).FirstOrDefault();
 
         if (encryptedFile == null)
