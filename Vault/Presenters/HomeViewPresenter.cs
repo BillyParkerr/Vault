@@ -19,12 +19,11 @@ public class HomeViewPresenter
         this.view = view;
         this.view.AddFileToVaultEvent += AddFileToVault;
         this.view.DownloadFileFromVaultEvent += DownloadFileFromVault;
-
         this.view.SetFilesInVaultListBindingSource(filesInVaultBindingSource);
         LoadAllFilesInVault();
     }
 
-    private void AddFileToVault(object? sender, EventArgs e)
+    public void AddFileToVault(object? sender, EventArgs e)
     {
         OpenFileDialog openFileDialog1 = new OpenFileDialog();
         openFileDialog1.Title = "Select File";
@@ -48,7 +47,7 @@ public class HomeViewPresenter
         }
     }
 
-    private void DownloadFileFromVault(object? sender, EventArgs e)
+    public void DownloadFileFromVault(object? sender, EventArgs e)
     {
         FileInformation? fileInVault = view.SelectedFile;
         if (fileInVault == null)
@@ -83,7 +82,7 @@ public class HomeViewPresenter
         }
     }
 
-    private void LoadAllFilesInVault()
+    public void LoadAllFilesInVault()
     {
         filesInVault = fileManager.GetAllFilesInVault();
         filesInVaultBindingSource.DataSource = filesInVault.Where(_ => _.UniquePassword == false && _.DecryptedFileInformation != null)

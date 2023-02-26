@@ -1,32 +1,22 @@
-//using Application.Managers;
+namespace Application.Views;
 
-//namespace Application.Views;
+public partial class LoginView : Form, ILoginView
+{
+    public event EventHandler LoginEvent;
 
-//public partial class Login : Form
-//{
-//    public Login()
-//    {
-//        InitializeComponent();
-//    }
+    public LoginView()
+    {
+        InitializeComponent();
+        AssociateAndRaiseViewEvents();
+    }
 
-//    private void Form1_Load(object sender, EventArgs e)
-//    {
+    public string GivenPassword
+    {
+        get { return textBox1.Text;  }
+    }
 
-//    }
-
-//    private void button1_Click(object sender, EventArgs e)
-//    {
-//        if (!string.IsNullOrWhiteSpace(textBox1.Text))
-//        {
-//            if (EncryptionManager.VerifyPassword(textBox1.Text))
-//            {
-//                DialogResult = DialogResult.OK;
-//                LoginInfomation.Password = textBox1.Text;
-//            }
-//            else
-//            {
-//                MessageBox.Show("Incorrect Password Entered! Please Try Again.");
-//            }
-//        }
-//    }
-//}
+    private void AssociateAndRaiseViewEvents()
+    {
+        LoginButton.Click += delegate { LoginEvent?.Invoke(this, EventArgs.Empty); };
+    }
+}

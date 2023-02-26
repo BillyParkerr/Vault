@@ -7,18 +7,20 @@ namespace Application
     public class SqliteDbContext : DbContext
     {
         public DbSet<EncryptedFile> EncryptedFiles { get; set; }
-
         public DbSet<EncryptionKey> EncryptionKeys { get; set; }
+        private string DbPath { get; }
 
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        public SqliteDbContext()
         {
-            optionsBuilder.UseSqlite("FileName=VaultDb", option =>
-            {
-                option.MigrationsAssembly(Assembly.GetExecutingAssembly().FullName);
-            });
-
-            base.OnConfiguring(optionsBuilder);
+            var programDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+                "PersonalVaultApplication");
+            DbPath = Path.Join(programDirectory, "VaultDb.db");
         }
+
+        // The following configures EF to create a Sqlite database file in the
+        // special "local" folder for your platform.
+        protected override void OnConfiguring(DbContextOptionsBuilder options)
+            => options.UseSqlite($"Data Source={DbPath}");
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

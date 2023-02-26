@@ -1,13 +1,12 @@
 ﻿using Application.Models;
+using System.Windows.Forms;
 
 namespace Application.Views;
 
 public partial class HomeView : Form, IHomeView
 {
-    public FileInformation? SelectedFile
-    {
-        get { return GetSelectedRow(); }
-    }
+    public event EventHandler AddFileToVaultEvent;
+    public event EventHandler DownloadFileFromVaultEvent;
 
     public HomeView()
     {
@@ -15,8 +14,14 @@ public partial class HomeView : Form, IHomeView
         AssociateAndRaiseViewEvents();
     }
 
+    public FileInformation? SelectedFile
+    {
+        get { return GetSelectedRow(); }
+    }
+
     private void AssociateAndRaiseViewEvents()
     {
+        UploadButton.Click += delegate { AddFileToVaultEvent?.Invoke(this, EventArgs.Empty); };
         //DownloadButton.Click += (sender, e) => AddFileToVaultEvent.Invoke(this, EventArgs.Empty);
     }
 
@@ -32,9 +37,6 @@ public partial class HomeView : Form, IHomeView
         }
 
     }
-
-    public event EventHandler AddFileToVaultEvent;
-    public event EventHandler DownloadFileFromVaultEvent;
 
     public void SetFilesInVaultListBindingSource(BindingSource filesInVaultList)
     {

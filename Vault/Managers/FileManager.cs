@@ -58,6 +58,8 @@ public class FileManager : IFileManager
             {
                 databaseManager.AddEncryptedFile(encryptedFilePath, true);
             }
+
+            databaseManager.SaveChanges();
         }
         catch (Exception ex)
         {
