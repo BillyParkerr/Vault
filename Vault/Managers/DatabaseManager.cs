@@ -68,4 +68,15 @@ public class DatabaseManager : IDatabaseManager
     {
         DbContext.EncryptionKeys.Single().Key = newEncryptionKey;
     }
+
+    public void SetEncryptionKey(string encryptionKey)
+    {
+        DbContext.EncryptionKeys.Add(new EncryptionKey { Key = encryptionKey });
+    }
+
+    public bool IsEncryptionKeySet()
+    {
+        var key = DbContext.EncryptionKeys.FirstOrDefault();
+        return key != null;
+    }
 }

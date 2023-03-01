@@ -17,4 +17,6 @@ public interface IDatabaseManager
     // EncryptionKey Queries (Their should only ever be one encryption key!)
     EncryptionKey GetEncryptionKey();
     void ChangeEncryptionKey(string newEncryptionKey);
+    void SetEncryptionKey(string encryptionKey);
+    bool IsEncryptionKeySet();
 }

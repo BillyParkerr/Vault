@@ -8,6 +8,7 @@ using Org.BouncyCastle.Security;
 using System.Diagnostics;
 using System.Security.Cryptography;
 using System.Text;
+using MathNet.Numerics.Financial;
 using Array = System.Array;
 
 namespace Application.Managers;
@@ -234,7 +235,7 @@ public class EncryptionManager : IEncryptionManager
     /// <param name="encryptedFileName">A combiniation of the ciphertext, nonce and salt in the form of a file name</param>
     /// <param name="password">the password which was used as the key</param>
     /// <returns>The decrypted string</returns>
-    public string DecryptFileName(string encryptedFileName, string? password = null)
+    public string DecryptFileName(string encryptedFileName, string password = null)
     {
         if (password == null)
         {
@@ -256,6 +257,11 @@ public class EncryptionManager : IEncryptionManager
 
         // Decrypt and return result.
         return Encoding.UTF8.GetString(Decrypt(ciphertextAndNonce, key));
+    }
+
+    private string EncryptString(string stringToEncrypt, string password = null)
+    {
+        return null; // TODO Implement this
     }
 
     private static byte[] Decrypt(byte[] ciphertextAndNonce, byte[] key)
@@ -302,5 +308,24 @@ public class EncryptionManager : IEncryptionManager
                 return false;
             }
         }
+    }
+
+    public string GetEncryptionKeyForGivenPassword(string password)
+    {
+
+    }
+
+    private string GenerateRandomStringForEncryptionKey()
+    {
+        Random random = new Random();
+        int length = random.Next(20, 26);
+        const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+        StringBuilder stringBuilder = new StringBuilder(length);
+        for (int i = 0; i < length; i++)
+        {
+            stringBuilder.Append(chars[random.Next(chars.Length)]);
+        }
+
+        return stringBuilder.ToString();
     }
 }

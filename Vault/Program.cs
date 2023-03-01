@@ -56,34 +56,33 @@ internal static class Program
     public static void Main()
     {
         CreateApplicationFolders();
-        LoginInfomation.Password = "Password"; // TODO Remove this as its just for testing purposes!
+        //LoginInfomation.Password = "Password"; // TODO Remove this as its just for testing purposes!
+        var databaseManager = container.GetInstance<IDatabaseManager>();
+        bool registrationRequired = !databaseManager.IsEncryptionKeySet();
 
-        var encryptionManager = container.GetInstance<IEncryptionManager>();
-        ILoginView loginView = container.GetInstance<ILoginView>();
-        var loginViewPresenter = new LoginViewPresenter(loginView, encryptionManager);
-        System.Windows.Forms.Application.Run((Form)loginView);
-
-        if (loginViewPresenter.UserSuccessfullyAuthenticated == true)
+        if (registrationRequired)
         {
-            var homeView = container.GetInstance<IHomeView>();
-            var fileManager = container.GetInstance<IFileManager>();
-            var homeViewPresenter = new HomeViewPresenter(homeView, fileManager);
-            System.Windows.Forms.Application.Run((Form)homeView);
+
+        }
+        else
+        {
+            var encryptionManager = container.GetInstance<IEncryptionManager>();
+            ILoginView loginView = container.GetInstance<ILoginView>();
+            var loginViewPresenter = new LoginViewPresenter(loginView, encryptionManager);
+            System.Windows.Forms.Application.Run((Form)loginView);
+            if (loginViewPresenter.UserSuccessfullyAuthenticated)
+            {
+                RunHomeView();
+            }
         }
     }
 
-    public static LoginViewPresenter GetLoginViewPresenter()
-    {
-        var encryptionManager = container.GetInstance<IEncryptionManager>();
-        var loginView = container.GetInstance<ILoginView>();
-        return new LoginViewPresenter(loginView, encryptionManager);
-    }
-
-    public static HomeViewPresenter GetHomeViewPresenter()
+    private static void RunHomeView()
     {
         var homeView = container.GetInstance<IHomeView>();
         var fileManager = container.GetInstance<IFileManager>();
-        return new HomeViewPresenter(homeView, fileManager);
+        var homeViewPresenter = new HomeViewPresenter(homeView, fileManager);
+        System.Windows.Forms.Application.Run((Form)homeView);
     }
 
     private static void CreateApplicationFolders()
