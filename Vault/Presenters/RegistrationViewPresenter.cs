@@ -1,30 +1,22 @@
-﻿using Application.Managers;
+﻿using Application.Enums;
+using Application.Managers;
 using Application.Views;
 
 namespace Application.Presenters;
 
 public class RegistrationViewPresenter
 {
+    public bool UserSuccessfullyRegistered { get; private set; }
+
     private IEncryptionManager encryptionManager;
-    private IDatabaseManager databaseManager;
     private IRegisterView registerView;
 
-    public RegistrationViewPresenter(IEncryptionManager _encryptionManager, IDatabaseManager _databaseManager,
-        IRegisterView _registerView)
+    public RegistrationViewPresenter(IEncryptionManager _encryptionManager, IRegisterView _registerView)
     {
         encryptionManager = _encryptionManager;
-        databaseManager = _databaseManager;
         registerView = _registerView;
         registerView.RegisterEvent += RegisterEventHandler;
         registerView.Show();
-    }
-
-    private enum PasswordState
-    {
-        NonMatching,
-        PasswordNotGiven,
-        LengthTooShort,
-        Valid
     }
 
     public void RegisterEventHandler(object? sender, EventArgs e)
@@ -32,25 +24,28 @@ public class RegistrationViewPresenter
         string enteredPassword = registerView.GivenPassword;
         string enteredSecondPassword = registerView.GivenSecondPassword;
         var passwordState = GetPasswordState(enteredPassword, enteredSecondPassword);
-        if (passwordState == PasswordState.Valid)
+        switch (passwordState)
         {
-            
+            case PasswordState.Valid:
+                CommitPassword(enteredPassword);
+                registerView.Close();
+                return;
+            case PasswordState.PasswordNotGiven:
+                registerView.ShowBlankPasswordError();
+                return;
+            case PasswordState.NonMatching:
+                registerView.ShowPasswordMismatchError();
+                return;
+            case PasswordState.LengthTooShort:
+                registerView.ShowPasswordTooShortError();
+                return;
         }
-        else if (passwordState == PasswordState.PasswordNotGiven)
-        {
-            registerView.ShowBlankPasswordError();
-            return;
-        }
-        else if (passwordState == PasswordState.NonMatching)
-        {
-            registerView.ShowPasswordMismatchError();
-            return;
-        }
-        else if (passwordState == PasswordState.LengthTooShort)
-        {
-            registerView.ShowPasswordTooShortError();
-            return;
-        }
+    }
+
+    private void CommitPassword(string password)
+    {
+        encryptionManager.SetPassword(password); // EncryptionManager will also take care of commiting this to the database.
+        UserSuccessfullyRegistered = true;
     }
 
     private static PasswordState GetPasswordState(string password, string secondPassword)

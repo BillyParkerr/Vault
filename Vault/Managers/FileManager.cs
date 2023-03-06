@@ -1,17 +1,19 @@
 ﻿using Application.Models;
+using System.IO.Compression;
 
 namespace Application.Managers;
 
 public class FileManager : IFileManager
 {
-    private string EncryptedFilesPath = @"C:\Users\Billy\AppData\Roaming\PersonalVaultApplication\EncryptedFiles\Common"; // TODO Move this into a base class
     private IEncryptionManager encryptionManager;
     private IDatabaseManager databaseManager;
+    private IFileMonitoringManager fileMonitoringManager;
 
-    public FileManager(IEncryptionManager encryptionManager, IDatabaseManager databaseManager)
+    public FileManager(IEncryptionManager encryptionManager, IDatabaseManager databaseManager, IFileMonitoringManager fileMonitoringManager)
     {
         this.encryptionManager = encryptionManager;
         this.databaseManager = databaseManager;
+        this.fileMonitoringManager = fileMonitoringManager;
     }
 
     /// <summary>
@@ -24,11 +26,12 @@ public class FileManager : IFileManager
 
         foreach (var encryptedFile in encryptedFiles.Where(_ => _.UniquePassword == false))
         {
+            var decryptedFile = encryptionManager.DecryptString(Path.GetFileNameWithoutExtension(encryptedFile.FilePath));
             FileInformation fileInformation = new FileInformation
             {
-                FileName = encryptionManager.DecryptFileName(Path.GetFileNameWithoutExtension(encryptedFile.FilePath), LoginInfomation.Password),
-                FileSize = new FileInfo(encryptedFile.FilePath).Length.ToString(),
-                FileExtension = Path.GetExtension(encryptedFile.FilePath)
+                FileName = Path.GetFileNameWithoutExtension(decryptedFile),
+                FileSize = FormatFileSize(new FileInfo(encryptedFile.FilePath).Length.ToString()),
+                FileExtension = Path.GetExtension(decryptedFile)
             };
             encryptedFile.DecryptedFileInformation = fileInformation;
         }
@@ -42,12 +45,12 @@ public class FileManager : IFileManager
     /// </summary>
     /// <param name="filePath"></param>
     /// <returns>True if success, False if failure.</returns>
-    public bool AddFileToVault(string filePath, string? password = null)
+    public bool AddFileToVault(string filePath, string password = null)
     {
         try
         {
             // Encrypt File
-            string encryptedFilePath = encryptionManager.EncryptFile(filePath, password);
+            string encryptedFilePath = encryptionManager.EncryptFile(filePath);
 
             // Add file to database
             if (password == null)
@@ -70,14 +73,198 @@ public class FileManager : IFileManager
         return true;
     }
 
-    public bool DownloadFromFromVault(string encryptedFilePath, string destinationFilePath, string? password = null)
+    public bool DownloadFileFromVault(string encryptedFilePath, string destinationFilePath, string? password = null)
     {
-        var decryptedFilePath = encryptionManager.DecryptFile(encryptedFilePath, password, destinationFilePath);
-        if (!File.Exists(decryptedFilePath))
+        try
+        {
+            var decryptedFilePath = encryptionManager.DecryptFile(encryptedFilePath, destinationFilePath);
+            if (!File.Exists(decryptedFilePath))
+            {
+                return false;
+            }
+
+            return true;
+        }
+        catch (Exception ex)
         {
             return false;
         }
+    }
 
-        return true;
+    public bool DeleteFileFromVault(string filePath)
+    {
+        try
+        {
+            File.Delete(filePath);
+            if (File.Exists(filePath))
+            {
+                return false;
+            }
+            else
+            {
+                databaseManager.DeleteEncryptedFileByFilePath(filePath);
+                databaseManager.SaveChanges();
+                return true;
+            }
+        }
+        catch (Exception ex)
+        {
+            return false;
+        }
+    }
+
+    public void CleanupTempFiles()
+    {
+        foreach (string filePath in Directory.GetFiles(DirectoryPaths.DecryptedFilesTempDirectory))
+        {
+            File.Delete(filePath);
+        }
+    }
+
+    public bool OpenFileFromVaultAndReencryptUponClosure(string filePath)
+    {
+        try
+        {
+            var destinationFileLocation = GetTempFileDestinationLocation(filePath);
+            if (!File.Exists(destinationFileLocation))
+            {
+                encryptionManager.DecryptFile(filePath, DirectoryPaths.DecryptedFilesTempDirectory);
+            }
+
+            if (File.Exists(destinationFileLocation))
+            {
+                fileMonitoringManager.Initilise(destinationFileLocation, filePath);
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        catch (Exception ex)
+        {
+            return false;
+        }
+    }
+
+    private string GetTempFileDestinationLocation(string filePath, string password = null)
+    {
+        var destinationFileName = encryptionManager.DecryptString(Path.GetFileNameWithoutExtension(filePath), password);
+        return Path.Combine(DirectoryPaths.DecryptedFilesTempDirectory, destinationFileName);
+    }
+
+    public bool ZipFolderAndAddToVault(string folderPath, string password = null)
+    {
+        try
+        {
+            // Create a unique file name for the zip file in the temp directory
+            string zipFileName = Path.GetFileName(folderPath) + ".zip";
+            string zipFilePath = Path.Combine(Path.GetTempPath(), zipFileName);
+
+            // Create a new ZIP file and add the contents of the folder to it
+            ZipFile.CreateFromDirectory(folderPath, zipFilePath);
+
+            bool success = AddFileToVault(zipFilePath, password);
+            return success;
+        }
+        catch (Exception e)
+        {
+            return false;
+        }
+    }
+
+    /// <summary>
+    /// Downloads a encrypted file to a specified destination.
+    /// The file is first decrypted then reencrypted with the given password.
+    /// The decrypted copy is then deleted.
+    /// </summary>
+    /// <param name="filePath"></param>
+    /// <param name="destinationFilePath"></param>
+    /// <param name="newEncryptionPassword"></param>
+    /// <returns>True upon success or False upon failure</returns>
+    public bool DownloadEncryptedFileFromVault(string filePath, string destinationFilePath, string newEncryptionPassword)
+    {
+        try
+        {
+            // The first check is necassary as the file may be already decrypted in the temporary location due to the user opening the file.
+            var decryptedFilePath = GetTempFileDestinationLocation(filePath);
+            if (!File.Exists(decryptedFilePath))
+            {
+                decryptedFilePath = encryptionManager.DecryptFile(filePath, DirectoryPaths.DecryptedFilesTempDirectory);
+            }
+
+            if (decryptedFilePath == null || !File.Exists(decryptedFilePath))
+            {
+                return false;
+            }
+
+            var encryptedFileLocation = encryptionManager.EncryptFile(decryptedFilePath, newEncryptionPassword);
+
+            if (encryptedFileLocation == null || !File.Exists(encryptedFileLocation))
+            {
+                return false;
+            }
+
+            var destinationFileName = Path.Combine(destinationFilePath, Path.GetFileName(encryptedFileLocation));
+            File.Copy(encryptedFileLocation, destinationFileName);
+
+            File.Delete(encryptedFileLocation);
+            if (!File.Exists(destinationFileName))
+            {
+                return false;
+            }
+
+            return true;
+        }
+        catch (Exception e)
+        {
+            return false;
+        }
+    }
+
+    public bool ImportEncryptedFileToVault(string filePath, string encryptionPassword)
+    {
+        try
+        {
+            var decryptedFilePath = GetTempFileDestinationLocation(filePath, encryptionPassword);
+            if (!File.Exists(decryptedFilePath))
+            {
+                decryptedFilePath = encryptionManager.DecryptFile(filePath, DirectoryPaths.DecryptedFilesTempDirectory);
+            }
+
+            if (decryptedFilePath == null || !File.Exists(decryptedFilePath))
+            {
+                return false;
+            }
+
+            var success = AddFileToVault(decryptedFilePath);
+
+            File.Delete(decryptedFilePath);
+
+            return success;
+        }
+        catch (Exception e)
+        {
+            return false;
+        }
+    }
+
+    private static string FormatFileSize(string fileLength)
+    {
+        if (string.IsNullOrEmpty(fileLength))
+        {
+            return fileLength;
+        }
+
+        string[] sizes = { "B", "KB", "MB", "GB", "TB" };
+        double len = Convert.ToDouble(fileLength);
+        int order = 0;
+        while (len >= 1024 && order < sizes.Length - 1)
+        {
+            order++;
+            len /= 1024;
+        }
+
+        return $"{len:0.##} {sizes[order]}";
     }
 }

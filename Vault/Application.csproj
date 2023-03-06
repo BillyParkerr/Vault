@@ -24,6 +24,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Update="Views\ImportEncryptedFileView.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="Views\ExportEncryptedFileView.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Update="Views\RegisterView.cs">
       <SubType>Form</SubType>
     </Compile>

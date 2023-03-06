@@ -22,10 +22,17 @@ internal static class Program
         container.Options.DefaultScopedLifestyle = new ThreadScopedLifestyle();
 
         container.Register<IDatabaseManager, DatabaseManager>(Lifestyle.Singleton);
-        container.Register<IEncryptionManager, EncryptionManager>(Lifestyle.Transient);
+        container.Register<IEncryptionManager, EncryptionManager>(Lifestyle.Singleton);
+        container.Register<IFileMonitoringManager, FileMonitoringManager>(Lifestyle.Transient);
         container.Register<IFileManager, FileManager>(Lifestyle.Transient);
         container.Register<IHomeView, HomeView>(Lifestyle.Transient);
         container.Register<ILoginView, LoginView>(Lifestyle.Transient);
+        container.Register<IRegisterView, RegisterView>(Lifestyle.Transient);
+        container.Register<IExportEncryptedFileView, ExportEncryptedFileView>(Lifestyle.Transient);
+        container.Register<IImportEncryptedFileView, ImportEncryptedFileView>(Lifestyle.Transient);
+        SuppressTransientWarning(typeof(IImportEncryptedFileView));
+        SuppressTransientWarning(typeof(IExportEncryptedFileView));
+        SuppressTransientWarning(typeof(IRegisterView));
         SuppressTransientWarning(typeof(IHomeView));
         SuppressTransientWarning(typeof(ILoginView));
 
@@ -56,17 +63,22 @@ internal static class Program
     public static void Main()
     {
         CreateApplicationFolders();
-        //LoginInfomation.Password = "Password"; // TODO Remove this as its just for testing purposes!
         var databaseManager = container.GetInstance<IDatabaseManager>();
+        var encryptionManager = container.GetInstance<IEncryptionManager>();
         bool registrationRequired = !databaseManager.IsEncryptionKeySet();
 
         if (registrationRequired)
         {
-
+            IRegisterView registerView = container.GetInstance<IRegisterView>();
+            var registerViewPresenter = new RegistrationViewPresenter(encryptionManager, registerView);
+            System.Windows.Forms.Application.Run((Form)registerView);
+            if (registerViewPresenter.UserSuccessfullyRegistered)
+            {
+                RunHomeView();
+            }
         }
         else
         {
-            var encryptionManager = container.GetInstance<IEncryptionManager>();
             ILoginView loginView = container.GetInstance<ILoginView>();
             var loginViewPresenter = new LoginViewPresenter(loginView, encryptionManager);
             System.Windows.Forms.Application.Run((Form)loginView);
@@ -87,30 +99,19 @@ internal static class Program
 
     private static void CreateApplicationFolders()
     {
-        string programDirectory;
-        // Create Application Folder
-        if (!string.IsNullOrWhiteSpace(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)))
-        {
-            programDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "PersonalVaultApplication");
-            Directory.CreateDirectory(programDirectory);
-        }
-        else
-        {
-            // TODO add a custom directory setup.
-            throw new Exception("No enviroment AppData set, cannot procceed with creating application folders!");
-        }
+        string programDirectory = DirectoryPaths.ProgramDirectory;
 
         // Encryption Folders
-        Directory.CreateDirectory(Path.Combine(programDirectory, "EncryptedFiles"));
-        Directory.CreateDirectory(Path.Combine(programDirectory, @"EncryptedFiles\Common"));
-        Directory.CreateDirectory(Path.Combine(programDirectory, @"EncryptedFiles\Custom"));
+        Directory.CreateDirectory(DirectoryPaths.EncryptedFilesDirectory);
+        Directory.CreateDirectory(DirectoryPaths.EncryptedFilesCommonDirectory);
+        Directory.CreateDirectory(DirectoryPaths.EncryptedFilesCustomDirectory);
 
         // Decryption Folders
-        Directory.CreateDirectory(Path.Combine(programDirectory, @"DecryptedFiles"));
-        Directory.CreateDirectory(Path.Combine(programDirectory, @"DecryptedFiles\Common"));
-        Directory.CreateDirectory(Path.Combine(programDirectory, @"DecryptedFiles\Temp"));
+        Directory.CreateDirectory(DirectoryPaths.DecryptedFilesDirectory);
+        Directory.CreateDirectory(DirectoryPaths.DecryptedFilesCommonDirectory);
+        Directory.CreateDirectory(DirectoryPaths.DecryptedFilesTempDirectory);
 
         // Config Folders
-        Directory.CreateDirectory(Path.Combine(programDirectory, "Config"));
+        Directory.CreateDirectory(DirectoryPaths.ConfigDirectory);
     }
 }

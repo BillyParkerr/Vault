@@ -19,4 +19,14 @@ public partial class LoginView : Form, ILoginView
     {
         LoginButton.Click += delegate { LoginEvent?.Invoke(this, EventArgs.Empty); };
     }
+
+    public void ShowBlankPasswordGivenError()
+    {
+        MessageBox.Show("No password was given! Please enter a password.");
+    }
+
+    public void ShowIncorrectPasswordError()
+    {
+        MessageBox.Show("The given password was not correct! Please try again.");
+    }
 }

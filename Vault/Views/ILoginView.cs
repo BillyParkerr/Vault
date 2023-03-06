@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Application.Views;
+﻿namespace Application.Views;
 
 public interface ILoginView
 {
@@ -17,4 +11,6 @@ public interface ILoginView
     // Methods
     void Show();
     void Close();
+    void ShowBlankPasswordGivenError();
+    void ShowIncorrectPasswordError();
 }

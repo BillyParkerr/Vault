@@ -8,7 +8,6 @@ using Org.BouncyCastle.Security;
 using System.Diagnostics;
 using System.Security.Cryptography;
 using System.Text;
-using MathNet.Numerics.Financial;
 using Array = System.Array;
 
 namespace Application.Managers;
@@ -21,8 +20,38 @@ public class EncryptionManager : IEncryptionManager
     private const int AlgorithmKeySize = 32;
     private const int PBKDF2_SaltSize = 16;
     private const int PBKDF2_Iterations = 32767;
-    private const string EncryptedFilePath = @"C:\Users\Billy\AppData\Roaming\PersonalVaultApplication\EncryptedFiles\Common\"; // TODO Move into base class
-    private const string DecryptedFilePath = @"C:\Users\Billy\AppData\Roaming\PersonalVaultApplication\DecryptedFiles\Common\"; // TODO Move into base class
+    private protected string decryptedEncryptionKey;
+    private IDatabaseManager databaseManager;
+
+    public EncryptionManager(IDatabaseManager databaseManager)
+    {
+        this.databaseManager = databaseManager;
+    }
+
+    public void SetPassword(string password)
+    {
+        var baseString = GenerateRandomStringForEncryptionKey();
+        var encryptedBaseString = EncryptString(baseString, password);
+        databaseManager.SetEncryptionKey(encryptedBaseString);
+        databaseManager.SaveChanges();
+        decryptedEncryptionKey = baseString;
+    }
+
+    public bool VerifyPassword(string password)
+    {
+        // Get EncryptionKey from database
+        var encryptionKey = databaseManager.GetEncryptionKey().Key;
+        try
+        {
+            var decryptedKey = DecryptString(encryptionKey, password);
+            decryptedEncryptionKey = decryptedKey;
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
+    }
 
     private static byte[] GenerateSalt()
     {
@@ -34,8 +63,10 @@ public class EncryptionManager : IEncryptionManager
         return salt;
     }
 
-    private static byte[] GenerateKeyFromPassword(string password, byte[] salt)
+    private byte[] GenerateKeyFromPassword(byte[] salt, string password = null)
     {
+        password ??= decryptedEncryptionKey;
+
         // Create an instance of PBKDF2 and derive a key.
         Pkcs5S2ParametersGenerator pbkdf2 = new(new Sha256Digest());
         pbkdf2.Init(Encoding.UTF8.GetBytes(password), salt, PBKDF2_Iterations);
@@ -88,19 +119,20 @@ public class EncryptionManager : IEncryptionManager
 
     /// <summary>Encrypt a file.</summary>
     /// <param name="sourceFilePath">The full path and name of the file to be encrypted.</param>
-    /// <param name="password">The password for the encryption.</param>
     /// <returns>The encrypted files path</returns>
-    public string EncryptFile(string sourceFilePath, string? password = null)
+    public string EncryptFile(string sourceFilePath, string password = null)
     {
         if (password == null)
         {
-            password = LoginInfomation.Password;
+            IsPasswordSet();
+            password = decryptedEncryptionKey;
         }
+
         var initilisationVector = GenerateInitilisationVector();
         var salt = GenerateSalt();
-        var key = GenerateKeyFromPassword(password, salt);
-        var destinationFileName = EncryptFileName(Path.GetFileName(sourceFilePath), password);
-        var destinationFilePath = EncryptedFilePath + destinationFileName + ".aes";
+        var key = GenerateKeyFromPassword(salt, password);
+        var destinationFileName = EncryptString(Path.GetFileName(sourceFilePath), password);
+        var destinationFilePath = Path.Combine(DirectoryPaths.EncryptedFilesCommonDirectory, destinationFileName + ".aes");
 
         var tempStream = new ByteArrayOutputStream();
         tempStream.Write(initilisationVector);
@@ -132,15 +164,16 @@ public class EncryptionManager : IEncryptionManager
     /// <remarks>NB: "Padding is invalid and cannot be removed." is the Universal CryptoServices error.  Make sure the password, salt and iterations are correct before getting nervous.</remarks>
     /// <returns>The path of the DecryptedFile</returns>
     /// <exception cref="ApplicationException"></exception>
-    public string DecryptFile(string sourceFilePath, string? password = null, string? destinationPath = null)
+    public string DecryptFile(string sourceFilePath, string? destinationPath = null, string password = null)
     {
-        if (destinationPath == null)
-        {
-            destinationPath = DecryptedFilePath;
-        }
         if (password == null)
         {
-            password = LoginInfomation.Password;
+            IsPasswordSet();
+            password = decryptedEncryptionKey;
+        }
+        if (destinationPath == null)
+        {
+            destinationPath = DirectoryPaths.DecryptedFilesCommonDirectory;
         }
 
         // Create an Aes object
@@ -149,9 +182,9 @@ public class EncryptionManager : IEncryptionManager
         var ivAndSalt = GetInitisationVectorAndSaltFromEncryptedFile(sourceFilePath);
         var iv = ivAndSalt.Item1;
         var salt = ivAndSalt.Item2;
-        var key = GenerateKeyFromPassword(password, salt);
-        var destinationFileName = DecryptFileName(Path.GetFileNameWithoutExtension(sourceFilePath), password);
-        var destinationFileLocation = destinationPath + @"\" + destinationFileName;
+        var key = GenerateKeyFromPassword(salt, password);
+        var destinationFileName = DecryptString(Path.GetFileNameWithoutExtension(sourceFilePath), password);
+        var destinationFileLocation = Path.Combine(destinationPath, destinationFileName);
 
         aesAlg.Key = key;
         aesAlg.IV = iv;
@@ -182,15 +215,16 @@ public class EncryptionManager : IEncryptionManager
     }
 
     /// <summary>
-    /// Encrypts a string using AES Encryption using a given password as a key.
+    /// Encrypts a string using AES Encryption.
     /// </summary>
     /// <param name="plaintext">The text which is to be encrypted</param>
-    /// <param name="password">The password to be used as a key</param>
     /// <returns>Encrypted string</returns>
-    private static string EncryptFileName(string plaintext, string password)
+    private string EncryptString(string plaintext, string password = null)
     {
+        password ??= decryptedEncryptionKey;
+
         var salt = GenerateSalt();
-        var key = GenerateKeyFromPassword(password, salt);
+        var key = GenerateKeyFromPassword(salt, password);
 
         // Encrypt and prepend salt.
         byte[] ciphertextAndNonce = Encrypt(Encoding.UTF8.GetBytes(plaintext), key);
@@ -233,13 +267,13 @@ public class EncryptionManager : IEncryptionManager
     /// Decrypts a given file name using a given password as the key.
     /// </summary>
     /// <param name="encryptedFileName">A combiniation of the ciphertext, nonce and salt in the form of a file name</param>
-    /// <param name="password">the password which was used as the key</param>
     /// <returns>The decrypted string</returns>
-    public string DecryptFileName(string encryptedFileName, string password = null)
+    public string DecryptString(string encryptedFileName, string password = null)
     {
         if (password == null)
         {
-            password = LoginInfomation.Password;
+            IsPasswordSet();
+            password = decryptedEncryptionKey;
         }
 
         // Decode the base64.
@@ -250,18 +284,10 @@ public class EncryptionManager : IEncryptionManager
         Array.Copy(ciphertextAndNonceAndSalt, 0, salt, 0, salt.Length);
         Array.Copy(ciphertextAndNonceAndSalt, salt.Length, ciphertextAndNonce, 0, ciphertextAndNonce.Length);
 
-        // Create an instance of PBKDF2 and derive a key.
-        Pkcs5S2ParametersGenerator pbkdf2 = new(new Sha256Digest());
-        pbkdf2.Init(Encoding.UTF8.GetBytes(password), salt, PBKDF2_Iterations);
-        byte[] key = ((KeyParameter)pbkdf2.GenerateDerivedMacParameters(AlgorithmKeySize * 8)).GetKey();
+        var key = GenerateKeyFromPassword(salt, password);
 
         // Decrypt and return result.
         return Encoding.UTF8.GetString(Decrypt(ciphertextAndNonce, key));
-    }
-
-    private string EncryptString(string stringToEncrypt, string password = null)
-    {
-        return null; // TODO Implement this
     }
 
     private static byte[] Decrypt(byte[] ciphertextAndNonce, byte[] key)
@@ -286,35 +312,6 @@ public class EncryptionManager : IEncryptionManager
         return plaintext;
     }
 
-    public bool VerifyPassword(string password)
-    {
-        // Change this to check against the key in the database
-        var encryptedFile = Directory.GetFiles(EncryptedFilePath).FirstOrDefault();
-
-        if (encryptedFile == null)
-        {
-            return true; // TODO Implement first time setup here
-        }
-        else
-        {
-            try
-            {
-                var encryptedFileName = Path.GetFileNameWithoutExtension(encryptedFile);
-                var _ = DecryptFileName(encryptedFileName, password);
-                return true;
-            }
-            catch
-            {
-                return false;
-            }
-        }
-    }
-
-    public string GetEncryptionKeyForGivenPassword(string password)
-    {
-
-    }
-
     private string GenerateRandomStringForEncryptionKey()
     {
         Random random = new Random();
@@ -327,5 +324,13 @@ public class EncryptionManager : IEncryptionManager
         }
 
         return stringBuilder.ToString();
+    }
+
+    private void IsPasswordSet()
+    {
+        if (decryptedEncryptionKey == null)
+        {
+            throw new ApplicationException("The password must be set before any encrytion can take place!");
+        }
     }
 }

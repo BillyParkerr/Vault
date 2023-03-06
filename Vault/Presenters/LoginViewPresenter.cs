@@ -1,9 +1,5 @@
 ﻿using Application.Managers;
 using Application.Views;
-using SimpleInjector;
-using SimpleInjector.Lifestyles;
-using System.ComponentModel;
-using System.Xml.Linq;
 
 namespace Application.Presenters;
 
@@ -27,7 +23,7 @@ public class LoginViewPresenter
         var givenPassword = view.GivenPassword;
         if (string.IsNullOrWhiteSpace(givenPassword))
         {
-            // TODO implement an error screen
+            view.ShowBlankPasswordGivenError();
             return;
         }
 
@@ -39,7 +35,8 @@ public class LoginViewPresenter
         }
         else
         {
-            // TODO Show error and remove this code
+            view.ShowIncorrectPasswordError();
+            return;
         }
     }
 }
