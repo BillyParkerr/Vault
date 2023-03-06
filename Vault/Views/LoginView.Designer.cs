@@ -1,6 +1,6 @@
-﻿namespace Application.Forms
+﻿namespace Application.Views
 {
-    partial class Login : Form
+    partial class LoginView
     {
         /// <summary>
         ///  Required designer variable.
@@ -41,7 +41,6 @@
             this.LoginButton.TabIndex = 0;
             this.LoginButton.Text = "Login";
             this.LoginButton.UseVisualStyleBackColor = true;
-            this.LoginButton.Click += new System.EventHandler(this.button1_Click);
             // 
             // EnterPasswordBelowText
             // 
@@ -77,7 +76,6 @@
             this.Name = "Login";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Login";
-            this.Load += new System.EventHandler(this.Form1_Load);
             this.ResumeLayout(false);
             this.PerformLayout();
 
