@@ -1,5 +1,4 @@
-﻿using System.Printing;
-using Application.Managers;
+﻿using Application.Managers;
 using Application.Models;
 using Application.Views;
 using Microsoft.WindowsAPICodePack.Dialogs;

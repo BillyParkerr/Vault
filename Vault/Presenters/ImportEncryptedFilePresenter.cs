@@ -1,12 +1,6 @@
 ﻿using Application.Enums;
 using Application.Managers;
-using Application.Models;
 using Application.Views;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Application.Presenters;
 
@@ -14,7 +8,6 @@ public class ImportEncryptedFilePresenter
 {
     public event EventHandler<string> PasswordEntered; 
     private IImportEncryptedFileView View;
-    private IFileManager FileManager;
 
     public ImportEncryptedFilePresenter(IImportEncryptedFileView view)
     {
