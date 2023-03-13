@@ -12,7 +12,7 @@ using Array = System.Array;
 
 namespace Application.Managers;
 
-public class EncryptionManager : IEncryptionManager
+public class PasswordEncryptionManager : IEncryptionManager
 {
     // These allow for the adjustment of the encryption algorithm variables. In this class AES encryption is used.
     // Please note that the adjustment of these values will cause previously encrypted files to not be able to be decrypted!
@@ -23,7 +23,7 @@ public class EncryptionManager : IEncryptionManager
     private protected string decryptedEncryptionKey;
     private IDatabaseManager databaseManager;
 
-    public EncryptionManager(IDatabaseManager databaseManager)
+    public PasswordEncryptionManager(IDatabaseManager databaseManager)
     {
         this.databaseManager = databaseManager;
     }
@@ -35,22 +35,6 @@ public class EncryptionManager : IEncryptionManager
         databaseManager.SetEncryptionKey(encryptedBaseString);
         databaseManager.SaveChanges();
         decryptedEncryptionKey = baseString;
-    }
-
-    public bool VerifyPassword(string password)
-    {
-        // Get EncryptionKey from database
-        var encryptionKey = databaseManager.GetEncryptionKey().Key;
-        try
-        {
-            var decryptedKey = DecryptString(encryptionKey, password);
-            decryptedEncryptionKey = decryptedKey;
-            return true;
-        }
-        catch
-        {
-            return false;
-        }
     }
 
     private static byte[] GenerateSalt()

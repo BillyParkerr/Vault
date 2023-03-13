@@ -5,7 +5,8 @@ namespace Application.Views;
 public interface IHomeView
 {
     // Properties
-    FileInformation? SelectedFile { get; }
+    FileInformation SelectedFile { get; }
+    string SearchValue { get; }
 
     // Events
     event EventHandler AddFileToVaultEvent;
@@ -15,6 +16,7 @@ public interface IHomeView
     event EventHandler OpenFileFromVaultEvent;
     event EventHandler ExportFileFromVaultEvent;
     event EventHandler ImportFileToVaultEvent;
+    event EventHandler SearchFilterAppliedEvent;
     event FormClosingEventHandler FormClosingEvent;
 
     // Methods

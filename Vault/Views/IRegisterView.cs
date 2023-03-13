@@ -12,6 +12,7 @@ public interface IRegisterView
     string GivenPassword { get; }
     string GivenSecondPassword { get; }
 
+
     // Events
     event EventHandler RegisterEvent;
 

@@ -5,6 +5,7 @@ namespace Application.Managers;
 public class DatabaseManager : IDatabaseManager
 {
     private SqliteDbContext DbContext;
+    public event EventHandler vaultContentsChangedEvent;
 
     public DatabaseManager()
     {
@@ -38,6 +39,7 @@ public class DatabaseManager : IDatabaseManager
     public void AddEncryptedFile(string filePath, bool uniquePassword)
     {
         DbContext.Add(new EncryptedFile { FilePath = filePath, UniquePassword = uniquePassword });
+        vaultContentsChangedEvent.Invoke(this, EventArgs.Empty);
     }
 
     public void DeleteEncryptedFileById(int id)
@@ -46,6 +48,7 @@ public class DatabaseManager : IDatabaseManager
         if (encryptedFileToRemove != null)
         {
             DbContext.Remove(encryptedFileToRemove);
+            vaultContentsChangedEvent.Invoke(this, EventArgs.Empty);
         }
     }
 
@@ -55,6 +58,7 @@ public class DatabaseManager : IDatabaseManager
         if (encryptedFileToRemove != null)
         {
             DbContext.Remove(encryptedFileToRemove);
+            vaultContentsChangedEvent.Invoke(this, EventArgs.Empty);
         }
     }
 

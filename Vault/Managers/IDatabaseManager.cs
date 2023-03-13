@@ -6,6 +6,8 @@ public interface IDatabaseManager
 {
     void SaveChanges();
 
+    event EventHandler vaultContentsChangedEvent;
+
     // EncryptedFile Queries
     EncryptedFile? GetEncryptedFileById(int id);
     EncryptedFile? GetEncryptedFileByFilePath(string filePath);

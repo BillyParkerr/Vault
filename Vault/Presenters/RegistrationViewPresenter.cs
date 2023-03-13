@@ -7,6 +7,7 @@ namespace Application.Presenters;
 public class RegistrationViewPresenter
 {
     public bool UserSuccessfullyRegistered { get; private set; }
+    public AuthenticationMethod ChosenAuthenticationMethod { get; private set; }
 
     private IEncryptionManager encryptionManager;
     private IRegisterView registerView;

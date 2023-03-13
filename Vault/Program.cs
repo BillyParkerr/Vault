@@ -22,7 +22,7 @@ internal static class Program
         container.Options.DefaultScopedLifestyle = new ThreadScopedLifestyle();
 
         container.Register<IDatabaseManager, DatabaseManager>(Lifestyle.Singleton);
-        container.Register<IEncryptionManager, EncryptionManager>(Lifestyle.Singleton);
+        container.Register<IEncryptionManager, PasswordEncryptionManager>(Lifestyle.Singleton);
         container.Register<IFileMonitoringManager, FileMonitoringManager>(Lifestyle.Transient);
         container.Register<IFileManager, FileManager>(Lifestyle.Transient);
         container.Register<IHomeView, HomeView>(Lifestyle.Transient);
@@ -63,8 +63,11 @@ internal static class Program
     public static void Main()
     {
         CreateApplicationFolders();
+        var fileManager = container.GetInstance<IFileManager>();
+        fileManager.CleanupTempFiles();
         var databaseManager = container.GetInstance<IDatabaseManager>();
         var encryptionManager = container.GetInstance<IEncryptionManager>();
+
         bool registrationRequired = !databaseManager.IsEncryptionKeySet();
 
         if (registrationRequired)
@@ -93,7 +96,8 @@ internal static class Program
     {
         var homeView = container.GetInstance<IHomeView>();
         var fileManager = container.GetInstance<IFileManager>();
-        var homeViewPresenter = new HomeViewPresenter(homeView, fileManager);
+        var databaseManager = container.GetInstance<IDatabaseManager>();
+        var homeViewPresenter = new HomeViewPresenter(homeView, fileManager, databaseManager);
         System.Windows.Forms.Application.Run((Form)homeView);
     }
 

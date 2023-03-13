@@ -11,6 +11,7 @@ public partial class HomeView : Form, IHomeView
     public event EventHandler OpenFileFromVaultEvent;
     public event EventHandler ExportFileFromVaultEvent;
     public event EventHandler ImportFileToVaultEvent;
+    public event EventHandler SearchFilterAppliedEvent;
     public event FormClosingEventHandler FormClosingEvent;
 
     public HomeView()
@@ -19,9 +20,14 @@ public partial class HomeView : Form, IHomeView
         AssociateAndRaiseViewEvents();
     }
 
-    public FileInformation? SelectedFile
+    public FileInformation SelectedFile
     {
         get { return GetSelectedRow(); }
+    }
+
+    public string SearchValue
+    {
+        get { return SearchBox.Text; }
     }
 
     private void AssociateAndRaiseViewEvents()
@@ -33,6 +39,7 @@ public partial class HomeView : Form, IHomeView
         OpenFileButton.Click += delegate { OpenFileFromVaultEvent?.Invoke(this, EventArgs.Empty); };
         ImportButton.Click += delegate { ImportFileToVaultEvent?.Invoke(this, EventArgs.Empty); };
         ExportButton.Click += delegate { ExportFileFromVaultEvent?.Invoke(this, EventArgs.Empty); };
+        SearchBox.TextChanged += delegate { SearchFilterAppliedEvent?.Invoke(this, EventArgs.Empty); };
     }
 
     protected override void OnFormClosing(FormClosingEventArgs e)
@@ -57,7 +64,17 @@ public partial class HomeView : Form, IHomeView
 
     public void SetFilesInVaultListBindingSource(BindingSource filesInVaultList)
     {
-        dataGridView.DataSource = filesInVaultList;
+        if (dataGridView.InvokeRequired)
+        {
+            this.Invoke(new MethodInvoker(delegate
+            {
+                dataGridView.DataSource = filesInVaultList;
+            }));
+        }
+        else
+        {
+            dataGridView.DataSource = filesInVaultList;
+        }
     }
 
     public void ShowFailedToDeleteError()

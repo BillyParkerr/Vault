@@ -8,7 +8,7 @@ namespace Application.Tests;
 
 public class EncryptionManagerTests
 {
-    private EncryptionManager _encryptionManager;
+    private PasswordEncryptionManager _encryptionManager;
     private Mock<IDatabaseManager> _mockDatabaseManager;
     private Mock<IRegisterView> _mockRegisterView;
 
@@ -16,7 +16,7 @@ public class EncryptionManagerTests
     public void Setup()
     {
         _mockDatabaseManager = new Mock<IDatabaseManager>();
-        _encryptionManager = new EncryptionManager(_mockDatabaseManager.Object);
+        _encryptionManager = new PasswordEncryptionManager(_mockDatabaseManager.Object);
     }
 
     [Test]
@@ -46,7 +46,7 @@ public class EncryptionManagerTests
     {
         // Arrange
         var databaseManager = new DatabaseManager();
-        var encryptionManager = new EncryptionManager(databaseManager);
+        var encryptionManager = new PasswordEncryptionManager(databaseManager);
 
         var mockRegisterView = new Mock<IRegisterView>();
         mockRegisterView.SetupGet(_ => _.GivenPassword).Returns("Password");

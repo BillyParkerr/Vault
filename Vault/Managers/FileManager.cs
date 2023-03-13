@@ -22,6 +22,8 @@ public class FileManager : IFileManager
     /// <returns>List of all files in the Vault.</returns>
     public List<EncryptedFile> GetAllFilesInVault()
     {
+        // Ensure that the files are up to date.
+        databaseManager.SaveChanges();
         var encryptedFiles = databaseManager.GetAllEncryptedFiles();
 
         foreach (var encryptedFile in encryptedFiles.Where(_ => _.UniquePassword == false))
@@ -117,7 +119,14 @@ public class FileManager : IFileManager
     {
         foreach (string filePath in Directory.GetFiles(DirectoryPaths.DecryptedFilesTempDirectory))
         {
-            File.Delete(filePath);
+            try
+            {
+                File.Delete(filePath);
+            }
+            catch (Exception ex)
+            {
+                // TODO Add logging
+            }
         }
     }
 

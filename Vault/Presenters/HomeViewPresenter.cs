@@ -9,15 +9,18 @@ public class HomeViewPresenter
 {
     private IHomeView view;
     private IFileManager fileManager;
+    private IDatabaseManager databaseManager;
     private BindingSource filesInVaultBindingSource;
     private IEnumerable<EncryptedFile> filesInVault;
 
-    public HomeViewPresenter(IHomeView view, IFileManager fileManager)
+    public HomeViewPresenter(IHomeView view, IFileManager fileManager, IDatabaseManager databaseManager)
     {
         this.filesInVaultBindingSource = new BindingSource();
         this.fileManager = fileManager;
         this.view = view;
 
+        this.databaseManager = databaseManager;
+        databaseManager.vaultContentsChangedEvent += LoadAllFilesInVault;
         // Subscribe to events
         this.view.AddFileToVaultEvent += AddFileToVaultEventHandler;
         this.view.AddFolderToVaultEvent += AddFolderToVaultEventHandler;
@@ -27,6 +30,7 @@ public class HomeViewPresenter
         this.view.ImportFileToVaultEvent += ImportFileToVaultEventHandler;
         this.view.ExportFileFromVaultEvent += ExportFileFromVaultEventHandler;
         this.view.FormClosingEvent += FormClosingEventHandler;
+        this.view.SearchFilterAppliedEvent += SearchFilterAppliedEventHandler;
         this.view.SetFilesInVaultListBindingSource(filesInVaultBindingSource);
         LoadAllFilesInVault();
     }
@@ -40,11 +44,7 @@ public class HomeViewPresenter
         }
 
         bool success = fileManager.AddFileToVault(fileToAdd);
-        if (success)
-        {
-            LoadAllFilesInVault();
-        }
-        else
+        if (!success)
         {
             MessageBox.Show($"An Error Occurred While Attempting to Encrypt {fileToAdd}");
         }
@@ -61,11 +61,7 @@ public class HomeViewPresenter
         if (result == DialogResult.OK && !string.IsNullOrWhiteSpace(folderBrowserDialog.SelectedPath))
         {
             bool success = fileManager.ZipFolderAndAddToVault(folderBrowserDialog.SelectedPath);
-            if (success)
-            {
-                LoadAllFilesInVault();
-            }
-            else
+            if (!success)
             {
                 MessageBox.Show($"An Error Occurred While Attempting to Encrypt the folder.");
             }
@@ -123,8 +119,6 @@ public class HomeViewPresenter
         {
             view.ShowFailedToDeleteError();
         }
-
-        LoadAllFilesInVault();
     }
 
     private void ExportFileFromVaultEventHandler(object sender, EventArgs e)
@@ -140,6 +134,32 @@ public class HomeViewPresenter
                 SaveEncryptedFile(password, selectedEncryptedFile);
             }
         };
+    }
+
+    private void SearchFilterAppliedEventHandler(object sender, EventArgs e)
+    {
+        string searchValue = view.SearchValue;
+        if (!string.IsNullOrWhiteSpace(searchValue))
+        {
+            ApplySearchFilter(searchValue);
+        }
+        else
+        {
+            LoadAllFilesInVault();
+        }
+    }
+
+    private void ApplySearchFilter(string filter)
+    {
+        if (string.IsNullOrWhiteSpace(filter))
+        {
+            return;
+        }
+
+        filter = filter.ToLower().Replace("'", "''").Replace("[", "[[]");
+        var filesInVault = filesInVaultBindingSource.List.OfType<FileInformation>();
+        filesInVault = filesInVault.Where(x => x.FileName.ToLower().Contains(filter) || x.FileExtension.ToLower().Contains(filter));
+        filesInVaultBindingSource.DataSource = filesInVault;
     }
 
     private void SaveEncryptedFile(string password, EncryptedFile encryptedFileToExport)
@@ -188,8 +208,6 @@ public class HomeViewPresenter
                 {
                     MessageBox.Show($"An Error Occurred While Attempting to import the selected file. Perhaps the password was incorrect?");
                 }
-
-                LoadAllFilesInVault();
             }
         };
     }
@@ -213,12 +231,28 @@ public class HomeViewPresenter
         return null;
     }
 
+    private void LoadAllFilesInVault(object? o, EventArgs? e)
+    {
+        filesInVault = fileManager.GetAllFilesInVault();
+        var fileInfo = filesInVault.Where(_ => _.UniquePassword == false && _.DecryptedFileInformation != null)
+            .Select(_ => _.DecryptedFileInformation)
+            .OfType<FileInformation>();
+        var newBindSource = new BindingSource();
+        newBindSource.DataSource = fileInfo;
+        this.filesInVaultBindingSource = newBindSource;
+        view.SetFilesInVaultListBindingSource(filesInVaultBindingSource);
+
+        // TODO reapply the search filter here
+    }
+
     private void LoadAllFilesInVault()
     {
         filesInVault = fileManager.GetAllFilesInVault();
-        filesInVaultBindingSource.DataSource = filesInVault.Where(_ => _.UniquePassword == false && _.DecryptedFileInformation != null)
+        var fileInfo = filesInVault.Where(_ => _.UniquePassword == false && _.DecryptedFileInformation != null)
             .Select(_ => _.DecryptedFileInformation)
             .OfType<FileInformation>();
+        filesInVaultBindingSource.DataSource = fileInfo;
+        ApplySearchFilter(view.SearchValue);
     }
 
     private void FormClosingEventHandler(object sender, FormClosingEventArgs e)
@@ -228,7 +262,7 @@ public class HomeViewPresenter
 
     private string GetSelectedFilePath()
     {
-        FileInformation? fileInVault = view.SelectedFile;
+        FileInformation fileInVault = view.SelectedFile;
         if (fileInVault == null)
         {
             return null;

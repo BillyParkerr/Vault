@@ -13,6 +13,7 @@ namespace Application.Managers;
 /// </summary>
 public class FileMonitoringManager : IFileMonitoringManager
 {
+    private SemaphoreSlim semaphore = new SemaphoreSlim(1);
     private IEncryptionManager EncryptionManager;
     private IDatabaseManager DatabaseManager;
     private string EncryptedFilePath;
@@ -53,21 +54,30 @@ public class FileMonitoringManager : IFileMonitoringManager
     /// </summary>
     /// <param name="sender"></param>
     /// <param name="e"></param>
-    private void OnFileChanged(object sender, FileSystemEventArgs e)
+    private async void OnFileChanged(object sender, FileSystemEventArgs e)
     {
-        // When the file is changed / modified we should refresh the instance that is within the vault.
-        // This means first removing the file from the vault then reencrypting / readding it.
+        await semaphore.WaitAsync();
 
-        // Delete the encrypted file that we have created earlier.
-        File.Delete(EncryptedFilePath);
-        DatabaseManager.DeleteEncryptedFileByFilePath(EncryptedFilePath);
-        DatabaseManager.SaveChanges(); // Both SaveChanges calls are required as otherwise issues with threading and concurrent DbContext calls can happen.
+        try
+        {
+            // When the file is changed / modified we should refresh the instance that is within the vault.
+            // This means first removing the file from the vault then reencrypting / readding it.
 
-        // Readd the new modified file to the vault.
-        // Encrypt File
-        string newEncryptedFilePath = EncryptionManager.EncryptFile(e.FullPath);
-        DatabaseManager.AddEncryptedFile(newEncryptedFilePath, false);
-        DatabaseManager.SaveChanges();
-        EncryptedFilePath = newEncryptedFilePath;
+            // Delete the encrypted file that we have created earlier.
+            File.Delete(EncryptedFilePath);
+            DatabaseManager.DeleteEncryptedFileByFilePath(EncryptedFilePath);
+            DatabaseManager.SaveChanges(); // Both SaveChanges calls are required as otherwise issues with threading and concurrent DbContext calls can happen.
+
+            // Readd the new modified file to the vault.
+            // Encrypt File
+            string newEncryptedFilePath = EncryptionManager.EncryptFile(e.FullPath);
+            DatabaseManager.AddEncryptedFile(newEncryptedFilePath, false);
+            DatabaseManager.SaveChanges();
+            EncryptedFilePath = newEncryptedFilePath;
+        }
+        finally
+        {
+            semaphore.Release();
+        }
     }
 }
