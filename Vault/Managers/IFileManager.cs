@@ -12,5 +12,8 @@ public interface IFileManager
     bool OpenFileFromVaultAndReencryptUponClosure(string filePath);
     bool DownloadEncryptedFileFromVault(string filePath, string destinationFilePath, string newEncryptionPassword);
     bool ImportEncryptedFileToVault(string filePath, string encryptionPassword);
+    void ProtectAndSavePassword(string password);
+    string ReadAndReturnProtectedPassword();
+    bool ProtectedPasswordExists();
     void CleanupTempFiles();
 }

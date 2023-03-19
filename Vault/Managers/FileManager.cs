@@ -1,5 +1,7 @@
 ﻿using Application.Models;
 using System.IO.Compression;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace Application.Managers;
 
@@ -256,6 +258,31 @@ public class FileManager : IFileManager
         {
             return false;
         }
+    }
+
+    public void ProtectAndSavePassword(string password)
+    {
+        byte[] passwordBytes = Encoding.UTF8.GetBytes(password);
+        byte[] encryptedPassword = ProtectedData.Protect(passwordBytes, null, DataProtectionScope.CurrentUser);
+        File.WriteAllBytes(DirectoryPaths.EncryptedKeyPath, encryptedPassword);
+    }
+
+    public string ReadAndReturnProtectedPassword()
+    {
+        if (!ProtectedPasswordExists())
+        {
+            return null;
+        }
+
+        byte[] encryptedPassword = File.ReadAllBytes(DirectoryPaths.EncryptedKeyPath);
+        byte[] decryptedPasswordBytes = ProtectedData.Unprotect(encryptedPassword, null, DataProtectionScope.CurrentUser);
+        string decryptedPassword = Encoding.UTF8.GetString(decryptedPasswordBytes);
+        return decryptedPassword;
+    }
+
+    public bool ProtectedPasswordExists()
+    {
+        return File.Exists(DirectoryPaths.EncryptedKeyPath);
     }
 
     private static string FormatFileSize(string fileLength)

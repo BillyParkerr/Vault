@@ -1,6 +1,10 @@
+using Application.Enums;
 using Application.Managers;
 using Application.Presenters;
 using Application.Views;
+using Microsoft.Extensions.Configuration;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using SimpleInjector;
 using SimpleInjector.Diagnostics;
 using SimpleInjector.Lifestyles;
@@ -21,26 +25,38 @@ internal static class Program
         container = new Container();
         container.Options.DefaultScopedLifestyle = new ThreadScopedLifestyle();
 
-        container.Register<IDatabaseManager, DatabaseManager>(Lifestyle.Singleton);
-        container.Register<IEncryptionManager, PasswordEncryptionManager>(Lifestyle.Singleton);
-        container.Register<IFileMonitoringManager, FileMonitoringManager>(Lifestyle.Transient);
-        container.Register<IFileManager, FileManager>(Lifestyle.Transient);
+        AppSettings appSettings = SetupAppSettings();
+        container.RegisterInstance<AppSettings>(appSettings);
+
+        // Register Views
         container.Register<IHomeView, HomeView>(Lifestyle.Transient);
         container.Register<ILoginView, LoginView>(Lifestyle.Transient);
         container.Register<IRegisterView, RegisterView>(Lifestyle.Transient);
         container.Register<IExportEncryptedFileView, ExportEncryptedFileView>(Lifestyle.Transient);
         container.Register<IImportEncryptedFileView, ImportEncryptedFileView>(Lifestyle.Transient);
+        container.Register<IAuthenticationModeSelectionView, AuthenticationModeSelectionView>(Lifestyle.Transient);
+        container.Register<IWindowsHelloRegisterView, WindowsHelloRegisterView>(Lifestyle.Transient);
         SuppressTransientWarning(typeof(IImportEncryptedFileView));
         SuppressTransientWarning(typeof(IExportEncryptedFileView));
         SuppressTransientWarning(typeof(IRegisterView));
         SuppressTransientWarning(typeof(IHomeView));
         SuppressTransientWarning(typeof(ILoginView));
+        SuppressTransientWarning(typeof(IAuthenticationModeSelectionView));
+        SuppressTransientWarning(typeof(IWindowsHelloRegisterView));
+
+        // Register Managers
+        container.Register<IWindowsHelloManager, WindowsHelloManager>(Lifestyle.Singleton);
+        container.Register<IEncryptionManager, EncryptionManager>(Lifestyle.Singleton);
+        container.Register<IDatabaseManager, DatabaseManager>(Lifestyle.Singleton);
+        container.Register<IFileMonitoringManager, FileMonitoringManager>(Lifestyle.Transient);
+        container.Register<IFileManager, FileManager>(Lifestyle.Transient);
+        container.Register<ILoginManager, LoginManager>(Lifestyle.Transient);
 
         container.Verify();
     }
 
     /// <summary>
-    /// Since we are suppressing this any container called that has this suppression will not dispose of itself.
+    /// Since we are suppressing this, any container called that has this suppression will not dispose of itself.
     /// It is therefore very important that they are disposed of in code or they will always stay in memory.
     /// This has to be done as windows forms have the ability to dispose of themselves which is supposed to be the responsibily
     /// of SimpleInjector.
@@ -65,15 +81,70 @@ internal static class Program
         CreateApplicationFolders();
         var fileManager = container.GetInstance<IFileManager>();
         fileManager.CleanupTempFiles();
+
         var databaseManager = container.GetInstance<IDatabaseManager>();
-        var encryptionManager = container.GetInstance<IEncryptionManager>();
+        var windowsHelloManager = container.GetInstance<IWindowsHelloManager>();
+        var appSettings = container.GetInstance<AppSettings>();
 
-        bool registrationRequired = !databaseManager.IsEncryptionKeySet();
+        if (appSettings.AuthenticationMethod == AuthenticationMethod.None)
+        {
+            // This method will get the user to choose a authentication method.
+            // This will then be set in the appSettings
+            GetAuthenticationMethodFromUser(windowsHelloManager, appSettings);
+        }
 
-        if (registrationRequired)
+        if (appSettings.AuthenticationMethod == AuthenticationMethod.Password)
+        {
+            RunApplicationInPasswordMode(databaseManager);
+        }
+        else if (appSettings.AuthenticationMethod == AuthenticationMethod.WindowsHello)
+        {
+            RunApplicationInWindowsHelloMode(databaseManager, fileManager, windowsHelloManager);
+        }
+    }
+
+    private static void RunApplicationInWindowsHelloMode(IDatabaseManager databaseManager, IFileManager fileManager, IWindowsHelloManager windowsHelloManager)
+    {
+        bool isPasswordSet = databaseManager.IsEncryptionKeySet() && fileManager.ProtectedPasswordExists();
+        if (!isPasswordSet)
+        {
+            IWindowsHelloRegisterView windowsHelloRegisterView = container.GetInstance<IWindowsHelloRegisterView>();
+            ILoginManager loginManager = container.GetInstance<ILoginManager>();
+            var windowsHelloRegisterViewPresenter = new WindowsHelloRegisterViewPresenter(windowsHelloRegisterView, windowsHelloManager, loginManager);
+            System.Windows.Forms.Application.Run((Form)windowsHelloRegisterView);
+            if (windowsHelloRegisterViewPresenter.UserSuccessfullyRegistered)
+            {
+                RunHomeView();
+            }
+            else
+            {
+                // TODO Create a fallback where the application asks the user if its okay to swap to Password mode.
+            }
+        }
+        else
+        {
+            bool loggedIn = windowsHelloManager.WindowsHelloLoginProcess();
+            if (loggedIn)
+            {
+                RunHomeView();
+            }
+            else
+            {
+                MessageBox.Show(
+                    "The application couldn't authenticate you using windows hello. \n Please login using your backup password.");
+                RunApplicationInPasswordMode(databaseManager);
+            }
+        }
+    }
+
+    private static void RunApplicationInPasswordMode(IDatabaseManager databaseManager)
+    {
+        bool isPasswordSet = databaseManager.IsEncryptionKeySet();
+        if (!isPasswordSet)
         {
             IRegisterView registerView = container.GetInstance<IRegisterView>();
-            var registerViewPresenter = new RegistrationViewPresenter(encryptionManager, registerView);
+            ILoginManager passwordLoginManager = container.GetInstance<ILoginManager>();
+            var registerViewPresenter = new RegistrationViewPresenter(passwordLoginManager, registerView);
             System.Windows.Forms.Application.Run((Form)registerView);
             if (registerViewPresenter.UserSuccessfullyRegistered)
             {
@@ -83,12 +154,32 @@ internal static class Program
         else
         {
             ILoginView loginView = container.GetInstance<ILoginView>();
-            var loginViewPresenter = new LoginViewPresenter(loginView, encryptionManager);
+            ILoginManager passwordLoginManager = container.GetInstance<ILoginManager>();
+            IEncryptionManager encryptionManager = container.GetInstance<IEncryptionManager>();
+            var loginViewPresenter = new LoginViewPresenter(loginView, passwordLoginManager, encryptionManager);
             System.Windows.Forms.Application.Run((Form)loginView);
             if (loginViewPresenter.UserSuccessfullyAuthenticated)
             {
                 RunHomeView();
             }
+        }
+    }
+
+    private static void GetAuthenticationMethodFromUser(IWindowsHelloManager windowsHelloManager, AppSettings appSettings)
+    {
+        // Check for windows hello availablility
+        bool isWindowsHelloAvailable = windowsHelloManager.IsWindowsHelloAvailable().Result;
+        if (isWindowsHelloAvailable)
+        {
+            IAuthenticationModeSelectionView view = container.GetInstance<IAuthenticationModeSelectionView>();
+            AuthenticationModeSelectionViewPresenter presenter = new AuthenticationModeSelectionViewPresenter(view, appSettings);
+            System.Windows.Forms.Application.Run((Form)view);
+        }
+        else
+        {
+            // If windows hello is not available the user will be forced to use a password.
+            appSettings.AuthenticationMethod = AuthenticationMethod.Password;
+            UpdateAppSettings(appSettings);
         }
     }
 
@@ -116,6 +207,37 @@ internal static class Program
         Directory.CreateDirectory(DirectoryPaths.DecryptedFilesTempDirectory);
 
         // Config Folders
-        Directory.CreateDirectory(DirectoryPaths.ConfigDirectory);
+        Directory.CreateDirectory(DirectoryPaths.AppSettingsPath);
+    }
+
+    private static AppSettings SetupAppSettings()
+    {
+        // Load the configuration file
+        var builder = new ConfigurationBuilder()
+            .SetBasePath(Directory.GetCurrentDirectory())
+            .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
+
+        IConfigurationRoot configuration = builder.Build();
+
+        // Bind the configuration settings to the AppSettings class
+        var appSettings = new AppSettings();
+        configuration.GetSection("AppSettings").Bind(appSettings);
+
+        return appSettings;
+    }
+
+    public static void UpdateAppSettings(AppSettings appSettings, string configFilePath = "appsettings.json")
+    {
+        // Read the configuration file into a JObject
+        var configJson = File.ReadAllText(configFilePath);
+        var config = JObject.Parse(configJson);
+
+        // Update the settings in the JObject
+        string appSettingsJson = JsonConvert.SerializeObject(appSettings, Formatting.Indented);
+        var appSettingsJObject = JObject.Parse(appSettingsJson);
+        config["AppSettings"] = appSettingsJObject;
+
+        // Write the updated JObject back to the configuration file
+        File.WriteAllText(configFilePath, config.ToString(Formatting.Indented));
     }
 }

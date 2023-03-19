@@ -7,14 +7,13 @@ namespace Application.Presenters;
 public class RegistrationViewPresenter
 {
     public bool UserSuccessfullyRegistered { get; private set; }
-    public AuthenticationMethod ChosenAuthenticationMethod { get; private set; }
 
-    private IEncryptionManager encryptionManager;
+    private ILoginManager passwordLoginManager;
     private IRegisterView registerView;
 
-    public RegistrationViewPresenter(IEncryptionManager _encryptionManager, IRegisterView _registerView)
+    public RegistrationViewPresenter(ILoginManager _passwordLoginManager, IRegisterView _registerView)
     {
-        encryptionManager = _encryptionManager;
+        passwordLoginManager = _passwordLoginManager;
         registerView = _registerView;
         registerView.RegisterEvent += RegisterEventHandler;
         registerView.Show();
@@ -45,7 +44,7 @@ public class RegistrationViewPresenter
 
     private void CommitPassword(string password)
     {
-        encryptionManager.SetPassword(password); // EncryptionManager will also take care of commiting this to the database.
+        passwordLoginManager.SetPassword(password);
         UserSuccessfullyRegistered = true;
     }
 

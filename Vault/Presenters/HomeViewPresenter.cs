@@ -1,7 +1,6 @@
 ﻿using Application.Managers;
 using Application.Models;
 using Application.Views;
-using Microsoft.WindowsAPICodePack.Dialogs;
 
 namespace Application.Presenters;
 
@@ -76,21 +75,20 @@ public class HomeViewPresenter
             return;
         }
 
-        CommonOpenFileDialog dialog = new CommonOpenFileDialog();
-        dialog.InitialDirectory = "C:\\Users";
-        dialog.IsFolderPicker = true;
-        if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
+        var dialog = new FolderBrowserDialog();
+        dialog.SelectedPath = "C:\\Users";
+        if (dialog.ShowDialog() == DialogResult.OK)
         {
-            bool success = fileManager.DownloadFileFromVault(filePath, dialog.FileName);
+            bool success = fileManager.DownloadFileFromVault(filePath, dialog.SelectedPath);
 
             if (success)
             {
-                string argument = "/select, \"" + dialog.FileName + "\"";
+                string argument = "/select, \"" + dialog.SelectedPath + "\"";
                 System.Diagnostics.Process.Start("explorer.exe", argument);
             }
             else
             {
-                MessageBox.Show("An error occured while attempting to download the file!");
+                MessageBox.Show("An error occurred while attempting to download the file!");
                 return;
             }
         }

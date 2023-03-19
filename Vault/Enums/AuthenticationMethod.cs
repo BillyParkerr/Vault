@@ -3,5 +3,6 @@
 public enum AuthenticationMethod
 {
     Password,
-    WindowsHello
+    WindowsHello,
+    None
 }

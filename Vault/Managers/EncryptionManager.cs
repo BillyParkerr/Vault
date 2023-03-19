@@ -12,7 +12,7 @@ using Array = System.Array;
 
 namespace Application.Managers;
 
-public class PasswordEncryptionManager : IEncryptionManager
+public class EncryptionManager : IEncryptionManager
 {
     // These allow for the adjustment of the encryption algorithm variables. In this class AES encryption is used.
     // Please note that the adjustment of these values will cause previously encrypted files to not be able to be decrypted!
@@ -23,18 +23,24 @@ public class PasswordEncryptionManager : IEncryptionManager
     private protected string decryptedEncryptionKey;
     private IDatabaseManager databaseManager;
 
-    public PasswordEncryptionManager(IDatabaseManager databaseManager)
+    public EncryptionManager(IDatabaseManager databaseManager)
     {
         this.databaseManager = databaseManager;
     }
 
-    public void SetPassword(string password)
+    public void SetEncryptionPassword(string password)
     {
-        var baseString = GenerateRandomStringForEncryptionKey();
-        var encryptedBaseString = EncryptString(baseString, password);
-        databaseManager.SetEncryptionKey(encryptedBaseString);
-        databaseManager.SaveChanges();
-        decryptedEncryptionKey = baseString;
+        var encryptionKey = databaseManager.GetEncryptionKey();
+        try
+        {
+            var decryptedKey = DecryptString(encryptionKey.Key, password);
+            decryptedEncryptionKey = decryptedKey;
+        }
+        catch
+        {
+            // TODO add logging maybe?
+            return;
+        }
     }
 
     private static byte[] GenerateSalt()
@@ -203,7 +209,7 @@ public class PasswordEncryptionManager : IEncryptionManager
     /// </summary>
     /// <param name="plaintext">The text which is to be encrypted</param>
     /// <returns>Encrypted string</returns>
-    private string EncryptString(string plaintext, string password = null)
+    public string EncryptString(string plaintext, string password = null)
     {
         password ??= decryptedEncryptionKey;
 
@@ -294,20 +300,6 @@ public class PasswordEncryptionManager : IEncryptionManager
         cipher.DoFinal(plaintext, length);
 
         return plaintext;
-    }
-
-    private string GenerateRandomStringForEncryptionKey()
-    {
-        Random random = new Random();
-        int length = random.Next(20, 26);
-        const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-        StringBuilder stringBuilder = new StringBuilder(length);
-        for (int i = 0; i < length; i++)
-        {
-            stringBuilder.Append(chars[random.Next(chars.Length)]);
-        }
-
-        return stringBuilder.ToString();
     }
 
     private void IsPasswordSet()
