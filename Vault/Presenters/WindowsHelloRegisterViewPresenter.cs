@@ -21,7 +21,7 @@ public class WindowsHelloRegisterViewPresenter
         this.view.ConfirmEvent += ConfirmEventHandler;
     }
 
-    private void ConfirmEventHandler(object _, EventArgs __)
+    private async void ConfirmEventHandler(object _, EventArgs __)
     {
         string enteredPassword = view.GivenPassword;
         string enteredSecondPassword = view.GivenSecondPassword;
@@ -29,7 +29,7 @@ public class WindowsHelloRegisterViewPresenter
         switch (passwordState)
         {
             case PasswordState.Valid:
-                CommitPassword(enteredPassword);
+                await CommitPasswordAsync(enteredPassword);
                 view.Close();
                 return;
             case PasswordState.PasswordNotGiven:
@@ -44,9 +44,9 @@ public class WindowsHelloRegisterViewPresenter
         }
     }
 
-    private void CommitPassword(string password)
+    private async Task CommitPasswordAsync(string password)
     {
-        bool authenticated = windowsHelloManager.AuthenticateWithWindowsHelloAsync("Please authenticate to register your backup password.").Result;
+        bool authenticated = await windowsHelloManager.AuthenticateWithWindowsHelloAsync("Please authenticate to register your backup password.");
         if (authenticated)
         {
             loginManager.SetPassword(password);
