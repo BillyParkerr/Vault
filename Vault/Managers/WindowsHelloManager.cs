@@ -37,9 +37,9 @@ public class WindowsHelloManager : IWindowsHelloManager
         }
     }
 
-    public bool WindowsHelloLoginProcess()
+    public async Task<bool> WindowsHelloLoginProcess()
     {
-        bool authenticated = AuthenticateWithWindowsHelloAsync("Please authenticate to access the Vault.").Result;
+        bool authenticated = await AuthenticateWithWindowsHelloAsync("Please authenticate to access the Vault.");
         if (authenticated)
         {
             var password = fileManager.ReadAndReturnProtectedPassword();

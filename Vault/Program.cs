@@ -99,11 +99,11 @@ internal static class Program
         }
         else if (appSettings.AuthenticationMethod == AuthenticationMethod.WindowsHello)
         {
-            RunApplicationInWindowsHelloMode(databaseManager, fileManager, windowsHelloManager);
+            RunApplicationInWindowsHelloModeAsync(databaseManager, fileManager, windowsHelloManager).GetAwaiter().GetResult();
         }
     }
 
-    private static void RunApplicationInWindowsHelloMode(IDatabaseManager databaseManager, IFileManager fileManager, IWindowsHelloManager windowsHelloManager)
+    private static async Task RunApplicationInWindowsHelloModeAsync(IDatabaseManager databaseManager, IFileManager fileManager, IWindowsHelloManager windowsHelloManager)
     {
         bool isPasswordSet = databaseManager.IsEncryptionKeySet() && fileManager.ProtectedPasswordExists();
         if (!isPasswordSet)
@@ -123,15 +123,14 @@ internal static class Program
         }
         else
         {
-            bool loggedIn = windowsHelloManager.WindowsHelloLoginProcess();
+            bool loggedIn = await windowsHelloManager.WindowsHelloLoginProcess();
             if (loggedIn)
             {
                 RunHomeView();
             }
             else
             {
-                MessageBox.Show(
-                    "The application couldn't authenticate you using windows hello. \n Please login using your backup password.");
+                MessageBox.Show("The application couldn't authenticate you using windows hello. \n Please login using your backup password.");
                 RunApplicationInPasswordMode(databaseManager);
             }
         }
