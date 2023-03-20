@@ -45,9 +45,9 @@ internal static class Program
         SuppressTransientWarning(typeof(IWindowsHelloRegisterView));
 
         // Register Managers
-        container.Register<IWindowsHelloManager, WindowsHelloManager>(Lifestyle.Singleton);
         container.Register<IEncryptionManager, EncryptionManager>(Lifestyle.Singleton);
         container.Register<IDatabaseManager, DatabaseManager>(Lifestyle.Singleton);
+        container.Register<IWindowsHelloManager, WindowsHelloManager>(Lifestyle.Transient);
         container.Register<IFileMonitoringManager, FileMonitoringManager>(Lifestyle.Transient);
         container.Register<IFileManager, FileManager>(Lifestyle.Transient);
         container.Register<ILoginManager, LoginManager>(Lifestyle.Transient);
@@ -123,7 +123,7 @@ internal static class Program
         }
         else
         {
-            bool loggedIn = await windowsHelloManager.WindowsHelloLoginProcess();
+            bool loggedIn = await windowsHelloManager.WindowsHelloLoginProcess().ConfigureAwait(false);
             if (loggedIn)
             {
                 RunHomeView();

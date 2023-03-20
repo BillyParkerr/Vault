@@ -1,6 +1,9 @@
 ﻿using Application.Managers;
 using Application.Models;
 using Application.Views;
+using Microsoft.WindowsAPICodePack.Dialogs;
+using NPOI.SS.Formula.Functions;
+using System.Windows.Forms;
 
 namespace Application.Presenters;
 
@@ -34,9 +37,19 @@ public class HomeViewPresenter
         LoadAllFilesInVault();
     }
 
-    private void AddFileToVaultEventHandler(object? sender, EventArgs e)
+    private static T RunOnSTAThread<T>(Func<T> func)
     {
-        var fileToAdd = GetFileFromExplorer();
+        T result = default(T);
+        var thread = new Thread(() => { result = func(); });
+        thread.SetApartmentState(ApartmentState.STA);
+        thread.Start();
+        thread.Join();
+        return result;
+    }
+
+    private void AddFileToVaultEventHandler(object sender, EventArgs e)
+    {
+        string fileToAdd = RunOnSTAThread(() => GetFileFromExplorer("All Files (*.*)|*.*"));
         if (fileToAdd == null)
         {
             return;
@@ -51,23 +64,18 @@ public class HomeViewPresenter
 
     private void AddFolderToVaultEventHandler(object sender, EventArgs e)
     {
-        FolderBrowserDialog folderBrowserDialog = new FolderBrowserDialog();
-        folderBrowserDialog.Description = "Select Folder";
-        folderBrowserDialog.ShowNewFolderButton = false;
-        folderBrowserDialog.RootFolder = Environment.SpecialFolder.MyComputer;
-        DialogResult result = folderBrowserDialog.ShowDialog();
-
-        if (result == DialogResult.OK && !string.IsNullOrWhiteSpace(folderBrowserDialog.SelectedPath))
+        var folderToAdd = RunOnSTAThread(() => GetFolderFromExplorer());
+        if (folderToAdd != null)
         {
-            bool success = fileManager.ZipFolderAndAddToVault(folderBrowserDialog.SelectedPath);
+            bool success = fileManager.ZipFolderAndAddToVault(folderToAdd);
             if (!success)
             {
-                MessageBox.Show($"An Error Occurred While Attempting to Encrypt the folder.");
+                MessageBox.Show($"An Error Occurred While Attempting to Zip & Encrypt the folder.");
             }
         }
     }
 
-    private void DownloadFileFromVaultEventHandler(object? sender, EventArgs e)
+    private void DownloadFileFromVaultEventHandler(object sender, EventArgs e)
     {
         var filePath = GetSelectedFilePath();
         if (filePath == null)
@@ -75,26 +83,22 @@ public class HomeViewPresenter
             return;
         }
 
-        var dialog = new FolderBrowserDialog();
-        dialog.SelectedPath = "C:\\Users";
-        if (dialog.ShowDialog() == DialogResult.OK)
-        {
-            bool success = fileManager.DownloadFileFromVault(filePath, dialog.SelectedPath);
+        string selectedPath = RunOnSTAThread(() => GetFolderFromExplorer());
+        bool success = fileManager.DownloadFileFromVault(filePath, selectedPath);
 
-            if (success)
-            {
-                string argument = "/select, \"" + dialog.SelectedPath + "\"";
-                System.Diagnostics.Process.Start("explorer.exe", argument);
-            }
-            else
-            {
-                MessageBox.Show("An error occurred while attempting to download the file!");
-                return;
-            }
+        if (success)
+        {
+            string argument = "/select, \"" + selectedPath + "\"";
+            System.Diagnostics.Process.Start("explorer.exe", argument);
+        }
+        else
+        {
+            MessageBox.Show("An error occurred while attempting to download the file!");
+            return;
         }
     }
 
-    private void OpenFileFromVaultEventHandler(object? sender, EventArgs e)
+    private void OpenFileFromVaultEventHandler(object sender, EventArgs e)
     {
         var filePath = GetSelectedFilePath();
         if (filePath == null)
@@ -162,28 +166,21 @@ public class HomeViewPresenter
 
     private void SaveEncryptedFile(string password, EncryptedFile encryptedFileToExport)
     {
-        FolderBrowserDialog folderBrowserDialog = new FolderBrowserDialog();
-
-        // Show the dialog box and wait for the user to select a folder
-        DialogResult result = folderBrowserDialog.ShowDialog();
-        if (result == DialogResult.OK)
+        string selectedPath = RunOnSTAThread(() => GetFolderFromExplorer());
+        bool success = fileManager.DownloadEncryptedFileFromVault(encryptedFileToExport.FilePath, selectedPath, password);
+        if (success)
         {
-            string selectedPath = folderBrowserDialog.SelectedPath;
-            bool success = fileManager.DownloadEncryptedFileFromVault(encryptedFileToExport.FilePath, selectedPath, password);
-            if (success)
-            {
-                System.Diagnostics.Process.Start("explorer.exe", selectedPath);
-            }
-            else
-            {
-                MessageBox.Show("There was a problem exporting the selected file!");
-            }
+            System.Diagnostics.Process.Start("explorer.exe", selectedPath);
+        }
+        else
+        {
+            MessageBox.Show("There was a problem exporting the selected file!");
         }
     }
 
     private void ImportFileToVaultEventHandler(object sender, EventArgs e)
     {
-        var fileToImportPath = GetFileFromExplorer("AES files (*.aes)|*.aes");
+        var fileToImportPath = RunOnSTAThread(() => GetFileFromExplorer("AES files (*.aes)|*.aes"));
         if (fileToImportPath == null)
         {
             return;
@@ -212,6 +209,7 @@ public class HomeViewPresenter
 
     private static string GetFileFromExplorer(string filter = null)
     {
+        string result = null;
         OpenFileDialog openFileDialog1 = new OpenFileDialog();
         openFileDialog1.Title = "Select File";
         openFileDialog1.InitialDirectory = @"C:\"; //--"C:\\";
@@ -223,7 +221,23 @@ public class HomeViewPresenter
 
         if (!string.IsNullOrWhiteSpace(openFileDialog1.FileName))
         {
-            return openFileDialog1.FileName;
+            result = openFileDialog1.FileName;
+        }
+
+        return result;
+    }
+
+    private static string GetFolderFromExplorer()
+    {
+        FolderBrowserDialog folderBrowserDialog = new FolderBrowserDialog();
+        folderBrowserDialog.Description = "Select Folder";
+        folderBrowserDialog.ShowNewFolderButton = false;
+        folderBrowserDialog.RootFolder = Environment.SpecialFolder.MyComputer;
+        DialogResult result = folderBrowserDialog.ShowDialog();
+
+        if (result == DialogResult.OK && !string.IsNullOrWhiteSpace(folderBrowserDialog.SelectedPath))
+        {
+            return folderBrowserDialog.SelectedPath;
         }
 
         return null;

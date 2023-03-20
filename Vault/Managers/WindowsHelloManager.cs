@@ -20,13 +20,13 @@ public class WindowsHelloManager : IWindowsHelloManager
     /// <returns>true if authenticated, false is not</returns>
     public async Task<bool> AuthenticateWithWindowsHelloAsync(string message)
     {
-        if (!IsWindowsHelloAvailable().Result)
+        if (!await IsWindowsHelloAvailable().ConfigureAwait(false))
         {
             return false;
         }
 
         // Request user authentication with Windows Hello
-        UserConsentVerificationResult consentResult = await UserConsentVerifier.RequestVerificationAsync(message);
+        UserConsentVerificationResult consentResult = await UserConsentVerifier.RequestVerificationAsync(message).AsTask().ConfigureAwait(false);
         if (consentResult == UserConsentVerificationResult.Verified)
         {
             return true;
@@ -39,7 +39,7 @@ public class WindowsHelloManager : IWindowsHelloManager
 
     public async Task<bool> WindowsHelloLoginProcess()
     {
-        bool authenticated = await AuthenticateWithWindowsHelloAsync("Please authenticate to access the Vault.");
+        bool authenticated = await AuthenticateWithWindowsHelloAsync("Please authenticate to access the Vault.").ConfigureAwait(false);
         if (authenticated)
         {
             var password = fileManager.ReadAndReturnProtectedPassword();

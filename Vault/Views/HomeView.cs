@@ -81,4 +81,16 @@ public partial class HomeView : Form, IHomeView
     {
         MessageBox.Show("Failed to delete file from the Vault! Please try again.");
     }
+
+    public void InvokeOnUIThread(Action action)
+    {
+        if (InvokeRequired)
+        {
+            Invoke(action);
+        }
+        else
+        {
+            action();
+        }
+    }
 }

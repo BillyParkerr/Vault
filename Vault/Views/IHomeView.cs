@@ -23,4 +23,5 @@ public interface IHomeView
     void SetFilesInVaultListBindingSource(BindingSource filesInVaultList);
     void Show();
     void ShowFailedToDeleteError();
+    void InvokeOnUIThread(Action action);
 }
