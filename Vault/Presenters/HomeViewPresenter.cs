@@ -1,9 +1,6 @@
 ﻿using Application.Managers;
 using Application.Models;
 using Application.Views.Interfaces;
-using Microsoft.WindowsAPICodePack.Dialogs;
-using NPOI.SS.Formula.Functions;
-using System.Windows.Forms;
 
 namespace Application.Presenters;
 

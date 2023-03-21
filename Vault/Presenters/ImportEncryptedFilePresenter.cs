@@ -1,5 +1,4 @@
 ﻿using Application.Enums;
-using Application.Managers;
 using Application.Views.Interfaces;
 
 namespace Application.Presenters;
