@@ -32,13 +32,13 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Update="Views\ImportEncryptedFileView.cs" />
-    <Compile Update="Views\ExportEncryptedFileView.cs" />
-    <Compile Update="Views\AuthenticationModeSelectionView.cs" />
-    <Compile Update="Views\WindowsHelloRegisterView.cs">
+    <Compile Update="Views\Forms\ImportEncryptedFileView.cs" />
+    <Compile Update="Views\Forms\ExportEncryptedFileView.cs" />
+    <Compile Update="Views\Forms\AuthenticationModeSelectionView.cs" />
+    <Compile Update="Views\Forms\WindowsHelloRegisterView.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Update="Views\RegisterView.cs" />
+    <Compile Update="Views\Forms\RegisterView.cs" />
   </ItemGroup>
 
   <ItemGroup>

@@ -1,10 +1,12 @@
-namespace Application.Views;
+using Application.Views.Interfaces;
 
-public partial class RegisterView : Form, IRegisterView
+namespace Application.Views.Forms;
+
+public partial class WindowsHelloRegisterView : Form, IWindowsHelloRegisterView
 {
-    public event EventHandler RegisterEvent;
+    public event EventHandler ConfirmEvent;
 
-    public RegisterView()
+    public WindowsHelloRegisterView()
     {
         InitializeComponent();
         AssociateAndRaiseViewEvents();
@@ -37,6 +39,6 @@ public partial class RegisterView : Form, IRegisterView
 
     private void AssociateAndRaiseViewEvents()
     {
-        RegisterButton.Click += delegate { RegisterEvent?.Invoke(this, EventArgs.Empty); };
+        ConfirmButton.Click += delegate { ConfirmEvent?.Invoke(this, EventArgs.Empty); };
     }
 }

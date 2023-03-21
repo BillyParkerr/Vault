@@ -1,6 +1,6 @@
 ﻿using Application.Models;
 
-namespace Application.Views;
+namespace Application.Views.Interfaces;
 
 public interface IHomeView
 {
@@ -23,5 +23,4 @@ public interface IHomeView
     void SetFilesInVaultListBindingSource(BindingSource filesInVaultList);
     void Show();
     void ShowFailedToDeleteError();
-    void InvokeOnUIThread(Action action);
 }

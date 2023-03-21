@@ -1,6 +1,7 @@
 ﻿using Application.Models;
+using Application.Views.Interfaces;
 
-namespace Application.Views;
+namespace Application.Views.Forms;
 
 public partial class HomeView : Form, IHomeView
 {
@@ -59,7 +60,6 @@ public partial class HomeView : Form, IHomeView
         {
             return null;
         }
-
     }
 
     public void SetFilesInVaultListBindingSource(BindingSource filesInVaultList)
@@ -80,17 +80,5 @@ public partial class HomeView : Form, IHomeView
     public void ShowFailedToDeleteError()
     {
         MessageBox.Show("Failed to delete file from the Vault! Please try again.");
-    }
-
-    public void InvokeOnUIThread(Action action)
-    {
-        if (InvokeRequired)
-        {
-            Invoke(action);
-        }
-        else
-        {
-            action();
-        }
     }
 }

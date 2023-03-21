@@ -1,10 +1,12 @@
-namespace Application.Views;
+using Application.Views.Interfaces;
 
-public partial class WindowsHelloRegisterView : Form, IWindowsHelloRegisterView
+namespace Application.Views.Forms;
+
+public partial class ExportEncryptedFileView : Form, IExportEncryptedFileView
 {
     public event EventHandler ConfirmEvent;
 
-    public WindowsHelloRegisterView()
+    public ExportEncryptedFileView()
     {
         InitializeComponent();
         AssociateAndRaiseViewEvents();
@@ -15,19 +17,9 @@ public partial class WindowsHelloRegisterView : Form, IWindowsHelloRegisterView
         get { return PasswordTextBox.Text;  }
     }
 
-    public string GivenSecondPassword
-    {
-        get { return ReEnterPasswordTextBox.Text; }
-    }
-
     public void ShowBlankPasswordError()
     {
         MessageBox.Show("No password was given! Please enter a password.");
-    }
-
-    public void ShowPasswordMismatchError()
-    {
-        MessageBox.Show("The given passwords do not match! Please try again.");
     }
 
     public void ShowPasswordTooShortError()

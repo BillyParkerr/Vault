@@ -1,4 +1,4 @@
-﻿namespace Application.Views
+﻿namespace Application.Views.Forms
 {
     partial class AuthenticationModeSelectionView
     {
@@ -31,7 +31,6 @@
             this.EnterPasswordBelowText = new System.Windows.Forms.Label();
             this.PasswordModeButton = new System.Windows.Forms.Button();
             this.WindowsHelloModeButton = new System.Windows.Forms.Button();
-            this.button3 = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // EnterPasswordBelowText
@@ -62,21 +61,11 @@
             this.WindowsHelloModeButton.Text = "Windows Hello";
             this.WindowsHelloModeButton.UseVisualStyleBackColor = true;
             // 
-            // button3
-            // 
-            this.button3.Location = new System.Drawing.Point(217, 37);
-            this.button3.Name = "button3";
-            this.button3.Size = new System.Drawing.Size(8, 8);
-            this.button3.TabIndex = 4;
-            this.button3.Text = "button3";
-            this.button3.UseVisualStyleBackColor = true;
-            // 
             // AuthenticationModeSelectionView
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(224, 113);
-            this.Controls.Add(this.button3);
             this.Controls.Add(this.WindowsHelloModeButton);
             this.Controls.Add(this.PasswordModeButton);
             this.Controls.Add(this.EnterPasswordBelowText);
@@ -93,6 +82,5 @@
         private Label EnterPasswordBelowText;
         private Button PasswordModeButton;
         private Button WindowsHelloModeButton;
-        private Button button3;
     }
 }

@@ -1,10 +1,12 @@
-namespace Application.Views;
+using Application.Views.Interfaces;
 
-public partial class ExportEncryptedFileView : Form, IExportEncryptedFileView
+namespace Application.Views.Forms;
+
+public partial class RegisterView : Form, IRegisterView
 {
-    public event EventHandler ConfirmEvent;
+    public event EventHandler RegisterEvent;
 
-    public ExportEncryptedFileView()
+    public RegisterView()
     {
         InitializeComponent();
         AssociateAndRaiseViewEvents();
@@ -15,9 +17,19 @@ public partial class ExportEncryptedFileView : Form, IExportEncryptedFileView
         get { return PasswordTextBox.Text;  }
     }
 
+    public string GivenSecondPassword
+    {
+        get { return ReEnterPasswordTextBox.Text; }
+    }
+
     public void ShowBlankPasswordError()
     {
         MessageBox.Show("No password was given! Please enter a password.");
+    }
+
+    public void ShowPasswordMismatchError()
+    {
+        MessageBox.Show("The given passwords do not match! Please try again.");
     }
 
     public void ShowPasswordTooShortError()
@@ -27,6 +39,6 @@ public partial class ExportEncryptedFileView : Form, IExportEncryptedFileView
 
     private void AssociateAndRaiseViewEvents()
     {
-        ConfirmButton.Click += delegate { ConfirmEvent?.Invoke(this, EventArgs.Empty); };
+        RegisterButton.Click += delegate { RegisterEvent?.Invoke(this, EventArgs.Empty); };
     }
 }

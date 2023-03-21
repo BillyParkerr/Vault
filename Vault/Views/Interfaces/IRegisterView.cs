@@ -1,6 +1,6 @@
-﻿namespace Application.Views;
+﻿namespace Application.Views.Interfaces;
 
-public interface IWindowsHelloRegisterView
+public interface IRegisterView
 {
     // Properties
     string GivenPassword { get; }
@@ -8,7 +8,7 @@ public interface IWindowsHelloRegisterView
 
 
     // Events
-    event EventHandler ConfirmEvent;
+    event EventHandler RegisterEvent;
 
     // Methods
     public void ShowBlankPasswordError();

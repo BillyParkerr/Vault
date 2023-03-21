@@ -1,9 +1,10 @@
 ﻿using Application.Enums;
 
-namespace Application
+namespace Application;
+
+public class AppSettings
 {
-    public class AppSettings
-    {
-        public AuthenticationMethod AuthenticationMethod { get; set; }
-    }
+    public AuthenticationMethod AuthenticationMethod { get; set; }
+    public ApplicationMode Mode { get; set; }
+    public bool DeleteUnencryptedFileUponUpload { get; set; }
 }

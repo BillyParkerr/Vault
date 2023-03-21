@@ -1,4 +1,4 @@
-﻿namespace Application.Views;
+﻿namespace Application.Views.Interfaces;
 
 public interface ILoginView
 {

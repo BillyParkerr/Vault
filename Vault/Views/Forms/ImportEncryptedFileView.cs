@@ -1,4 +1,6 @@
-namespace Application.Views;
+using Application.Views.Interfaces;
+
+namespace Application.Views.Forms;
 
 public partial class ImportEncryptedFileView : Form, IImportEncryptedFileView
 {

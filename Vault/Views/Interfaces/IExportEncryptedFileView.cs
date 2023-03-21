@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Application.Views;
+namespace Application.Views.Interfaces;
 
-public interface IImportEncryptedFileView
+public interface IExportEncryptedFileView
 {
     // Properties
     string GivenPassword { get; }
@@ -18,4 +18,5 @@ public interface IImportEncryptedFileView
     void Show();
     void Close();
     void ShowBlankPasswordError();
+    void ShowPasswordTooShortError();
 }

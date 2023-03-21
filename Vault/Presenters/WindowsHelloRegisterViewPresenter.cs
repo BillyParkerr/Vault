@@ -1,7 +1,6 @@
 ﻿using Application.Enums;
 using Application.Managers;
-using Application.Views;
-using Microsoft.Win32;
+using Application.Views.Interfaces;
 
 namespace Application.Presenters;
 

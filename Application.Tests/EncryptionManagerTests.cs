@@ -1,7 +1,7 @@
 ﻿using Application.Managers;
 using Application.Models;
 using Application.Presenters;
-using Application.Views;
+using Application.Views.Interfaces;
 using Moq;
 
 namespace Application.Tests;
