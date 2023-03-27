@@ -21,7 +21,7 @@ public class EncryptionManager : IEncryptionManager
     private const int PBKDF2_SaltSize = 16;
     private const int PBKDF2_Iterations = 32767;
     private protected string decryptedEncryptionKey;
-    private IDatabaseManager databaseManager;
+    private readonly IDatabaseManager databaseManager;
 
     public EncryptionManager(IDatabaseManager databaseManager)
     {
@@ -104,7 +104,7 @@ public class EncryptionManager : IEncryptionManager
             Debug.Print(ex.Message);
         }
 
-        throw new Exception("Unable to get IV and Salt from EncryptedFile.");
+        throw new("Unable to get IV and Salt from EncryptedFile.");
     }
 
     /// <summary>Encrypt a file.</summary>
@@ -154,7 +154,7 @@ public class EncryptionManager : IEncryptionManager
     /// <remarks>NB: "Padding is invalid and cannot be removed." is the Universal CryptoServices error.  Make sure the password, salt and iterations are correct before getting nervous.</remarks>
     /// <returns>The path of the DecryptedFile</returns>
     /// <exception cref="ApplicationException"></exception>
-    public string DecryptFile(string sourceFilePath, string? destinationPath = null, string password = null)
+    public string DecryptFile(string sourceFilePath, string destinationPath = null, string password = null)
     {
         if (password == null)
         {
@@ -181,11 +181,11 @@ public class EncryptionManager : IEncryptionManager
 
         ICryptoTransform transform = aesAlg.CreateDecryptor(aesAlg.Key, aesAlg.IV);
 
-        using FileStream destination = new FileStream(destinationFileLocation, FileMode.CreateNew, FileAccess.Write, FileShare.None);
-        using CryptoStream cryptoStream = new CryptoStream(destination, transform, CryptoStreamMode.Write);
+        using FileStream destination = new(destinationFileLocation, FileMode.CreateNew, FileAccess.Write, FileShare.None);
+        using CryptoStream cryptoStream = new(destination, transform, CryptoStreamMode.Write);
         try
         {
-            using FileStream source = new FileStream(sourceFilePath, FileMode.Open, FileAccess.Read, FileShare.Read);
+            using FileStream source = new(sourceFilePath, FileMode.Open, FileAccess.Read, FileShare.Read);
             source.Position = 32; // Skip the IV and Salt porition of the stream
             source.CopyTo(cryptoStream);
         }

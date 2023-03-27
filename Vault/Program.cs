@@ -15,6 +15,9 @@ namespace Application;
 
 internal static class Program
 {
+    // Service Provider. Provides containers to be used throughout the application.
+    public static readonly Container container = new();
+
     static Program()
     {
         // To customize application configuration such as set high DPI settings or default font,
@@ -22,9 +25,12 @@ internal static class Program
         ApplicationConfiguration.Initialize();
         System.Windows.Forms.Application.EnableVisualStyles();
         System.Windows.Forms.Application.SetCompatibleTextRenderingDefault(false);
+        ConfigureDependencyInjection();
+    }
 
+    private static void ConfigureDependencyInjection()
+    {
         // Configure Dependency Injection Using SimpleInjecter
-        container = new Container();
         container.Options.DefaultScopedLifestyle = new ThreadScopedLifestyle();
 
         AppSettings appSettings = SetupAppSettings();
@@ -38,6 +44,9 @@ internal static class Program
         container.Register<IImportEncryptedFileView, ImportEncryptedFileView>(Lifestyle.Transient);
         container.Register<IAuthenticationModeSelectionView, AuthenticationModeSelectionView>(Lifestyle.Transient);
         container.Register<IWindowsHelloRegisterView, WindowsHelloRegisterView>(Lifestyle.Transient);
+        container.Register<ISettingsView, SettingsView>(Lifestyle.Transient);
+        container.Register<IChangePasswordView, ChangePasswordView>(Lifestyle.Transient);
+
         SuppressTransientWarning(typeof(IImportEncryptedFileView));
         SuppressTransientWarning(typeof(IExportEncryptedFileView));
         SuppressTransientWarning(typeof(IRegisterView));
@@ -45,6 +54,8 @@ internal static class Program
         SuppressTransientWarning(typeof(ILoginView));
         SuppressTransientWarning(typeof(IAuthenticationModeSelectionView));
         SuppressTransientWarning(typeof(IWindowsHelloRegisterView));
+        SuppressTransientWarning(typeof(ISettingsView));
+        SuppressTransientWarning(typeof(IChangePasswordView));
 
         // Register Managers
         container.Register<IEncryptionManager, EncryptionManager>(Lifestyle.Singleton);
@@ -53,6 +64,7 @@ internal static class Program
         container.Register<IFileMonitoringManager, FileMonitoringManager>(Lifestyle.Transient);
         container.Register<IFileManager, FileManager>(Lifestyle.Transient);
         container.Register<ILoginManager, LoginManager>(Lifestyle.Transient);
+        container.Register<IPresenterManager, PresenterManager>(Lifestyle.Transient);
 
         container.Verify();
     }
@@ -70,9 +82,6 @@ internal static class Program
 
         registration.SuppressDiagnosticWarning(DiagnosticType.DisposableTransientComponent, "Windows form suppression");
     }
-
-    // Service Provider. Provides containers to be used throughout the application.
-    public static readonly Container container;
 
     /// <summary>
     ///  The main entry point for the application.
@@ -173,7 +182,7 @@ internal static class Program
         if (isWindowsHelloAvailable)
         {
             IAuthenticationModeSelectionView view = container.GetInstance<IAuthenticationModeSelectionView>();
-            AuthenticationModeSelectionViewPresenter presenter = new AuthenticationModeSelectionViewPresenter(view, appSettings);
+            AuthenticationModeSelectionViewPresenter presenter = new(view, appSettings);
             System.Windows.Forms.Application.Run((Form)view);
         }
         else
@@ -189,7 +198,9 @@ internal static class Program
         var homeView = container.GetInstance<IHomeView>();
         var fileManager = container.GetInstance<IFileManager>();
         var databaseManager = container.GetInstance<IDatabaseManager>();
-        var homeViewPresenter = new HomeViewPresenter(homeView, fileManager, databaseManager);
+        var presenterManager = container.GetInstance<IPresenterManager>();
+        var appSettings = container.GetInstance<AppSettings>();
+        var homeViewPresenter = new HomeViewPresenter(homeView, fileManager, databaseManager, presenterManager, appSettings);
         System.Windows.Forms.Application.Run((Form)homeView);
     }
 
@@ -223,6 +234,12 @@ internal static class Program
         // Bind the configuration settings to the AppSettings class
         var appSettings = new AppSettings();
         configuration.GetSection("AppSettings").Bind(appSettings);
+
+        // Set the DefaultDownloadLocation to the user's desktop folder if it is empty, null or whitespace.
+        if (string.IsNullOrWhiteSpace(appSettings.DefaultDownloadLocation))
+        {
+            appSettings.DefaultDownloadLocation = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
+        }
 
         return appSettings;
     }

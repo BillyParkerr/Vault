@@ -4,12 +4,12 @@ namespace Application.Managers;
 
 public class DatabaseManager : IDatabaseManager
 {
-    private SqliteDbContext DbContext;
+    private readonly SqliteDbContext DbContext;
     public event EventHandler vaultContentsChangedEvent;
 
     public DatabaseManager()
     {
-        DbContext = new SqliteDbContext();
+        DbContext = new();
     }
 
     public void SaveChanges()
@@ -18,13 +18,13 @@ public class DatabaseManager : IDatabaseManager
     }
 
     // EncryptedFile Queries
-    public EncryptedFile? GetEncryptedFileById(int id)
+    public EncryptedFile GetEncryptedFileById(int id)
     {
         var encryptedFile = DbContext.EncryptedFiles.FirstOrDefault(x => x.Id == id);
         return encryptedFile;
     }
 
-    public EncryptedFile? GetEncryptedFileByFilePath(string filePath)
+    public EncryptedFile GetEncryptedFileByFilePath(string filePath)
     {
         var encryptedFile = DbContext.EncryptedFiles.FirstOrDefault(x => x.FilePath == filePath);
         return encryptedFile;
@@ -75,7 +75,7 @@ public class DatabaseManager : IDatabaseManager
 
     public void SetEncryptionKey(string encryptionKey)
     {
-        DbContext.EncryptionKeys.Add(new EncryptionKey { Key = encryptionKey });
+        DbContext.EncryptionKeys.Add(new() { Key = encryptionKey });
     }
 
     public bool IsEncryptionKeySet()

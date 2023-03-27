@@ -2,9 +2,24 @@
 
 public interface ISettingsView
 {
-    public event EventHandler ToggleUserModeEvent;
-    public event EventHandler ToggleAuthenticationModeEvent;
-    public event EventHandler ChangePasswordEvent;
-    public event EventHandler ToggleAutomaticDeletionOfUploadedFilesEvent;
-    public event EventHandler ChangeDefaultDownloadLocationEvent;
+    event EventHandler ToggleUserModeEvent;
+    event EventHandler ToggleAuthenticationModeEvent;
+    event EventHandler ChangePasswordEvent;
+    event EventHandler ToggleAutomaticDeletionOfUploadedFilesEvent;
+    event EventHandler ChangeDefaultDownloadLocationEvent;
+    event EventHandler ConfirmChosenSettingsEvent;
+    event EventHandler UserClosedViewEvent;
+
+    void EnableAdvancedModeButton();
+    void DisableAdvancedModeButton();
+    void EnableBasicModeButton();
+    void DisableBasicModeButton();
+    void EnableWindowsHelloModeButton();
+    void DisableWindowsHelloModeButton();
+    void EnablePasswordModeButton();
+    void DisablePasswordModeButton();
+    void SetDeletionOfUploadedFilesToYes();
+    void SetDeletionOfUploadedFilesToNo();
+    void Show();
+    void Close();
 }

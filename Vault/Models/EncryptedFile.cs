@@ -9,12 +9,12 @@ public class EncryptedFile
     public bool UniquePassword { get; set; }
 
     [NotMapped]
-    public FileInformation? DecryptedFileInformation { get; set; } // Note that this property is not stored in the database.
+    public FileInformation DecryptedFileInformation { get; set; } // Note that this property is not stored in the database.
 }
 
 public class FileInformation
 {
-    public string? FileName { get; set; }
-    public string? FileExtension { get; set; }
-    public string? FileSize { get; set; }
+    public string FileName { get; set; }
+    public string FileExtension { get; set; }
+    public string FileSize { get; set; }
 }

@@ -35,6 +35,9 @@
     <Compile Update="Views\Forms\ImportEncryptedFileView.cs" />
     <Compile Update="Views\Forms\ExportEncryptedFileView.cs" />
     <Compile Update="Views\Forms\AuthenticationModeSelectionView.cs" />
+    <Compile Update="Views\Forms\ChangePasswordView.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Update="Views\Forms\WindowsHelloRegisterView.cs">
       <SubType>Form</SubType>
     </Compile>

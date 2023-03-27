@@ -5,8 +5,8 @@ namespace Application.Presenters;
 
 public class AuthenticationModeSelectionViewPresenter
 {
-    private IAuthenticationModeSelectionView view;
-    private AppSettings appSettings;
+    private readonly IAuthenticationModeSelectionView view;
+    private readonly AppSettings appSettings;
 
     public AuthenticationModeSelectionViewPresenter(IAuthenticationModeSelectionView view, AppSettings appSettings)
     {

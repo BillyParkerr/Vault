@@ -1,14 +1,15 @@
-﻿using System.Text;
+﻿using System.Reflection.Metadata.Ecma335;
+using System.Text;
 using Application.Enums;
 
 namespace Application.Managers;
 
 public class LoginManager : ILoginManager
 {
-    private IDatabaseManager databaseManager;
-    private IEncryptionManager encryptionManager;
-    private IFileManager fileManager;
-    private AppSettings appSettings;
+    private readonly IDatabaseManager databaseManager;
+    private readonly IEncryptionManager encryptionManager;
+    private readonly IFileManager fileManager;
+    private readonly AppSettings appSettings;
 
     public LoginManager(IDatabaseManager databaseManager, IEncryptionManager encryptionManager, IFileManager fileManager, AppSettings appSettings)
     {
@@ -46,12 +47,45 @@ public class LoginManager : ILoginManager
         }
     }
 
+    public bool ChangePassword(string newPassword, string oldPassword)
+    {
+        var currentEncryptionKey = databaseManager.GetEncryptionKey();
+        string decryptedKey;
+        try
+        {
+            decryptedKey = encryptionManager.DecryptString(currentEncryptionKey.Key, oldPassword);
+        }
+        catch
+        {
+            return false;
+        }
+
+        if (decryptedKey != null)
+        {
+            var newEncryptionKey = encryptionManager.EncryptString(decryptedKey, newPassword);
+            databaseManager.ChangeEncryptionKey(newEncryptionKey);
+            databaseManager.SaveChanges();
+            encryptionManager.SetEncryptionPassword(newPassword);
+            if (appSettings.AuthenticationMethod == AuthenticationMethod.WindowsHello)
+            {
+                fileManager.ProtectAndSavePassword(newPassword);
+            }
+        }
+        else
+        {
+            return false;
+        }
+
+
+        return true;
+    }
+
     private static string GenerateRandomStringForEncryptionKey()
     {
-        Random random = new Random();
+        Random random = new();
         int length = random.Next(20, 26);
         const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-        StringBuilder stringBuilder = new StringBuilder(length);
+        StringBuilder stringBuilder = new(length);
         for (int i = 0; i < length; i++)
         {
             stringBuilder.Append(chars[random.Next(chars.Length)]);

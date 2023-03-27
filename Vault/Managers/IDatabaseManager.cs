@@ -9,8 +9,8 @@ public interface IDatabaseManager
     event EventHandler vaultContentsChangedEvent;
 
     // EncryptedFile Queries
-    EncryptedFile? GetEncryptedFileById(int id);
-    EncryptedFile? GetEncryptedFileByFilePath(string filePath);
+    EncryptedFile GetEncryptedFileById(int id);
+    EncryptedFile GetEncryptedFileByFilePath(string filePath);
     List<EncryptedFile> GetAllEncryptedFiles();
     void AddEncryptedFile(string filePath, bool uniquePassword);
     void DeleteEncryptedFileById(int id);

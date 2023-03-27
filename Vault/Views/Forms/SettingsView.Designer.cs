@@ -1,6 +1,6 @@
 ﻿namespace Application.Views.Forms
 {
-    partial class Settings
+    partial class SettingsView
     {
         /// <summary>
         /// Required designer variable.
@@ -146,7 +146,7 @@
             this.Controls.Add(this.AdvancedModeButton);
             this.Controls.Add(this.BasicModeButton);
             this.Controls.Add(this.Logo);
-            this.Name = "Settings";
+            this.Name = "SettingsView";
             this.Text = "SettingsView";
             this.ResumeLayout(false);
             this.PerformLayout();

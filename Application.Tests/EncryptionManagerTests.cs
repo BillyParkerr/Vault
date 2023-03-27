@@ -13,8 +13,8 @@ public class EncryptionManagerTests
     [SetUp]
     public void Setup()
     {
-        _mockDatabaseManager = new Mock<IDatabaseManager>();
-        _encryptionManager = new EncryptionManager(_mockDatabaseManager.Object);
+        _mockDatabaseManager = new();
+        _encryptionManager = new(_mockDatabaseManager.Object);
     }
     // TODO Redo these
 

@@ -17,10 +17,16 @@ public interface IHomeView
     event EventHandler ExportFileFromVaultEvent;
     event EventHandler ImportFileToVaultEvent;
     event EventHandler SearchFilterAppliedEvent;
+    event EventHandler OpenSettingsEvent;
     event FormClosingEventHandler FormClosingEvent;
 
     // Methods
     void SetFilesInVaultListBindingSource(BindingSource filesInVaultList);
     void Show();
     void ShowFailedToDeleteError();
+
+    void SetAdvancedModeView();
+    void SetBasicModeView();
+    void ResumeView();
+    void PauseView();
 }

@@ -8,9 +8,9 @@ public class WindowsHelloRegisterViewPresenter
 {
     public bool UserSuccessfullyRegistered { get; private set; }
 
-    private IWindowsHelloRegisterView view;
-    private IWindowsHelloManager windowsHelloManager;
-    private ILoginManager loginManager;
+    private readonly IWindowsHelloRegisterView view;
+    private readonly IWindowsHelloManager windowsHelloManager;
+    private readonly ILoginManager loginManager;
 
     public WindowsHelloRegisterViewPresenter(IWindowsHelloRegisterView view, IWindowsHelloManager windowsHelloManager, ILoginManager loginManager)
     {

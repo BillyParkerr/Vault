@@ -8,8 +8,8 @@ public class RegistrationViewPresenter
 {
     public bool UserSuccessfullyRegistered { get; private set; }
 
-    private ILoginManager passwordLoginManager;
-    private IRegisterView registerView;
+    private readonly ILoginManager passwordLoginManager;
+    private readonly IRegisterView registerView;
 
     public RegistrationViewPresenter(ILoginManager _passwordLoginManager, IRegisterView _registerView)
     {
@@ -19,7 +19,7 @@ public class RegistrationViewPresenter
         registerView.Show();
     }
 
-    public void RegisterEventHandler(object? sender, EventArgs e)
+    public void RegisterEventHandler(object sender, EventArgs e)
     {
         string enteredPassword = registerView.GivenPassword;
         string enteredSecondPassword = registerView.GivenSecondPassword;

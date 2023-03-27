@@ -7,7 +7,7 @@ public interface IFileManager
     List<EncryptedFile> GetAllFilesInVault();
     bool AddFileToVault(string filePath, string password = null);
     bool ZipFolderAndAddToVault(string folderPath, string password = null);
-    bool DownloadFileFromVault(string encryptedFilePath, string destinationFilePath, string? password = null);
+    bool DownloadFileFromVault(string encryptedFilePath, string destinationFilePath, string password = null);
     bool DeleteFileFromVault(string filePath);
     bool OpenFileFromVaultAndReencryptUponClosure(string filePath);
     bool DownloadEncryptedFileFromVault(string filePath, string destinationFilePath, string newEncryptionPassword);
@@ -16,4 +16,6 @@ public interface IFileManager
     string ReadAndReturnProtectedPassword();
     bool ProtectedPasswordExists();
     void CleanupTempFiles();
+    string GetFilePathFromExplorer(string filter = null);
+    string GetFolderPathFromExplorer();
 }

@@ -4,8 +4,8 @@ namespace Application.Managers;
 
 public class WindowsHelloManager : IWindowsHelloManager
 {
-    private IFileManager fileManager;
-    private IEncryptionManager encryptionManager;
+    private readonly IFileManager fileManager;
+    private readonly IEncryptionManager encryptionManager;
 
     public WindowsHelloManager(IFileManager fileManager, IEncryptionManager encryptionManager)
     {

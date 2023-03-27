@@ -13,9 +13,9 @@ namespace Application.Managers;
 /// </summary>
 public class FileMonitoringManager : IFileMonitoringManager
 {
-    private SemaphoreSlim semaphore = new SemaphoreSlim(1);
-    private IEncryptionManager EncryptionManager;
-    private IDatabaseManager DatabaseManager;
+    private readonly SemaphoreSlim semaphore = new(1);
+    private readonly IEncryptionManager EncryptionManager;
+    private readonly IDatabaseManager DatabaseManager;
     private string EncryptedFilePath;
 
     public FileMonitoringManager(IEncryptionManager encryptionManager, IDatabaseManager databaseManager)
@@ -34,7 +34,7 @@ public class FileMonitoringManager : IFileMonitoringManager
         EncryptedFilePath = encryptedFilePath;
 
         // Open the file
-        using Process fileopener = new Process();
+        using Process fileopener = new();
 
         fileopener.StartInfo.FileName = "explorer";
         fileopener.StartInfo.Arguments = "\"" + fileToMonitorPath + "\"";

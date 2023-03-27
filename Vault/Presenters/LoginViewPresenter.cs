@@ -6,9 +6,9 @@ namespace Application.Presenters;
 public class LoginViewPresenter
 {
     public bool UserSuccessfullyAuthenticated { get; private set; }
-    private ILoginView view;
-    private ILoginManager passwordLoginManager;
-    private IEncryptionManager encryptionManager;
+    private readonly ILoginView view;
+    private readonly ILoginManager passwordLoginManager;
+    private readonly IEncryptionManager encryptionManager;
 
     public LoginViewPresenter(ILoginView view, ILoginManager passwordLoginManager, IEncryptionManager encryptionManager)
     {
@@ -19,7 +19,7 @@ public class LoginViewPresenter
         view.Show();
     }
 
-    public void LoginEventHandler(object? sender, EventArgs e)
+    public void LoginEventHandler(object sender, EventArgs e)
     {
         // Get the entered password
         var givenPassword = view.GivenPassword;

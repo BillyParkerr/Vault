@@ -7,15 +7,17 @@ namespace Application.Managers;
 
 public class FileManager : IFileManager
 {
-    private IEncryptionManager encryptionManager;
-    private IDatabaseManager databaseManager;
-    private IFileMonitoringManager fileMonitoringManager;
+    private readonly IEncryptionManager encryptionManager;
+    private readonly IDatabaseManager databaseManager;
+    private readonly IFileMonitoringManager fileMonitoringManager;
+    private readonly AppSettings appSettings;
 
-    public FileManager(IEncryptionManager encryptionManager, IDatabaseManager databaseManager, IFileMonitoringManager fileMonitoringManager)
+    public FileManager(IEncryptionManager encryptionManager, IDatabaseManager databaseManager, IFileMonitoringManager fileMonitoringManager, AppSettings appSettings)
     {
         this.encryptionManager = encryptionManager;
         this.databaseManager = databaseManager;
         this.fileMonitoringManager = fileMonitoringManager;
+        this.appSettings = appSettings;
     }
 
     /// <summary>
@@ -31,7 +33,7 @@ public class FileManager : IFileManager
         foreach (var encryptedFile in encryptedFiles.Where(_ => _.UniquePassword == false))
         {
             var decryptedFile = encryptionManager.DecryptString(Path.GetFileNameWithoutExtension(encryptedFile.FilePath));
-            FileInformation fileInformation = new FileInformation
+            FileInformation fileInformation = new()
             {
                 FileName = Path.GetFileNameWithoutExtension(decryptedFile),
                 FileSize = FormatFileSize(new FileInfo(encryptedFile.FilePath).Length.ToString()),
@@ -60,6 +62,13 @@ public class FileManager : IFileManager
             if (password == null)
             {
                 databaseManager.AddEncryptedFile(encryptedFilePath, false);
+
+                // If the user has chosen to delete the original file once it has been added to the vault
+                // we will proceed to delete the file.
+                if (appSettings.DeleteUnencryptedFileUponUpload)
+                {
+                    File.Delete(filePath);
+                }
             }
             else
             {
@@ -77,7 +86,7 @@ public class FileManager : IFileManager
         return true;
     }
 
-    public bool DownloadFileFromVault(string encryptedFilePath, string destinationFilePath, string? password = null)
+    public bool DownloadFileFromVault(string encryptedFilePath, string destinationFilePath, string password = null)
     {
         try
         {
@@ -262,6 +271,11 @@ public class FileManager : IFileManager
 
     public void ProtectAndSavePassword(string password)
     {
+        if (ProtectedPasswordExists())
+        {
+            File.Delete(DirectoryPaths.EncryptedKeyPath);
+        }
+
         byte[] passwordBytes = Encoding.UTF8.GetBytes(password);
         byte[] encryptedPassword = ProtectedData.Protect(passwordBytes, null, DataProtectionScope.CurrentUser);
         File.WriteAllBytes(DirectoryPaths.EncryptedKeyPath, encryptedPassword);
@@ -283,6 +297,66 @@ public class FileManager : IFileManager
     public bool ProtectedPasswordExists()
     {
         return File.Exists(DirectoryPaths.EncryptedKeyPath);
+    }
+
+    private static T RunOnSTAThread<T>(Func<T> func)
+    {
+        var result = default(T);
+        var thread = new Thread(() => { result = func(); });
+        thread.SetApartmentState(ApartmentState.STA);
+        thread.Start();
+        thread.Join();
+        return result;
+    }
+
+    public string GetFilePathFromExplorer(string filter = null)
+    {
+        return RunOnSTAThread(() =>
+        {
+            string result = null;
+            OpenFileDialog openFileDialog1 = new()
+            {
+                Title = "Select File",
+                InitialDirectory = @"C:\", //--"C:\\";
+                Filter = filter,
+                FilterIndex = 1,
+                Multiselect = false,
+                CheckFileExists = true
+            };
+
+            openFileDialog1.ShowDialog();
+
+            if (!string.IsNullOrWhiteSpace(openFileDialog1.FileName))
+            {
+                result = openFileDialog1.FileName;
+            }
+
+            return result;
+        });
+    }
+
+    public string GetFolderPathFromExplorer()
+    {
+        return RunOnSTAThread(() =>
+        {
+            FolderBrowserDialog folderBrowserDialog = new()
+            {
+                Description = "Select Folder",
+                ShowNewFolderButton = false,
+
+                // TODO Change this to get the default location from appSettings.
+                RootFolder = Environment.SpecialFolder.MyComputer
+            };
+
+            DialogResult result = folderBrowserDialog.ShowDialog();
+
+            if (result == DialogResult.OK && !string.IsNullOrWhiteSpace(folderBrowserDialog.SelectedPath))
+            {
+                return folderBrowserDialog.SelectedPath;
+            }
+
+            return null;
+        });
     }
 
     private static string FormatFileSize(string fileLength)

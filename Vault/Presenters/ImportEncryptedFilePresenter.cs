@@ -1,16 +1,24 @@
 ﻿using Application.Enums;
+using Application.Managers;
 using Application.Views.Interfaces;
 
 namespace Application.Presenters;
 
 public class ImportEncryptedFilePresenter
 {
-    public event EventHandler<string> PasswordEntered; 
-    private IImportEncryptedFileView View;
+    private readonly IImportEncryptedFileView View;
+    private readonly IFileManager fileManager;
+    private readonly string EncryptedFilePath;
 
-    public ImportEncryptedFilePresenter(IImportEncryptedFileView view)
+    public ImportEncryptedFilePresenter(IImportEncryptedFileView view, IFileManager fileManager)
     {
         View = view;
+        this.fileManager = fileManager;
+        EncryptedFilePath = this.fileManager.GetFilePathFromExplorer("AES files (*.aes)|*.aes");
+        if (string.IsNullOrWhiteSpace(EncryptedFilePath))
+        {
+            return;
+        }
         view.ConfirmEvent += ConfirmEventHandler;
         view.Show();
     }
@@ -22,12 +30,21 @@ public class ImportEncryptedFilePresenter
         switch (passwordState)
         {
             case PasswordState.Valid:
-                PasswordEntered?.Invoke(this, givenPassword);
+                ImportFileToVault(givenPassword);
                 View.Close();
                 return;
             case PasswordState.PasswordNotGiven:
                 View.ShowBlankPasswordError();
                 return;
+        }
+    }
+
+    private void ImportFileToVault(string password)
+    {
+        var success = fileManager.ImportEncryptedFileToVault(EncryptedFilePath, password);
+        if (!success)
+        {
+            MessageBox.Show($"An Error Occurred While Attempting to import the selected file. Perhaps the password was incorrect?");
         }
     }
 
