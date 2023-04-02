@@ -12,6 +12,11 @@ public class DatabaseManager : IDatabaseManager
         DbContext = new();
     }
 
+    public DatabaseManager(SqliteDbContext dbContext)
+    {
+        DbContext = dbContext;
+    }
+
     public void SaveChanges()
     {
         DbContext.SaveChanges();
@@ -39,7 +44,7 @@ public class DatabaseManager : IDatabaseManager
     public void AddEncryptedFile(string filePath, bool uniquePassword)
     {
         DbContext.Add(new EncryptedFile { FilePath = filePath, UniquePassword = uniquePassword });
-        vaultContentsChangedEvent.Invoke(this, EventArgs.Empty);
+        vaultContentsChangedEvent?.Invoke(this, EventArgs.Empty);
     }
 
     public void DeleteEncryptedFileById(int id)
@@ -48,7 +53,7 @@ public class DatabaseManager : IDatabaseManager
         if (encryptedFileToRemove != null)
         {
             DbContext.Remove(encryptedFileToRemove);
-            vaultContentsChangedEvent.Invoke(this, EventArgs.Empty);
+            vaultContentsChangedEvent?.Invoke(this, EventArgs.Empty);
         }
     }
 
@@ -58,7 +63,7 @@ public class DatabaseManager : IDatabaseManager
         if (encryptedFileToRemove != null)
         {
             DbContext.Remove(encryptedFileToRemove);
-            vaultContentsChangedEvent.Invoke(this, EventArgs.Empty);
+            vaultContentsChangedEvent?.Invoke(this, EventArgs.Empty);
         }
     }
 

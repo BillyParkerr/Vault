@@ -342,10 +342,7 @@ public class FileManager : IFileManager
             FolderBrowserDialog folderBrowserDialog = new()
             {
                 Description = "Select Folder",
-                ShowNewFolderButton = false,
-
-                // TODO Change this to get the default location from appSettings.
-                RootFolder = Environment.SpecialFolder.MyComputer
+                InitialDirectory = appSettings.DefaultDownloadLocation
             };
 
             DialogResult result = folderBrowserDialog.ShowDialog();

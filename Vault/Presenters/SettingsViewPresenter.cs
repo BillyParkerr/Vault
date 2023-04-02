@@ -20,8 +20,6 @@ public class SettingsViewPresenter
 
     private readonly AppSettings uncommitedAppSettings;
 
-    // TODO Implement a warning upon closure attempt to show uncommited changes will not be saved.
-
     public SettingsViewPresenter(ISettingsView view, IFileManager fileManager, AppSettings appSettings, 
         IWindowsHelloManager windowsHelloManager, IPresenterManager presenterManager, ILoginManager loginManager)
     {

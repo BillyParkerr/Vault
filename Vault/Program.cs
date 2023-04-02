@@ -72,7 +72,7 @@ internal static class Program
     /// <summary>
     /// Since we are suppressing this, any container called that has this suppression will not dispose of itself.
     /// It is therefore very important that they are disposed of in code or they will always stay in memory.
-    /// This has to be done as windows forms have the ability to dispose of themselves which is supposed to be the responsibily
+    /// This has to be done as windows forms have the ability to dispose of themselves which is supposed to be the responsibility
     /// of SimpleInjector.
     /// </summary>
     /// <param name="serviceType"></param>
@@ -129,7 +129,7 @@ internal static class Program
             }
             else
             {
-                // TODO Create a fallback where the application asks the user if its okay to swap to Password mode.
+                return;
             }
         }
         else
@@ -196,11 +196,9 @@ internal static class Program
     private static void RunHomeView()
     {
         var homeView = container.GetInstance<IHomeView>();
-        var fileManager = container.GetInstance<IFileManager>();
-        var databaseManager = container.GetInstance<IDatabaseManager>();
         var presenterManager = container.GetInstance<IPresenterManager>();
-        var appSettings = container.GetInstance<AppSettings>();
-        var homeViewPresenter = new HomeViewPresenter(homeView, fileManager, databaseManager, presenterManager, appSettings);
+
+        var homeViewPresenter = presenterManager.GetHomeViewPresenter(homeView);
         System.Windows.Forms.Application.Run((Form)homeView);
     }
 

@@ -1,5 +1,6 @@
 ﻿using Application.Models;
 using Application.Presenters;
+using Application.Views.Interfaces;
 
 namespace Application.Managers;
 
@@ -12,4 +13,5 @@ public interface IPresenterManager
     RegistrationViewPresenter GetRegistrationViewPresenter();
     SettingsViewPresenter GetSettingsViewPresenter();
     ChangePasswordViewPresenter GetChangePasswordViewManager();
+    HomeViewPresenter GetHomeViewPresenter(IHomeView homeView = null);
 }

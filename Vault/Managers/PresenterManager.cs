@@ -31,7 +31,12 @@ public class PresenterManager: IPresenterManager
         this.windowsHelloManager = windowsHelloManager;
     }
 
-    // TODO Add HomeViewPresenter and take HomeView as a parameter so that this can be used in Program.cs
+    public HomeViewPresenter GetHomeViewPresenter(IHomeView homeView = null)
+    {
+        homeView ??= container.GetInstance<IHomeView>();
+
+        return new HomeViewPresenter(homeView, fileManager, databaseManager, this, appSettings);
+    }
 
     public LoginViewPresenter GetLoginViewPresenter()
     {

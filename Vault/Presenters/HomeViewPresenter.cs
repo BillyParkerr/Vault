@@ -16,7 +16,7 @@ public class HomeViewPresenter
 
     public HomeViewPresenter(IHomeView view, IFileManager fileManager, IDatabaseManager databaseManager, IPresenterManager presenterManager, AppSettings appSettings)
     {
-        this.filesInVaultBindingSource = new();
+        this.filesInVaultBindingSource = new BindingSource();
         this.fileManager = fileManager;
         this.view = view;
         this.presenterManager = presenterManager;
@@ -27,7 +27,7 @@ public class HomeViewPresenter
         this.view.AddFileToVaultEvent += AddFileToVaultEventHandler;
         this.view.AddFolderToVaultEvent += AddFolderToVaultEventHandler;
         this.view.DownloadFileFromVaultEvent += DownloadFileFromVaultEventHandler;
-        this.view.DeleteFileFromVaultEvent += DeleteFileFromVaultEventHander;
+        this.view.DeleteFileFromVaultEvent += DeleteFileFromVaultEventHandler;
         this.view.OpenFileFromVaultEvent += OpenFileFromVaultEventHandler;
         this.view.ImportFileToVaultEvent += ImportFileToVaultEventHandler;
         this.view.ExportFileFromVaultEvent += ExportFileFromVaultEventHandler;
@@ -36,10 +36,10 @@ public class HomeViewPresenter
         this.view.OpenSettingsEvent += OpenSettingsEventHandler;
         this.view.SetFilesInVaultListBindingSource(filesInVaultBindingSource);
         LoadAllFilesInVault();
-        ConfigureViewBasedUponAppSettigns();
+        ConfigureViewBasedUponAppSettings();
     }
 
-    private void ConfigureViewBasedUponAppSettigns()
+    private void ConfigureViewBasedUponAppSettings()
     {
         if (appSettings.Mode == ApplicationMode.Advanced)
         {
@@ -53,13 +53,12 @@ public class HomeViewPresenter
 
     private void OpenSettingsEventHandler(object _, EventArgs e)
     {
-        // TODO disable view controls until event.
         view.PauseView();
         var settingsViewPresenter = presenterManager.GetSettingsViewPresenter();
         settingsViewPresenter.SettingsConfirmed += (_, _) =>
         {
             view.ResumeView();
-            ConfigureViewBasedUponAppSettigns();
+            ConfigureViewBasedUponAppSettings();
         };
     }
 
@@ -125,7 +124,7 @@ public class HomeViewPresenter
         fileManager.OpenFileFromVaultAndReencryptUponClosure(filePath);
     }
 
-    private void DeleteFileFromVaultEventHander(object sender, EventArgs e)
+    private void DeleteFileFromVaultEventHandler(object sender, EventArgs e)
     {
         var filePath = GetSelectedFilePath();
         if (filePath == null)
@@ -182,22 +181,18 @@ public class HomeViewPresenter
     {
         filesInVault = fileManager.GetAllFilesInVault();
         var fileInfo = filesInVault.Where(_ => _.UniquePassword == false && _.DecryptedFileInformation != null)
-            .Select(_ => _.DecryptedFileInformation)
-            .OfType<FileInformation>();
+            .Select(_ => _.DecryptedFileInformation);
         var newBindSource = new BindingSource();
         newBindSource.DataSource = fileInfo;
-        this.filesInVaultBindingSource = newBindSource;
+        filesInVaultBindingSource = newBindSource;
         view.SetFilesInVaultListBindingSource(filesInVaultBindingSource);
-
-        // TODO reapply the search filter here
     }
 
     private void LoadAllFilesInVault()
     {
         filesInVault = fileManager.GetAllFilesInVault();
         var fileInfo = filesInVault.Where(_ => _.UniquePassword == false && _.DecryptedFileInformation != null)
-            .Select(_ => _.DecryptedFileInformation)
-            .OfType<FileInformation>();
+            .Select(_ => _.DecryptedFileInformation);
         filesInVaultBindingSource.DataSource = fileInfo;
         ApplySearchFilter(view.SearchValue);
     }
