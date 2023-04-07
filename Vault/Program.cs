@@ -94,6 +94,8 @@ internal static class Program
         fileManager.CleanupTempFiles();
 
         var databaseManager = container.GetInstance<IDatabaseManager>();
+        databaseManager.SetSqliteDbContextIfNotExisits();
+
         var windowsHelloManager = container.GetInstance<IWindowsHelloManager>();
         var appSettings = container.GetInstance<AppSettings>();
 

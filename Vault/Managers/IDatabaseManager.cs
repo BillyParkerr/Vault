@@ -4,6 +4,7 @@ namespace Application.Managers;
 
 public interface IDatabaseManager
 {
+    void SetSqliteDbContextIfNotExisits(SqliteDbContext dbContext = null);
     void SaveChanges();
 
     event EventHandler vaultContentsChangedEvent;

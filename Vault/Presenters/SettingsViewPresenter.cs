@@ -6,7 +6,7 @@ namespace Application.Presenters;
 
 public class SettingsViewPresenter
 {
-    public event EventHandler SettingsConfirmed;
+    public virtual event EventHandler SettingsConfirmed;
 
     private readonly ISettingsView view;
     private readonly IFileManager fileManager;

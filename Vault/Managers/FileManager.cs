@@ -356,6 +356,12 @@ public class FileManager : IFileManager
         });
     }
 
+    public void OpenFolderInExplorer(string path)
+    {
+        string argument = "/select, \"" + path + "\"";
+        System.Diagnostics.Process.Start("explorer.exe", argument);
+    }
+
     private static string FormatFileSize(string fileLength)
     {
         if (string.IsNullOrEmpty(fileLength))

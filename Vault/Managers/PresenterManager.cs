@@ -38,45 +38,45 @@ public class PresenterManager: IPresenterManager
         return new HomeViewPresenter(homeView, fileManager, databaseManager, this, appSettings);
     }
 
-    public LoginViewPresenter GetLoginViewPresenter()
+    public LoginViewPresenter GetLoginViewPresenter(ILoginView loginView = null)
     {
-        ILoginView loginView = container.GetInstance<ILoginView>();
+        loginView ??= container.GetInstance<ILoginView>();
         return new(loginView, loginManager, encryptionManager);
     }
 
-    public AuthenticationModeSelectionViewPresenter GetAuthenticationModeSelectionViewPresenter()
+    public AuthenticationModeSelectionViewPresenter GetAuthenticationModeSelectionViewPresenter(IAuthenticationModeSelectionView authenticationModeSelectionView = null)
     {
-        IAuthenticationModeSelectionView authenticationModeSelectionView = container.GetInstance<IAuthenticationModeSelectionView>();
+        authenticationModeSelectionView ??= container.GetInstance<IAuthenticationModeSelectionView>();
         return new(authenticationModeSelectionView, appSettings);
     }
 
-    public ExportEncryptedFilePresenter GetExportEncryptedFilePresenter(EncryptedFile encryptedFileToExport)
+    public ExportEncryptedFilePresenter GetExportEncryptedFilePresenter(EncryptedFile encryptedFileToExport, IExportEncryptedFileView exportEncryptedFileView = null)
     {
-        IExportEncryptedFileView exportEncryptedFileView = container.GetInstance<IExportEncryptedFileView>();
+        exportEncryptedFileView ??= container.GetInstance<IExportEncryptedFileView>();
         return new(exportEncryptedFileView, fileManager, encryptedFileToExport);
     }
 
-    public ImportEncryptedFilePresenter GetImportEncryptedFilePresenter()
+    public ImportEncryptedFilePresenter GetImportEncryptedFilePresenter(IImportEncryptedFileView importEncryptedFileView = null)
     {
-        IImportEncryptedFileView importEncryptedFileView = container.GetInstance<IImportEncryptedFileView>();
+        importEncryptedFileView ??= container.GetInstance<IImportEncryptedFileView>();
         return new(importEncryptedFileView, fileManager);
     }
 
-    public RegistrationViewPresenter GetRegistrationViewPresenter()
+    public RegistrationViewPresenter GetRegistrationViewPresenter(IRegisterView registerView = null)
     {
-        IRegisterView registerView = container.GetInstance<IRegisterView>();
+        registerView ??= container.GetInstance<IRegisterView>();
         return new(loginManager, registerView);
     }
 
-    public SettingsViewPresenter GetSettingsViewPresenter()
+    public SettingsViewPresenter GetSettingsViewPresenter(ISettingsView settingsView = null)
     {
-        ISettingsView settingsView = container.GetInstance<ISettingsView>();
+        settingsView ??= container.GetInstance<ISettingsView>();
         return new(settingsView, fileManager, appSettings, windowsHelloManager, this, loginManager);
     }
 
-    public ChangePasswordViewPresenter GetChangePasswordViewManager()
+    public ChangePasswordViewPresenter GetChangePasswordViewManager(IChangePasswordView changePasswordView = null)
     {
-        IChangePasswordView changePasswordView = container.GetInstance<IChangePasswordView>();
+        changePasswordView ??= container.GetInstance<IChangePasswordView>();
         return new(loginManager, changePasswordView);
     }
 }

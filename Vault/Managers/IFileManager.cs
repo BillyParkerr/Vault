@@ -18,4 +18,5 @@ public interface IFileManager
     void CleanupTempFiles();
     string GetFilePathFromExplorer(string filter = null);
     string GetFolderPathFromExplorer();
+    void OpenFolderInExplorer(string path);
 }

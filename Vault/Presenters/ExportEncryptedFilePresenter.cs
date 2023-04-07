@@ -45,7 +45,7 @@ public class ExportEncryptedFilePresenter
         bool success = fileManager.DownloadEncryptedFileFromVault(encryptedFileToExport.FilePath, selectedPath, password);
         if (success)
         {
-            System.Diagnostics.Process.Start("explorer.exe", selectedPath);
+            fileManager.OpenFolderInExplorer(selectedPath);
         }
         else
         {

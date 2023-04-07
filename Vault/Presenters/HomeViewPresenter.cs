@@ -73,7 +73,7 @@ public class HomeViewPresenter
         bool success = fileManager.AddFileToVault(fileToAdd);
         if (!success)
         {
-            MessageBox.Show($"An Error Occurred While Attempting to Encrypt {fileToAdd}");
+            ShowMessageBox($"An Error Occurred While Attempting to Encrypt {fileToAdd}");
         }
     }
 
@@ -85,7 +85,7 @@ public class HomeViewPresenter
             bool success = fileManager.ZipFolderAndAddToVault(folderToAdd);
             if (!success)
             {
-                MessageBox.Show($"An Error Occurred While Attempting to Zip & Encrypt the folder.");
+                ShowMessageBox("An Error Occurred While Attempting to Zip & Encrypt the folder.");
             }
         }
     }
@@ -93,22 +93,26 @@ public class HomeViewPresenter
     private void DownloadFileFromVaultEventHandler(object sender, EventArgs e)
     {
         var filePath = GetSelectedFilePath();
-        if (filePath == null)
+        if (string.IsNullOrWhiteSpace(filePath))
         {
             return;
         }
 
         string selectedPath = fileManager.GetFolderPathFromExplorer();
+        if (string.IsNullOrWhiteSpace(selectedPath))
+        {
+            return;
+        }
+
         bool success = fileManager.DownloadFileFromVault(filePath, selectedPath);
 
         if (success)
         {
-            string argument = "/select, \"" + selectedPath + "\"";
-            System.Diagnostics.Process.Start("explorer.exe", argument);
+            fileManager.OpenFolderInExplorer(selectedPath);
         }
         else
         {
-            MessageBox.Show("An error occurred while attempting to download the file!");
+            ShowMessageBox("An error occurred while attempting to download the file!");
             return;
         }
     }
@@ -141,6 +145,11 @@ public class HomeViewPresenter
     private void ExportFileFromVaultEventHandler(object sender, EventArgs e)
     {
         var selectedEncryptedFile = GetSelectedEncryptedFile();
+        if (selectedEncryptedFile == null)
+        {
+            return;
+        }
+
         presenterManager.GetExportEncryptedFilePresenter(selectedEncryptedFile);
         // TODO Potentially pause view while Export view is open
     }
@@ -232,5 +241,10 @@ public class HomeViewPresenter
         }
 
         return filesInVault.First(_ => _.DecryptedFileInformation != null && _.DecryptedFileInformation == fileInVault);
+    }
+
+    protected virtual void ShowMessageBox(string message)
+    {
+        MessageBox.Show(message);
     }
 }

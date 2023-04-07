@@ -4,17 +4,24 @@ namespace Application.Managers;
 
 public class DatabaseManager : IDatabaseManager
 {
-    private readonly SqliteDbContext DbContext;
+    private SqliteDbContext DbContext;
     public event EventHandler vaultContentsChangedEvent;
 
-    public DatabaseManager()
+    public void SetSqliteDbContextIfNotExisits(SqliteDbContext dbContext = null)
     {
-        DbContext = new();
-    }
+        if (DbContext != null)
+        {
+            return;
+        }
 
-    public DatabaseManager(SqliteDbContext dbContext)
-    {
-        DbContext = dbContext;
+        if (dbContext == null)
+        {
+            DbContext = new();
+        }
+        else
+        {
+            DbContext = dbContext;
+        }
     }
 
     public void SaveChanges()

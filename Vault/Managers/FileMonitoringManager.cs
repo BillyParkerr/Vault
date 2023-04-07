@@ -33,12 +33,7 @@ public class FileMonitoringManager : IFileMonitoringManager
 
         EncryptedFilePath = encryptedFilePath;
 
-        // Open the file
-        using Process fileopener = new();
-
-        fileopener.StartInfo.FileName = "explorer";
-        fileopener.StartInfo.Arguments = "\"" + fileToMonitorPath + "\"";
-        fileopener.Start();
+        OpenGivenFile(fileToMonitorPath);
 
         // Moniter the file for any changes
         var watcher = new FileSystemWatcher();
@@ -79,5 +74,14 @@ public class FileMonitoringManager : IFileMonitoringManager
         {
             semaphore.Release();
         }
+    }
+
+    protected virtual void OpenGivenFile(string filePath)
+    {
+        // Open the file
+        using Process fileopener = new();
+        fileopener.StartInfo.FileName = "explorer";
+        fileopener.StartInfo.Arguments = "\"" + filePath + "\"";
+        fileopener.Start();
     }
 }
