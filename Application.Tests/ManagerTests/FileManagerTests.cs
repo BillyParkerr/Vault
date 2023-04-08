@@ -255,6 +255,7 @@ public class FileManagerTests
 
         // Act
         _fileManager.ProtectAndSavePassword(testPassword);
+        _filesToDelete.Add(DirectoryPaths.EncryptedKeyPath);
 
         // Assert
         Assert.IsTrue(File.Exists(DirectoryPaths.EncryptedKeyPath));

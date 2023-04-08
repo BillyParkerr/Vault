@@ -14,6 +14,8 @@ public class SqliteDbContext : DbContext
         var programDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
             "PersonalVaultApplication");
         DbPath = Path.Join(programDirectory, "VaultDb.db");
+
+        Database.EnsureCreated();
     }
 
     public SqliteDbContext(DbContextOptions<SqliteDbContext> options) : base(options)
@@ -36,6 +38,7 @@ public class SqliteDbContext : DbContext
         modelBuilder.Entity<EncryptedFile>(entity =>
         {
             entity.HasKey(k => k.Id);
+            entity.Property(p => p.FilePath).IsRequired();
             entity.HasIndex(i => i.FilePath).IsUnique();
             entity.HasIndex(i => i.UniquePassword);
         });
@@ -44,6 +47,7 @@ public class SqliteDbContext : DbContext
         modelBuilder.Entity<EncryptionKey>(entity =>
         {
             entity.HasKey(k => k.Id);
+            entity.Property(p => p.Key).IsRequired();
             entity.HasIndex(i => i.Key).IsUnique();
         });
         base.OnModelCreating(modelBuilder);
