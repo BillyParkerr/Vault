@@ -13,15 +13,15 @@ namespace Application.Managers;
 /// </summary>
 public class FileMonitoringManager : IFileMonitoringManager
 {
-    private readonly SemaphoreSlim semaphore = new(1);
-    private readonly IEncryptionManager EncryptionManager;
-    private readonly IDatabaseManager DatabaseManager;
-    private string EncryptedFilePath;
+    private readonly SemaphoreSlim _semaphore = new(1);
+    private readonly IEncryptionManager _encryptionManager;
+    private readonly IDatabaseManager _databaseManager;
+    private string _encryptedFilePath;
 
     public FileMonitoringManager(IEncryptionManager encryptionManager, IDatabaseManager databaseManager)
     {
-        EncryptionManager = encryptionManager;
-        DatabaseManager = databaseManager;
+        _encryptionManager = encryptionManager;
+        _databaseManager = databaseManager;
     }
 
     public void Initilise(string fileToMonitorPath, string encryptedFilePath)
@@ -31,7 +31,7 @@ public class FileMonitoringManager : IFileMonitoringManager
             return;
         }
 
-        EncryptedFilePath = encryptedFilePath;
+        _encryptedFilePath = encryptedFilePath;
 
         OpenGivenFile(fileToMonitorPath);
 
@@ -51,7 +51,7 @@ public class FileMonitoringManager : IFileMonitoringManager
     /// <param name="e"></param>
     private async void OnFileChanged(object sender, FileSystemEventArgs e)
     {
-        await semaphore.WaitAsync();
+        await _semaphore.WaitAsync();
 
         try
         {
@@ -59,20 +59,20 @@ public class FileMonitoringManager : IFileMonitoringManager
             // This means first removing the file from the vault then reencrypting / readding it.
 
             // Delete the encrypted file that we have created earlier.
-            File.Delete(EncryptedFilePath);
-            DatabaseManager.DeleteEncryptedFileByFilePath(EncryptedFilePath);
-            DatabaseManager.SaveChanges(); // Both SaveChanges calls are required as otherwise issues with threading and concurrent DbContext calls can happen.
+            File.Delete(_encryptedFilePath);
+            _databaseManager.DeleteEncryptedFileByFilePath(_encryptedFilePath);
+            _databaseManager.SaveChanges(); // Both SaveChanges calls are required as otherwise issues with threading and concurrent DbContext calls can happen.
 
             // Readd the new modified file to the vault.
             // Encrypt File
-            string newEncryptedFilePath = EncryptionManager.EncryptFile(e.FullPath);
-            DatabaseManager.AddEncryptedFile(newEncryptedFilePath, false);
-            DatabaseManager.SaveChanges();
-            EncryptedFilePath = newEncryptedFilePath;
+            string newEncryptedFilePath = _encryptionManager.EncryptFile(e.FullPath);
+            _databaseManager.AddEncryptedFile(newEncryptedFilePath, false);
+            _databaseManager.SaveChanges();
+            _encryptedFilePath = newEncryptedFilePath;
         }
         finally
         {
-            semaphore.Release();
+            _semaphore.Release();
         }
     }
 

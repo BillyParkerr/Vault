@@ -18,23 +18,23 @@ public class EncryptionManager : IEncryptionManager
     // Please note that the adjustment of these values will cause previously encrypted files to not be able to be decrypted!
     private const int AlgorithmnNonceSize = 16;
     private const int AlgorithmKeySize = 32;
-    private const int PBKDF2_SaltSize = 16;
-    private const int PBKDF2_Iterations = 32767;
-    private protected string decryptedEncryptionKey;
-    private readonly IDatabaseManager databaseManager;
+    private const int Pbkdf2SaltSize = 16;
+    private const int Pbkdf2Iterations = 32767;
+    private protected string DecryptedEncryptionKey;
+    private readonly IDatabaseManager _databaseManager;
 
     public EncryptionManager(IDatabaseManager databaseManager)
     {
-        this.databaseManager = databaseManager;
+        this._databaseManager = databaseManager;
     }
 
     public void SetEncryptionPassword(string password)
     {
-        var encryptionKey = databaseManager.GetEncryptionKey();
+        var encryptionKey = _databaseManager.GetEncryptionKey();
         try
         {
             var decryptedKey = DecryptString(encryptionKey.Key, password);
-            decryptedEncryptionKey = decryptedKey;
+            DecryptedEncryptionKey = decryptedKey;
         }
         catch
         {
@@ -47,7 +47,7 @@ public class EncryptionManager : IEncryptionManager
     {
         // Generate a 128-bit salt using a CSPRNG.
         SecureRandom rand = new();
-        byte[] salt = new byte[PBKDF2_SaltSize];
+        byte[] salt = new byte[Pbkdf2SaltSize];
         rand.NextBytes(salt);
 
         return salt;
@@ -55,11 +55,11 @@ public class EncryptionManager : IEncryptionManager
 
     private byte[] GenerateKeyFromPassword(byte[] salt, string password = null)
     {
-        password ??= decryptedEncryptionKey;
+        password ??= DecryptedEncryptionKey;
 
         // Create an instance of PBKDF2 and derive a key.
         Pkcs5S2ParametersGenerator pbkdf2 = new(new Sha256Digest());
-        pbkdf2.Init(Encoding.UTF8.GetBytes(password), salt, PBKDF2_Iterations);
+        pbkdf2.Init(Encoding.UTF8.GetBytes(password), salt, Pbkdf2Iterations);
         byte[] key = ((KeyParameter)pbkdf2.GenerateDerivedMacParameters(AlgorithmKeySize * 8)).GetKey();
 
         return key;
@@ -95,7 +95,7 @@ public class EncryptionManager : IEncryptionManager
             }
 
             var iv = buffer.Take(AlgorithmnNonceSize).ToArray();
-            var salt = buffer.Skip(AlgorithmnNonceSize).Take(PBKDF2_SaltSize).ToArray();
+            var salt = buffer.Skip(AlgorithmnNonceSize).Take(Pbkdf2SaltSize).ToArray();
 
             return (iv, salt);
         }
@@ -115,7 +115,7 @@ public class EncryptionManager : IEncryptionManager
         if (password == null)
         {
             IsPasswordSet();
-            password = decryptedEncryptionKey;
+            password = DecryptedEncryptionKey;
         }
 
         var initilisationVector = GenerateInitilisationVector();
@@ -159,7 +159,7 @@ public class EncryptionManager : IEncryptionManager
         if (password == null)
         {
             IsPasswordSet();
-            password = decryptedEncryptionKey;
+            password = DecryptedEncryptionKey;
         }
         if (destinationPath == null)
         {
@@ -211,7 +211,7 @@ public class EncryptionManager : IEncryptionManager
     /// <returns>Encrypted string</returns>
     public string EncryptString(string plaintext, string password = null)
     {
-        password ??= decryptedEncryptionKey;
+        password ??= DecryptedEncryptionKey;
 
         var salt = GenerateSalt();
         var key = GenerateKeyFromPassword(salt, password);
@@ -263,14 +263,14 @@ public class EncryptionManager : IEncryptionManager
         if (password == null)
         {
             IsPasswordSet();
-            password = decryptedEncryptionKey;
+            password = DecryptedEncryptionKey;
         }
 
         // Decode the base64.
         byte[] ciphertextAndNonceAndSalt = Convert.FromBase64String(encryptedFileName.Replace("_", @"/")); // The .Replace is important here as / cannot be in file names in windows.
                                                                                                                             // There are several other illegal characters in windows only this is relevant for this flow.
-        byte[] salt = new byte[PBKDF2_SaltSize];                                                                            // Retrieve the salt and ciphertextAndNonce. This process is inverted for Encrypting.
-        byte[] ciphertextAndNonce = new byte[ciphertextAndNonceAndSalt.Length - PBKDF2_SaltSize];
+        byte[] salt = new byte[Pbkdf2SaltSize];                                                                            // Retrieve the salt and ciphertextAndNonce. This process is inverted for Encrypting.
+        byte[] ciphertextAndNonce = new byte[ciphertextAndNonceAndSalt.Length - Pbkdf2SaltSize];
         Array.Copy(ciphertextAndNonceAndSalt, 0, salt, 0, salt.Length);
         Array.Copy(ciphertextAndNonceAndSalt, salt.Length, ciphertextAndNonce, 0, ciphertextAndNonce.Length);
 
@@ -304,7 +304,7 @@ public class EncryptionManager : IEncryptionManager
 
     private void IsPasswordSet()
     {
-        if (decryptedEncryptionKey == null)
+        if (DecryptedEncryptionKey == null)
         {
             throw new ApplicationException("The password must be set before any encrytion can take place!");
         }

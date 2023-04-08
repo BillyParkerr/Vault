@@ -7,45 +7,45 @@ namespace Application.Presenters;
 
 public class ExportEncryptedFilePresenter
 {
-    private readonly IExportEncryptedFileView view;
-    private readonly IFileManager fileManager;
-    private readonly EncryptedFile encryptedFileToExport;
+    private readonly IExportEncryptedFileView _view;
+    private readonly IFileManager _fileManager;
+    private readonly EncryptedFile _encryptedFileToExport;
 
     public ExportEncryptedFilePresenter(IExportEncryptedFileView view, IFileManager fileManager, EncryptedFile encryptedFile)
     {
-        encryptedFileToExport = encryptedFile;
-        this.view = view;
-        this.fileManager = fileManager;
+        _encryptedFileToExport = encryptedFile;
+        this._view = view;
+        this._fileManager = fileManager;
         view.ConfirmEvent += ConfirmEventHandler;
         view.Show();
     }
 
     private void ConfirmEventHandler(object sender, EventArgs e)
     {
-        var givenPassword = view.GivenPassword;
+        var givenPassword = _view.GivenPassword;
         var passwordState = GetPasswordState(givenPassword);
         switch (passwordState)
         {
             case PasswordState.Valid:
                 ExportEncryptedFile(givenPassword);
-                view.Close();
+                _view.Close();
                 return;
             case PasswordState.PasswordNotGiven:
-                view.ShowBlankPasswordError();
+                _view.ShowBlankPasswordError();
                 return;
             case PasswordState.LengthTooShort:
-                view.ShowPasswordTooShortError();
+                _view.ShowPasswordTooShortError();
                 return;
         }
     }
 
     private void ExportEncryptedFile(string password)
     {
-        string selectedPath = fileManager.GetFolderPathFromExplorer();
-        bool success = fileManager.DownloadEncryptedFileFromVault(encryptedFileToExport.FilePath, selectedPath, password);
+        string selectedPath = _fileManager.GetFolderPathFromExplorer();
+        bool success = _fileManager.DownloadEncryptedFileFromVault(_encryptedFileToExport.FilePath, selectedPath, password);
         if (success)
         {
-            fileManager.OpenFolderInExplorer(selectedPath);
+            _fileManager.OpenFolderInExplorer(selectedPath);
         }
         else
         {

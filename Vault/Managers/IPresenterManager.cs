@@ -14,4 +14,5 @@ public interface IPresenterManager
     SettingsViewPresenter GetSettingsViewPresenter(ISettingsView settingsView = null);
     ChangePasswordViewPresenter GetChangePasswordViewManager(IChangePasswordView changePasswordView = null);
     HomeViewPresenter GetHomeViewPresenter(IHomeView homeView = null);
+    WindowsHelloRegisterViewPresenter GetWindowsHelloRegisterViewPresenter(IWindowsHelloRegisterView windowsHelloRegisterView = null);
 }

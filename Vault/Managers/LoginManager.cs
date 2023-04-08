@@ -6,26 +6,26 @@ namespace Application.Managers;
 
 public class LoginManager : ILoginManager
 {
-    private readonly IDatabaseManager databaseManager;
-    private readonly IEncryptionManager encryptionManager;
-    private readonly IFileManager fileManager;
-    private readonly AppSettings appSettings;
+    private readonly IDatabaseManager _databaseManager;
+    private readonly IEncryptionManager _encryptionManager;
+    private readonly IFileManager _fileManager;
+    private readonly AppSettings _appSettings;
 
     public LoginManager(IDatabaseManager databaseManager, IEncryptionManager encryptionManager, IFileManager fileManager, AppSettings appSettings)
     {
-        this.databaseManager = databaseManager;
-        this.encryptionManager = encryptionManager;
-        this.fileManager = fileManager;
-        this.appSettings = appSettings;
+        this._databaseManager = databaseManager;
+        this._encryptionManager = encryptionManager;
+        this._fileManager = fileManager;
+        this._appSettings = appSettings;
     }
 
     public bool VerifyPassword(string password)
     {
         // Get EncryptionKey from database
-        var encryptionKey = databaseManager.GetEncryptionKey().Key;
+        var encryptionKey = _databaseManager.GetEncryptionKey().Key;
         try
         {
-            var decryptedKey = encryptionManager.DecryptString(encryptionKey, password);
+            var decryptedKey = _encryptionManager.DecryptString(encryptionKey, password);
             return true;
         }
         catch
@@ -37,23 +37,23 @@ public class LoginManager : ILoginManager
     public void SetPassword(string password)
     {
         var baseString = GenerateRandomStringForEncryptionKey();
-        var encryptedBaseString = encryptionManager.EncryptString(baseString, password);
-        databaseManager.SetEncryptionKey(encryptedBaseString);
-        databaseManager.SaveChanges();
-        encryptionManager.SetEncryptionPassword(password);
-        if (appSettings.AuthenticationMethod == AuthenticationMethod.WindowsHello)
+        var encryptedBaseString = _encryptionManager.EncryptString(baseString, password);
+        _databaseManager.SetEncryptionKey(encryptedBaseString);
+        _databaseManager.SaveChanges();
+        _encryptionManager.SetEncryptionPassword(password);
+        if (_appSettings.AuthenticationMethod == AuthenticationMethod.WindowsHello)
         {
-            fileManager.ProtectAndSavePassword(password);
+            _fileManager.ProtectAndSavePassword(password);
         }
     }
 
     public bool ChangePassword(string newPassword, string oldPassword)
     {
-        var currentEncryptionKey = databaseManager.GetEncryptionKey();
+        var currentEncryptionKey = _databaseManager.GetEncryptionKey();
         string decryptedKey;
         try
         {
-            decryptedKey = encryptionManager.DecryptString(currentEncryptionKey.Key, oldPassword);
+            decryptedKey = _encryptionManager.DecryptString(currentEncryptionKey.Key, oldPassword);
         }
         catch
         {
@@ -62,13 +62,13 @@ public class LoginManager : ILoginManager
 
         if (decryptedKey != null)
         {
-            var newEncryptionKey = encryptionManager.EncryptString(decryptedKey, newPassword);
-            databaseManager.ChangeEncryptionKey(newEncryptionKey);
-            databaseManager.SaveChanges();
-            encryptionManager.SetEncryptionPassword(newPassword);
-            if (appSettings.AuthenticationMethod == AuthenticationMethod.WindowsHello)
+            var newEncryptionKey = _encryptionManager.EncryptString(decryptedKey, newPassword);
+            _databaseManager.ChangeEncryptionKey(newEncryptionKey);
+            _databaseManager.SaveChanges();
+            _encryptionManager.SetEncryptionPassword(newPassword);
+            if (_appSettings.AuthenticationMethod == AuthenticationMethod.WindowsHello)
             {
-                fileManager.ProtectAndSavePassword(newPassword);
+                _fileManager.ProtectAndSavePassword(newPassword);
             }
         }
         else

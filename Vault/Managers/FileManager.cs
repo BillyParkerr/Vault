@@ -7,17 +7,17 @@ namespace Application.Managers;
 
 public class FileManager : IFileManager
 {
-    private readonly IEncryptionManager encryptionManager;
-    private readonly IDatabaseManager databaseManager;
-    private readonly IFileMonitoringManager fileMonitoringManager;
-    private readonly AppSettings appSettings;
+    private readonly IEncryptionManager _encryptionManager;
+    private readonly IDatabaseManager _databaseManager;
+    private readonly IFileMonitoringManager _fileMonitoringManager;
+    private readonly AppSettings _appSettings;
 
     public FileManager(IEncryptionManager encryptionManager, IDatabaseManager databaseManager, IFileMonitoringManager fileMonitoringManager, AppSettings appSettings)
     {
-        this.encryptionManager = encryptionManager;
-        this.databaseManager = databaseManager;
-        this.fileMonitoringManager = fileMonitoringManager;
-        this.appSettings = appSettings;
+        this._encryptionManager = encryptionManager;
+        this._databaseManager = databaseManager;
+        this._fileMonitoringManager = fileMonitoringManager;
+        this._appSettings = appSettings;
     }
 
     /// <summary>
@@ -27,12 +27,12 @@ public class FileManager : IFileManager
     public List<EncryptedFile> GetAllFilesInVault()
     {
         // Ensure that the files are up to date.
-        databaseManager.SaveChanges();
-        var encryptedFiles = databaseManager.GetAllEncryptedFiles();
+        _databaseManager.SaveChanges();
+        var encryptedFiles = _databaseManager.GetAllEncryptedFiles();
 
         foreach (var encryptedFile in encryptedFiles.Where(_ => _.UniquePassword == false))
         {
-            var decryptedFile = encryptionManager.DecryptString(Path.GetFileNameWithoutExtension(encryptedFile.FilePath));
+            var decryptedFile = _encryptionManager.DecryptString(Path.GetFileNameWithoutExtension(encryptedFile.FilePath));
             FileInformation fileInformation = new()
             {
                 FileName = Path.GetFileNameWithoutExtension(decryptedFile),
@@ -56,26 +56,26 @@ public class FileManager : IFileManager
         try
         {
             // Encrypt File
-            string encryptedFilePath = encryptionManager.EncryptFile(filePath);
+            string encryptedFilePath = _encryptionManager.EncryptFile(filePath);
 
             // Add file to database
             if (password == null)
             {
-                databaseManager.AddEncryptedFile(encryptedFilePath, false);
+                _databaseManager.AddEncryptedFile(encryptedFilePath, false);
 
                 // If the user has chosen to delete the original file once it has been added to the vault
                 // we will proceed to delete the file.
-                if (appSettings.DeleteUnencryptedFileUponUpload)
+                if (_appSettings.DeleteUnencryptedFileUponUpload)
                 {
                     File.Delete(filePath);
                 }
             }
             else
             {
-                databaseManager.AddEncryptedFile(encryptedFilePath, true);
+                _databaseManager.AddEncryptedFile(encryptedFilePath, true);
             }
 
-            databaseManager.SaveChanges();
+            _databaseManager.SaveChanges();
         }
         catch (Exception ex)
         {
@@ -90,7 +90,7 @@ public class FileManager : IFileManager
     {
         try
         {
-            var decryptedFilePath = encryptionManager.DecryptFile(encryptedFilePath, destinationFilePath);
+            var decryptedFilePath = _encryptionManager.DecryptFile(encryptedFilePath, destinationFilePath);
             if (!File.Exists(decryptedFilePath))
             {
                 return false;
@@ -115,8 +115,8 @@ public class FileManager : IFileManager
             }
             else
             {
-                databaseManager.DeleteEncryptedFileByFilePath(filePath);
-                databaseManager.SaveChanges();
+                _databaseManager.DeleteEncryptedFileByFilePath(filePath);
+                _databaseManager.SaveChanges();
                 return true;
             }
         }
@@ -148,12 +148,12 @@ public class FileManager : IFileManager
             var destinationFileLocation = GetTempFileDestinationLocation(filePath);
             if (!File.Exists(destinationFileLocation))
             {
-                encryptionManager.DecryptFile(filePath, DirectoryPaths.DecryptedFilesTempDirectory);
+                _encryptionManager.DecryptFile(filePath, DirectoryPaths.DecryptedFilesTempDirectory);
             }
 
             if (File.Exists(destinationFileLocation))
             {
-                fileMonitoringManager.Initilise(destinationFileLocation, filePath);
+                _fileMonitoringManager.Initilise(destinationFileLocation, filePath);
                 return true;
             }
             else
@@ -169,7 +169,7 @@ public class FileManager : IFileManager
 
     private string GetTempFileDestinationLocation(string filePath, string password = null)
     {
-        var destinationFileName = encryptionManager.DecryptString(Path.GetFileNameWithoutExtension(filePath), password);
+        var destinationFileName = _encryptionManager.DecryptString(Path.GetFileNameWithoutExtension(filePath), password);
         return Path.Combine(DirectoryPaths.DecryptedFilesTempDirectory, destinationFileName);
     }
 
@@ -210,7 +210,7 @@ public class FileManager : IFileManager
             var decryptedFilePath = GetTempFileDestinationLocation(filePath);
             if (!File.Exists(decryptedFilePath))
             {
-                decryptedFilePath = encryptionManager.DecryptFile(filePath, DirectoryPaths.DecryptedFilesTempDirectory);
+                decryptedFilePath = _encryptionManager.DecryptFile(filePath, DirectoryPaths.DecryptedFilesTempDirectory);
             }
 
             if (decryptedFilePath == null || !File.Exists(decryptedFilePath))
@@ -218,7 +218,7 @@ public class FileManager : IFileManager
                 return false;
             }
 
-            var encryptedFileLocation = encryptionManager.EncryptFile(decryptedFilePath, newEncryptionPassword);
+            var encryptedFileLocation = _encryptionManager.EncryptFile(decryptedFilePath, newEncryptionPassword);
 
             if (encryptedFileLocation == null || !File.Exists(encryptedFileLocation))
             {
@@ -249,7 +249,7 @@ public class FileManager : IFileManager
             var decryptedFilePath = GetTempFileDestinationLocation(filePath, encryptionPassword);
             if (!File.Exists(decryptedFilePath))
             {
-                decryptedFilePath = encryptionManager.DecryptFile(filePath, DirectoryPaths.DecryptedFilesTempDirectory);
+                decryptedFilePath = _encryptionManager.DecryptFile(filePath, DirectoryPaths.DecryptedFilesTempDirectory);
             }
 
             if (decryptedFilePath == null || !File.Exists(decryptedFilePath))
@@ -342,7 +342,7 @@ public class FileManager : IFileManager
             FolderBrowserDialog folderBrowserDialog = new()
             {
                 Description = "Select Folder",
-                InitialDirectory = appSettings.DefaultDownloadLocation
+                InitialDirectory = _appSettings.DefaultDownloadLocation
             };
 
             DialogResult result = folderBrowserDialog.ShowDialog();

@@ -13,12 +13,12 @@ public class FileManagerTests
     private AppSettings _appSettings;
     private FileManager _fileManager;
     private readonly TestHelper _testHelper = new();
-    private List<string> filesToDelete;
+    private List<string> _filesToDelete;
 
     [SetUp]
     public void Setup()
     {
-        filesToDelete = new List<string>();
+        _filesToDelete = new List<string>();
 
         _encryptionManager = new Mock<IEncryptionManager>();
         _databaseManager = new Mock<IDatabaseManager>();
@@ -32,7 +32,7 @@ public class FileManagerTests
     public void Cleanup()
     {
         // If any test creates files on the system, delete them here.
-        foreach (var file in filesToDelete)
+        foreach (var file in _filesToDelete)
         {
             if (File.Exists(file))
             {
@@ -48,8 +48,8 @@ public class FileManagerTests
         var testFile = _testHelper.CreateTextFile();
         var secondTestFile = _testHelper.CreateTextFile();
 
-        filesToDelete.Add(testFile);
-        filesToDelete.Add(secondTestFile);
+        _filesToDelete.Add(testFile);
+        _filesToDelete.Add(secondTestFile);
 
         var encryptedFiles = new List<EncryptedFile>
         {
@@ -91,7 +91,7 @@ public class FileManagerTests
     {
         // Arrange
         var testFile = _testHelper.CreateTextFile();
-        filesToDelete.Add(testFile);
+        _filesToDelete.Add(testFile);
 
         // Mock the EncryptionManager.DecryptFile method to return the decrypted file path
         _encryptionManager.Setup(x => x.DecryptFile(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
@@ -109,7 +109,7 @@ public class FileManagerTests
     {
         // Arrange
         var testFile = _testHelper.CreateTextFile();
-        filesToDelete.Add(testFile);
+        _filesToDelete.Add(testFile);
 
         // Act
         var result = _fileManager.DeleteFileFromVault(testFile);
@@ -125,12 +125,12 @@ public class FileManagerTests
     {
         // Arrange
         var testFile = _testHelper.CreateTextFile();
-        filesToDelete.Add(testFile);
+        _filesToDelete.Add(testFile);
 
         // Copy the test file to the decrypted files temp directory
         var copiedFilePath = Path.Combine(DirectoryPaths.DecryptedFilesTempDirectory, Path.GetFileName(testFile));
         File.Copy(testFile, copiedFilePath);
-        filesToDelete.Add(copiedFilePath);
+        _filesToDelete.Add(copiedFilePath);
 
         // Mock the EncryptionManager.DecryptFile method to return the decrypted file path
         _encryptionManager.Setup(x => x.DecryptFile(testFile, DirectoryPaths.DecryptedFilesTempDirectory, It.IsAny<string>()))
@@ -153,7 +153,7 @@ public class FileManagerTests
     {
         // Arrange
         var testFile = _testHelper.CreateTextFile();
-        filesToDelete.Add(testFile);
+        _filesToDelete.Add(testFile);
 
         // Copy the test file to the decrypted files temp directory
         var copiedFilePath = Path.Combine(DirectoryPaths.DecryptedFilesTempDirectory, Path.GetFileName(testFile));
@@ -168,7 +168,7 @@ public class FileManagerTests
 
         _encryptionManager.Setup(x => x.EncryptFile(copiedFilePath, newEncryptionPassword)).Returns(copiedFilePath);
 
-        filesToDelete.Add(Path.Combine(destionationFilePath, Path.GetFileName(copiedFilePath)));
+        _filesToDelete.Add(Path.Combine(destionationFilePath, Path.GetFileName(copiedFilePath)));
 
         // Act
         var result = _fileManager.DownloadEncryptedFileFromVault(testFile, destionationFilePath, newEncryptionPassword);
@@ -181,7 +181,7 @@ public class FileManagerTests
     {
         // Arrange
         var testFile = _testHelper.CreateTextFile();
-        filesToDelete.Add(testFile);
+        _filesToDelete.Add(testFile);
 
         // Copy the test file to the decrypted files temp directory
         var copiedFilePath = Path.Combine(DirectoryPaths.DecryptedFilesTempDirectory, Path.GetFileName(testFile));
@@ -199,7 +199,7 @@ public class FileManagerTests
         _databaseManager.Setup(x => x.AddEncryptedFile(It.IsAny<string>(), It.IsAny<bool>())).Verifiable();
         _databaseManager.Setup(x => x.SaveChanges()).Verifiable();
 
-        filesToDelete.Add(Path.Combine(DirectoryPaths.DecryptedFilesTempDirectory, Path.GetFileName(copiedFilePath)));
+        _filesToDelete.Add(Path.Combine(DirectoryPaths.DecryptedFilesTempDirectory, Path.GetFileName(copiedFilePath)));
 
         // Act
         var result = _fileManager.ImportEncryptedFileToVault(testFile, encryptionPassword);
@@ -216,7 +216,7 @@ public class FileManagerTests
         // Arrange
         string testPassword = "TestPassword123";
         string tempEncryptedKeyPath = Path.Combine(Path.GetTempPath(), "TempEncryptedKey.bin");
-        filesToDelete.Add(tempEncryptedKeyPath);
+        _filesToDelete.Add(tempEncryptedKeyPath);
 
         // Save the encrypted password to the temp file
         _fileManager.ProtectAndSavePassword(testPassword);
@@ -234,7 +234,7 @@ public class FileManagerTests
         // Arrange
         string testPassword = "TestPassword123";
         string tempEncryptedKeyPath = Path.Combine(Path.GetTempPath(), "TempEncryptedKey.bin");
-        filesToDelete.Add(tempEncryptedKeyPath);
+        _filesToDelete.Add(tempEncryptedKeyPath);
 
         // Save the encrypted password to the temp file
         _fileManager.ProtectAndSavePassword(testPassword);
@@ -251,7 +251,7 @@ public class FileManagerTests
     {
         // Arrange
         string testPassword = "TestPassword123";
-        filesToDelete.Add(DirectoryPaths.EncryptedKeyPath);
+        _filesToDelete.Add(DirectoryPaths.EncryptedKeyPath);
 
         // Act
         _fileManager.ProtectAndSavePassword(testPassword);

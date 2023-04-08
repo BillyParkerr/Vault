@@ -8,47 +8,47 @@ public class WindowsHelloRegisterViewPresenter
 {
     public bool UserSuccessfullyRegistered { get; private set; }
 
-    private readonly IWindowsHelloRegisterView view;
-    private readonly IWindowsHelloManager windowsHelloManager;
-    private readonly ILoginManager loginManager;
+    private readonly IWindowsHelloRegisterView _view;
+    private readonly IWindowsHelloManager _windowsHelloManager;
+    private readonly ILoginManager _loginManager;
 
     public WindowsHelloRegisterViewPresenter(IWindowsHelloRegisterView view, IWindowsHelloManager windowsHelloManager, ILoginManager loginManager)
     {
-        this.windowsHelloManager = windowsHelloManager;
-        this.loginManager = loginManager;
-        this.view = view;
-        this.view.ConfirmEvent += ConfirmEventHandler;
+        this._windowsHelloManager = windowsHelloManager;
+        this._loginManager = loginManager;
+        this._view = view;
+        this._view.ConfirmEvent += ConfirmEventHandler;
     }
 
     private async void ConfirmEventHandler(object _, EventArgs __)
     {
-        string enteredPassword = view.GivenPassword;
-        string enteredSecondPassword = view.GivenSecondPassword;
+        string enteredPassword = _view.GivenPassword;
+        string enteredSecondPassword = _view.GivenSecondPassword;
         var passwordState = GetPasswordState(enteredPassword, enteredSecondPassword);
         switch (passwordState)
         {
             case PasswordState.Valid:
                 await CommitPasswordAsync(enteredPassword);
-                view.Close();
+                _view.Close();
                 return;
             case PasswordState.PasswordNotGiven:
-                view.ShowBlankPasswordError();
+                _view.ShowBlankPasswordError();
                 return;
             case PasswordState.NonMatching:
-                view.ShowPasswordMismatchError();
+                _view.ShowPasswordMismatchError();
                 return;
             case PasswordState.LengthTooShort:
-                view.ShowPasswordTooShortError();
+                _view.ShowPasswordTooShortError();
                 return;
         }
     }
 
     private async Task CommitPasswordAsync(string password)
     {
-        bool authenticated = await windowsHelloManager.AuthenticateWithWindowsHelloAsync("Please authenticate to register your backup password.");
+        bool authenticated = await _windowsHelloManager.AuthenticateWithWindowsHelloAsync("Please authenticate to register your backup password.");
         if (authenticated)
         {
-            loginManager.SetPassword(password);
+            _loginManager.SetPassword(password);
             UserSuccessfullyRegistered = true;
         }
         else

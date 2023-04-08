@@ -7,7 +7,7 @@ public interface IDatabaseManager
     void SetSqliteDbContextIfNotExisits(SqliteDbContext dbContext = null);
     void SaveChanges();
 
-    event EventHandler vaultContentsChangedEvent;
+    event EventHandler VaultContentsChangedEvent;
 
     // EncryptedFile Queries
     EncryptedFile GetEncryptedFileById(int id);

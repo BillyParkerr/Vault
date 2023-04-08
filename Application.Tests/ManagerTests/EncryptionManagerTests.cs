@@ -10,7 +10,7 @@ public class EncryptionManagerTests
     private Mock<IDatabaseManager> _databaseManagerMock;
     private EncryptionManager _encryptionManager;
     private TestHelper _testHelper;
-    private List<string> filesToDelete;
+    private List<string> _filesToDelete;
 
     [SetUp]
     public void SetUp()
@@ -18,14 +18,14 @@ public class EncryptionManagerTests
         _databaseManagerMock = new Mock<IDatabaseManager>();
         _encryptionManager = new EncryptionManager(_databaseManagerMock.Object);
         _testHelper = new TestHelper();
-        filesToDelete = new List<string>();
+        _filesToDelete = new List<string>();
     }
 
     [TearDown]
     public void Cleanup()
     {
         // If any test creates files on the system, delete them here.
-        foreach (var file in filesToDelete)
+        foreach (var file in _filesToDelete)
         {
             if (File.Exists(file))
             {
@@ -107,14 +107,14 @@ public class EncryptionManagerTests
     {
         // Arrange
         string sourceFilePath = _testHelper.CreateTextFile();
-        filesToDelete.Add(sourceFilePath);
+        _filesToDelete.Add(sourceFilePath);
         string password = "test_password";
 
         // Act
         string encryptedFilePath = _encryptionManager.EncryptFile(sourceFilePath, password);
         string decryptedFilePath = _encryptionManager.DecryptFile(encryptedFilePath, null, password);
-        filesToDelete.Add(encryptedFilePath);
-        filesToDelete.Add(decryptedFilePath);
+        _filesToDelete.Add(encryptedFilePath);
+        _filesToDelete.Add(decryptedFilePath);
 
         // Assert
         string originalContent = File.ReadAllText(sourceFilePath);
@@ -127,7 +127,7 @@ public class EncryptionManagerTests
     {
         // Arrange
         string sourceFilePath = _testHelper.CreateTextFile();
-        filesToDelete.Add(sourceFilePath);
+        _filesToDelete.Add(sourceFilePath);
         string password = "test_password";
         SetEncryptionKeyBasedOnPassword(password);
         _encryptionManager.SetEncryptionPassword(password);
@@ -135,8 +135,8 @@ public class EncryptionManagerTests
         // Act
         string encryptedFilePath = _encryptionManager.EncryptFile(sourceFilePath);
         string decryptedFilePath = _encryptionManager.DecryptFile(encryptedFilePath);
-        filesToDelete.Add(encryptedFilePath);
-        filesToDelete.Add(decryptedFilePath);
+        _filesToDelete.Add(encryptedFilePath);
+        _filesToDelete.Add(decryptedFilePath);
 
         // Assert
         string originalContent = File.ReadAllText(sourceFilePath);

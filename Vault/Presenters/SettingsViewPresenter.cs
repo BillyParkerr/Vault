@@ -8,41 +8,41 @@ public class SettingsViewPresenter
 {
     public virtual event EventHandler SettingsConfirmed;
 
-    private readonly ISettingsView view;
-    private readonly IFileManager fileManager;
-    private readonly IWindowsHelloManager windowsHelloManager;
-    private readonly IPresenterManager presenterManager;
-    private readonly ILoginManager loginManager;
-    private readonly AppSettings appSettings;
+    private readonly ISettingsView _view;
+    private readonly IFileManager _fileManager;
+    private readonly IWindowsHelloManager _windowsHelloManager;
+    private readonly IPresenterManager _presenterManager;
+    private readonly ILoginManager _loginManager;
+    private readonly AppSettings _appSettings;
 
-    private protected string givenNewPassword;
-    private protected string givenOldPassword;
+    private protected string GivenNewPassword;
+    private protected string GivenOldPassword;
 
-    private readonly AppSettings uncommitedAppSettings;
+    private readonly AppSettings _uncommitedAppSettings;
 
     public SettingsViewPresenter(ISettingsView view, IFileManager fileManager, AppSettings appSettings, 
         IWindowsHelloManager windowsHelloManager, IPresenterManager presenterManager, ILoginManager loginManager)
     {
-        this.appSettings = appSettings;
-        this.fileManager = fileManager;
-        this.windowsHelloManager = windowsHelloManager;
-        this.presenterManager = presenterManager;
-        this.loginManager = loginManager;
+        this._appSettings = appSettings;
+        this._fileManager = fileManager;
+        this._windowsHelloManager = windowsHelloManager;
+        this._presenterManager = presenterManager;
+        this._loginManager = loginManager;
 
-        this.view = view;
-        this.view.ToggleUserModeEvent += ToggleUserModeEventHandler;
-        this.view.ToggleAuthenticationModeEvent += ToggleAuthenticationModeEventHandler;
-        this.view.ChangePasswordEvent += ChangePasswordEventHandler;
-        this.view.ToggleAutomaticDeletionOfUploadedFilesEvent += ToggleAutomaticDeletionOfUploadedFilesEventHandler;
-        this.view.ChangeDefaultDownloadLocationEvent += ChangeDefaultDownloadLocationEventHandler;
-        this.view.ConfirmChosenSettingsEvent += ConfirmChosenSettingsEventHandler;
-        this.view.UserClosedViewEvent += UserClosedViewEventHandler;
+        this._view = view;
+        this._view.ToggleUserModeEvent += ToggleUserModeEventHandler;
+        this._view.ToggleAuthenticationModeEvent += ToggleAuthenticationModeEventHandler;
+        this._view.ChangePasswordEvent += ChangePasswordEventHandler;
+        this._view.ToggleAutomaticDeletionOfUploadedFilesEvent += ToggleAutomaticDeletionOfUploadedFilesEventHandler;
+        this._view.ChangeDefaultDownloadLocationEvent += ChangeDefaultDownloadLocationEventHandler;
+        this._view.ConfirmChosenSettingsEvent += ConfirmChosenSettingsEventHandler;
+        this._view.UserClosedViewEvent += UserClosedViewEventHandler;
 
         // Take a copy of the current appSettings
-        uncommitedAppSettings = CopyAppSettings(appSettings);
+        _uncommitedAppSettings = CopyAppSettings(appSettings);
         _ = SetupViewBasedUponAppSettings();
 
-        this.view.Show();
+        this._view.Show();
     }
 
     private static AppSettings CopyAppSettings(AppSettings settings)
@@ -60,50 +60,50 @@ public class SettingsViewPresenter
 
     private void CommitAppSettings()
     {
-        appSettings.AuthenticationMethod = uncommitedAppSettings.AuthenticationMethod;
-        appSettings.DefaultDownloadLocation = uncommitedAppSettings.DefaultDownloadLocation;
-        appSettings.Mode = uncommitedAppSettings.Mode;
-        appSettings.DeleteUnencryptedFileUponUpload = uncommitedAppSettings.DeleteUnencryptedFileUponUpload;
-        Program.UpdateAppSettings(appSettings);
+        _appSettings.AuthenticationMethod = _uncommitedAppSettings.AuthenticationMethod;
+        _appSettings.DefaultDownloadLocation = _uncommitedAppSettings.DefaultDownloadLocation;
+        _appSettings.Mode = _uncommitedAppSettings.Mode;
+        _appSettings.DeleteUnencryptedFileUponUpload = _uncommitedAppSettings.DeleteUnencryptedFileUponUpload;
+        Program.UpdateAppSettings(_appSettings);
     }
 
     private async Task SetupViewBasedUponAppSettings()
     {
         // Authentication Method.
-        if (appSettings.AuthenticationMethod == AuthenticationMethod.Password)
+        if (_appSettings.AuthenticationMethod == AuthenticationMethod.Password)
         {
-            view.DisablePasswordModeButton();
+            _view.DisablePasswordModeButton();
         }
-        else if (appSettings.AuthenticationMethod == AuthenticationMethod.WindowsHello)
+        else if (_appSettings.AuthenticationMethod == AuthenticationMethod.WindowsHello)
         {
-            view.DisableWindowsHelloModeButton();
+            _view.DisableWindowsHelloModeButton();
         }
 
         // This will ensure that if windows hello is not availabe the user will not be able to change authentication mode.
-        if (await windowsHelloManager.IsWindowsHelloAvailable() == false)
+        if (await _windowsHelloManager.IsWindowsHelloAvailable() == false)
         {
-            view.DisableWindowsHelloModeButton();
-            view.DisablePasswordModeButton();
+            _view.DisableWindowsHelloModeButton();
+            _view.DisablePasswordModeButton();
         }
 
         // Application Mode.
-        if (appSettings.Mode == ApplicationMode.Basic)
+        if (_appSettings.Mode == ApplicationMode.Basic)
         {
-            view.DisableBasicModeButton();
+            _view.DisableBasicModeButton();
         }
-        else if (appSettings.Mode == ApplicationMode.Advanced)
+        else if (_appSettings.Mode == ApplicationMode.Advanced)
         {
-            view.DisableAdvancedModeButton();
+            _view.DisableAdvancedModeButton();
         }
 
         // Deletion of base unencrypted files upon uploading to the vault.
-        if (appSettings.DeleteUnencryptedFileUponUpload == true)
+        if (_appSettings.DeleteUnencryptedFileUponUpload == true)
         {
-            view.SetDeletionOfUploadedFilesToYes();
+            _view.SetDeletionOfUploadedFilesToYes();
         }
         else
         {
-            view.SetDeletionOfUploadedFilesToNo();
+            _view.SetDeletionOfUploadedFilesToNo();
         }
     }
 
@@ -115,73 +115,73 @@ public class SettingsViewPresenter
     private void ConfirmChosenSettingsEventHandler(object _, EventArgs __)
     {
         CommitAppSettings();
-        if (!string.IsNullOrWhiteSpace(givenNewPassword))
+        if (!string.IsNullOrWhiteSpace(GivenNewPassword))
         {
-            loginManager.ChangePassword(givenNewPassword, givenOldPassword);
+            _loginManager.ChangePassword(GivenNewPassword, GivenOldPassword);
         }
-        view.Close();
+        _view.Close();
         SettingsConfirmed?.Invoke(this, EventArgs.Empty);
     }
 
     private void ToggleUserModeEventHandler(object _, EventArgs __)
     {
-        if (uncommitedAppSettings.Mode == ApplicationMode.Basic)
+        if (_uncommitedAppSettings.Mode == ApplicationMode.Basic)
         {
-            uncommitedAppSettings.Mode = ApplicationMode.Advanced;
-            view.DisableAdvancedModeButton();
-            view.EnableBasicModeButton();
+            _uncommitedAppSettings.Mode = ApplicationMode.Advanced;
+            _view.DisableAdvancedModeButton();
+            _view.EnableBasicModeButton();
         }
         else
         {
-            uncommitedAppSettings.Mode = ApplicationMode.Basic;
-            view.DisableBasicModeButton();
-            view.EnableAdvancedModeButton();
+            _uncommitedAppSettings.Mode = ApplicationMode.Basic;
+            _view.DisableBasicModeButton();
+            _view.EnableAdvancedModeButton();
         }
     }
 
     private void ToggleAuthenticationModeEventHandler(object _, EventArgs __)
     {
-        if (uncommitedAppSettings.AuthenticationMethod == AuthenticationMethod.Password)
+        if (_uncommitedAppSettings.AuthenticationMethod == AuthenticationMethod.Password)
         {
-            uncommitedAppSettings.AuthenticationMethod = AuthenticationMethod.WindowsHello;
-            view.DisableWindowsHelloModeButton();
-            view.EnablePasswordModeButton();
+            _uncommitedAppSettings.AuthenticationMethod = AuthenticationMethod.WindowsHello;
+            _view.DisableWindowsHelloModeButton();
+            _view.EnablePasswordModeButton();
         }
         else
         {
-            uncommitedAppSettings.AuthenticationMethod = AuthenticationMethod.Password;
-            view.EnableWindowsHelloModeButton();
-            view.DisablePasswordModeButton();
+            _uncommitedAppSettings.AuthenticationMethod = AuthenticationMethod.Password;
+            _view.EnableWindowsHelloModeButton();
+            _view.DisablePasswordModeButton();
         }
     }
 
     private void ChangePasswordEventHandler(object _, EventArgs __)
     {
-        var changePasswordViewPresenter = presenterManager.GetChangePasswordViewManager();
+        var changePasswordViewPresenter = _presenterManager.GetChangePasswordViewManager();
         changePasswordViewPresenter.NewPasswordChosen += (_, passwordChangedArguments) =>
         {
-            givenNewPassword = passwordChangedArguments.EnteredNewPassword;
-            givenOldPassword = passwordChangedArguments.EnteredOldPassword;
+            GivenNewPassword = passwordChangedArguments.EnteredNewPassword;
+            GivenOldPassword = passwordChangedArguments.EnteredOldPassword;
         };
     }
 
     private void ToggleAutomaticDeletionOfUploadedFilesEventHandler(object _, EventArgs __)
     {
-        if (uncommitedAppSettings.DeleteUnencryptedFileUponUpload == false)
+        if (_uncommitedAppSettings.DeleteUnencryptedFileUponUpload == false)
         {
-            uncommitedAppSettings.DeleteUnencryptedFileUponUpload = true;
-            view.SetDeletionOfUploadedFilesToYes();
+            _uncommitedAppSettings.DeleteUnencryptedFileUponUpload = true;
+            _view.SetDeletionOfUploadedFilesToYes();
         }
         else
         {
-            uncommitedAppSettings.DeleteUnencryptedFileUponUpload = false;
-            view.SetDeletionOfUploadedFilesToNo();
+            _uncommitedAppSettings.DeleteUnencryptedFileUponUpload = false;
+            _view.SetDeletionOfUploadedFilesToNo();
         }
     }
 
     private void ChangeDefaultDownloadLocationEventHandler(object _, EventArgs __)
     {
-        var newDefaultLocation = fileManager.GetFolderPathFromExplorer();
-        uncommitedAppSettings.DefaultDownloadLocation = newDefaultLocation;
+        var newDefaultLocation = _fileManager.GetFolderPathFromExplorer();
+        _uncommitedAppSettings.DefaultDownloadLocation = newDefaultLocation;
     }
 }

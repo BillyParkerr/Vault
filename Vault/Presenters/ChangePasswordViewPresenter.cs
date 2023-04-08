@@ -9,48 +9,48 @@ public class ChangePasswordViewPresenter
 {
     public event EventHandler<PasswordChangedEventArgs> NewPasswordChosen;
 
-    private readonly ILoginManager loginManager;
-    private readonly IChangePasswordView view;
+    private readonly ILoginManager _loginManager;
+    private readonly IChangePasswordView _view;
 
     public ChangePasswordViewPresenter(ILoginManager loginManager, IChangePasswordView view)
     {
-        this.loginManager = loginManager;
-        this.view = view;
-        this.view.ConfirmPasswordEvent += ConfirmPasswordEventHandler;
-        this.view.Show();
+        this._loginManager = loginManager;
+        this._view = view;
+        this._view.ConfirmPasswordEvent += ConfirmPasswordEventHandler;
+        this._view.Show();
     }
 
     private void ConfirmPasswordEventHandler(object sender, EventArgs e)
     {
-        string enteredOldPassword = view.GivenOldPassword;
+        string enteredOldPassword = _view.GivenOldPassword;
         var oldPasswordState = GetOldPasswordState(enteredOldPassword);
         switch (oldPasswordState)
         {
             case PasswordState.PasswordNotGiven:
-                view.ShowBlankOldPasswordError();
+                _view.ShowBlankOldPasswordError();
                 return;
             case PasswordState.Incorrect:
-                view.ShowIncorrectOldPasswordError();
+                _view.ShowIncorrectOldPasswordError();
                 return;
         }
 
-        string enteredNewPassword = view.GivenNewPassword;
-        string enteredSecondNewPassword = view.GivenSecondNewPassword;
+        string enteredNewPassword = _view.GivenNewPassword;
+        string enteredSecondNewPassword = _view.GivenSecondNewPassword;
         var passwordState = GetNewPasswordState(enteredNewPassword, enteredSecondNewPassword);
         switch (passwordState)
         {
             case PasswordState.Valid:
                 NewPasswordChosen?.Invoke(this, new(enteredOldPassword, enteredNewPassword));
-                view.Close();
+                _view.Close();
                 return;
             case PasswordState.PasswordNotGiven:
-                view.ShowBlankNewPasswordError();
+                _view.ShowBlankNewPasswordError();
                 return;
             case PasswordState.NonMatching:
-                view.ShowPasswordMismatchError();
+                _view.ShowPasswordMismatchError();
                 return;
             case PasswordState.LengthTooShort:
-                view.ShowNewPasswordTooShortError();
+                _view.ShowNewPasswordTooShortError();
                 return;
         }
     }
@@ -62,7 +62,7 @@ public class ChangePasswordViewPresenter
             return PasswordState.PasswordNotGiven;
         }
 
-        if (loginManager.VerifyPassword(password) == false)
+        if (_loginManager.VerifyPassword(password) == false)
         {
             return PasswordState.Incorrect;
         }

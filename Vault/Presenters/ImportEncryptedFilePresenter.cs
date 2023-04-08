@@ -6,16 +6,16 @@ namespace Application.Presenters;
 
 public class ImportEncryptedFilePresenter
 {
-    private readonly IImportEncryptedFileView View;
-    private readonly IFileManager fileManager;
-    private readonly string EncryptedFilePath;
+    private readonly IImportEncryptedFileView _view;
+    private readonly IFileManager _fileManager;
+    private readonly string _encryptedFilePath;
 
     public ImportEncryptedFilePresenter(IImportEncryptedFileView view, IFileManager fileManager)
     {
-        View = view;
-        this.fileManager = fileManager;
-        EncryptedFilePath = this.fileManager.GetFilePathFromExplorer("AES files (*.aes)|*.aes");
-        if (string.IsNullOrWhiteSpace(EncryptedFilePath))
+        _view = view;
+        this._fileManager = fileManager;
+        _encryptedFilePath = this._fileManager.GetFilePathFromExplorer("AES files (*.aes)|*.aes");
+        if (string.IsNullOrWhiteSpace(_encryptedFilePath))
         {
             return;
         }
@@ -25,23 +25,23 @@ public class ImportEncryptedFilePresenter
 
     private void ConfirmEventHandler(object sender, EventArgs e)
     {
-        var givenPassword = View.GivenPassword;
+        var givenPassword = _view.GivenPassword;
         var passwordState = GetPasswordState(givenPassword);
         switch (passwordState)
         {
             case PasswordState.Valid:
                 ImportFileToVault(givenPassword);
-                View.Close();
+                _view.Close();
                 return;
             case PasswordState.PasswordNotGiven:
-                View.ShowBlankPasswordError();
+                _view.ShowBlankPasswordError();
                 return;
         }
     }
 
     private void ImportFileToVault(string password)
     {
-        var success = fileManager.ImportEncryptedFileToVault(EncryptedFilePath, password);
+        var success = _fileManager.ImportEncryptedFileToVault(_encryptedFilePath, password);
         if (!success)
         {
             MessageBox.Show($"An Error Occurred While Attempting to import the selected file. Perhaps the password was incorrect?");

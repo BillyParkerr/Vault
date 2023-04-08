@@ -16,7 +16,7 @@ namespace Application;
 internal static class Program
 {
     // Service Provider. Provides containers to be used throughout the application.
-    public static readonly Container container = new();
+    public static readonly Container Container = new();
 
     static Program()
     {
@@ -31,21 +31,21 @@ internal static class Program
     private static void ConfigureDependencyInjection()
     {
         // Configure Dependency Injection Using SimpleInjecter
-        container.Options.DefaultScopedLifestyle = new ThreadScopedLifestyle();
+        Container.Options.DefaultScopedLifestyle = new ThreadScopedLifestyle();
 
         AppSettings appSettings = SetupAppSettings();
-        container.RegisterInstance<AppSettings>(appSettings);
+        Container.RegisterInstance<AppSettings>(appSettings);
 
         // Register Views
-        container.Register<IHomeView, HomeView>(Lifestyle.Transient);
-        container.Register<ILoginView, LoginView>(Lifestyle.Transient);
-        container.Register<IRegisterView, RegisterView>(Lifestyle.Transient);
-        container.Register<IExportEncryptedFileView, ExportEncryptedFileView>(Lifestyle.Transient);
-        container.Register<IImportEncryptedFileView, ImportEncryptedFileView>(Lifestyle.Transient);
-        container.Register<IAuthenticationModeSelectionView, AuthenticationModeSelectionView>(Lifestyle.Transient);
-        container.Register<IWindowsHelloRegisterView, WindowsHelloRegisterView>(Lifestyle.Transient);
-        container.Register<ISettingsView, SettingsView>(Lifestyle.Transient);
-        container.Register<IChangePasswordView, ChangePasswordView>(Lifestyle.Transient);
+        Container.Register<IHomeView, HomeView>(Lifestyle.Transient);
+        Container.Register<ILoginView, LoginView>(Lifestyle.Transient);
+        Container.Register<IRegisterView, RegisterView>(Lifestyle.Transient);
+        Container.Register<IExportEncryptedFileView, ExportEncryptedFileView>(Lifestyle.Transient);
+        Container.Register<IImportEncryptedFileView, ImportEncryptedFileView>(Lifestyle.Transient);
+        Container.Register<IAuthenticationModeSelectionView, AuthenticationModeSelectionView>(Lifestyle.Transient);
+        Container.Register<IWindowsHelloRegisterView, WindowsHelloRegisterView>(Lifestyle.Transient);
+        Container.Register<ISettingsView, SettingsView>(Lifestyle.Transient);
+        Container.Register<IChangePasswordView, ChangePasswordView>(Lifestyle.Transient);
 
         SuppressTransientWarning(typeof(IImportEncryptedFileView));
         SuppressTransientWarning(typeof(IExportEncryptedFileView));
@@ -58,15 +58,15 @@ internal static class Program
         SuppressTransientWarning(typeof(IChangePasswordView));
 
         // Register Managers
-        container.Register<IEncryptionManager, EncryptionManager>(Lifestyle.Singleton);
-        container.Register<IDatabaseManager, DatabaseManager>(Lifestyle.Singleton);
-        container.Register<IWindowsHelloManager, WindowsHelloManager>(Lifestyle.Transient);
-        container.Register<IFileMonitoringManager, FileMonitoringManager>(Lifestyle.Transient);
-        container.Register<IFileManager, FileManager>(Lifestyle.Transient);
-        container.Register<ILoginManager, LoginManager>(Lifestyle.Transient);
-        container.Register<IPresenterManager, PresenterManager>(Lifestyle.Transient);
+        Container.Register<IEncryptionManager, EncryptionManager>(Lifestyle.Singleton);
+        Container.Register<IDatabaseManager, DatabaseManager>(Lifestyle.Singleton);
+        Container.Register<IWindowsHelloManager, WindowsHelloManager>(Lifestyle.Transient);
+        Container.Register<IFileMonitoringManager, FileMonitoringManager>(Lifestyle.Transient);
+        Container.Register<IFileManager, FileManager>(Lifestyle.Transient);
+        Container.Register<ILoginManager, LoginManager>(Lifestyle.Transient);
+        Container.Register<IPresenterManager, PresenterManager>(Lifestyle.Transient);
 
-        container.Verify();
+        Container.Verify();
     }
 
     /// <summary>
@@ -78,7 +78,7 @@ internal static class Program
     /// <param name="serviceType"></param>
     private static void SuppressTransientWarning(Type serviceType)
     {
-        Registration registration = container.GetRegistration(serviceType).Registration;
+        Registration registration = Container.GetRegistration(serviceType).Registration;
 
         registration.SuppressDiagnosticWarning(DiagnosticType.DisposableTransientComponent, "Windows form suppression");
     }
@@ -90,14 +90,14 @@ internal static class Program
     public static void Main()
     {
         CreateApplicationFolders();
-        var fileManager = container.GetInstance<IFileManager>();
+        var fileManager = Container.GetInstance<IFileManager>();
         fileManager.CleanupTempFiles();
 
-        var databaseManager = container.GetInstance<IDatabaseManager>();
+        var databaseManager = Container.GetInstance<IDatabaseManager>();
         databaseManager.SetSqliteDbContextIfNotExisits();
 
-        var windowsHelloManager = container.GetInstance<IWindowsHelloManager>();
-        var appSettings = container.GetInstance<AppSettings>();
+        var windowsHelloManager = Container.GetInstance<IWindowsHelloManager>();
+        var appSettings = Container.GetInstance<AppSettings>();
 
         if (appSettings.AuthenticationMethod == AuthenticationMethod.None)
         {
@@ -121,9 +121,9 @@ internal static class Program
         bool isPasswordSet = databaseManager.IsEncryptionKeySet() && fileManager.ProtectedPasswordExists();
         if (!isPasswordSet)
         {
-            IWindowsHelloRegisterView windowsHelloRegisterView = container.GetInstance<IWindowsHelloRegisterView>();
-            ILoginManager loginManager = container.GetInstance<ILoginManager>();
-            var windowsHelloRegisterViewPresenter = new WindowsHelloRegisterViewPresenter(windowsHelloRegisterView, windowsHelloManager, loginManager);
+            IWindowsHelloRegisterView windowsHelloRegisterView = Container.GetInstance<IWindowsHelloRegisterView>();
+            var presenterManager = Container.GetInstance<IPresenterManager>();
+            var windowsHelloRegisterViewPresenter = presenterManager.GetWindowsHelloRegisterViewPresenter(windowsHelloRegisterView);
             System.Windows.Forms.Application.Run((Form)windowsHelloRegisterView);
             if (windowsHelloRegisterViewPresenter.UserSuccessfullyRegistered)
             {
@@ -154,8 +154,8 @@ internal static class Program
         bool isPasswordSet = databaseManager.IsEncryptionKeySet();
         if (!isPasswordSet)
         {
-            IRegisterView registerView = container.GetInstance<IRegisterView>();
-            ILoginManager passwordLoginManager = container.GetInstance<ILoginManager>();
+            IRegisterView registerView = Container.GetInstance<IRegisterView>();
+            ILoginManager passwordLoginManager = Container.GetInstance<ILoginManager>();
             var registerViewPresenter = new RegistrationViewPresenter(passwordLoginManager, registerView);
             System.Windows.Forms.Application.Run((Form)registerView);
             if (registerViewPresenter.UserSuccessfullyRegistered)
@@ -165,9 +165,9 @@ internal static class Program
         }
         else
         {
-            ILoginView loginView = container.GetInstance<ILoginView>();
-            ILoginManager passwordLoginManager = container.GetInstance<ILoginManager>();
-            IEncryptionManager encryptionManager = container.GetInstance<IEncryptionManager>();
+            ILoginView loginView = Container.GetInstance<ILoginView>();
+            ILoginManager passwordLoginManager = Container.GetInstance<ILoginManager>();
+            IEncryptionManager encryptionManager = Container.GetInstance<IEncryptionManager>();
             var loginViewPresenter = new LoginViewPresenter(loginView, passwordLoginManager, encryptionManager);
             System.Windows.Forms.Application.Run((Form)loginView);
             if (loginViewPresenter.UserSuccessfullyAuthenticated)
@@ -183,7 +183,7 @@ internal static class Program
         bool isWindowsHelloAvailable = windowsHelloManager.IsWindowsHelloAvailable().Result;
         if (isWindowsHelloAvailable)
         {
-            IAuthenticationModeSelectionView view = container.GetInstance<IAuthenticationModeSelectionView>();
+            IAuthenticationModeSelectionView view = Container.GetInstance<IAuthenticationModeSelectionView>();
             AuthenticationModeSelectionViewPresenter presenter = new(view, appSettings);
             System.Windows.Forms.Application.Run((Form)view);
         }
@@ -197,8 +197,8 @@ internal static class Program
 
     private static void RunHomeView()
     {
-        var homeView = container.GetInstance<IHomeView>();
-        var presenterManager = container.GetInstance<IPresenterManager>();
+        var homeView = Container.GetInstance<IHomeView>();
+        var presenterManager = Container.GetInstance<IPresenterManager>();
 
         var homeViewPresenter = presenterManager.GetHomeViewPresenter(homeView);
         System.Windows.Forms.Application.Run((Form)homeView);

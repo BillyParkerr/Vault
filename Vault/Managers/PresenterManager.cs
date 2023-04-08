@@ -7,14 +7,14 @@ namespace Application.Managers;
 
 public class PresenterManager: IPresenterManager
 {
-    private readonly Container container = Program.container;
+    private readonly Container _container = Program.Container;
 
-    private IDatabaseManager databaseManager;
-    private readonly IEncryptionManager encryptionManager;
-    private readonly IFileManager fileManager;
-    private readonly ILoginManager loginManager;
-    private readonly IWindowsHelloManager windowsHelloManager;
-    private readonly AppSettings appSettings;
+    private readonly IDatabaseManager _databaseManager;
+    private readonly IEncryptionManager _encryptionManager;
+    private readonly IFileManager _fileManager;
+    private readonly ILoginManager _loginManager;
+    private readonly IWindowsHelloManager _windowsHelloManager;
+    private readonly AppSettings _appSettings;
 
     public PresenterManager(IDatabaseManager databaseManager, 
         IEncryptionManager encryptionManager, 
@@ -23,60 +23,67 @@ public class PresenterManager: IPresenterManager
         IWindowsHelloManager windowsHelloManager,
         AppSettings appSettings)
     {
-        this.databaseManager = databaseManager;
-        this.encryptionManager = encryptionManager;
-        this.fileManager = fileManager;
-        this.loginManager = loginManager;
-        this.appSettings = appSettings;
-        this.windowsHelloManager = windowsHelloManager;
+        this._databaseManager = databaseManager;
+        this._encryptionManager = encryptionManager;
+        this._fileManager = fileManager;
+        this._loginManager = loginManager;
+        this._appSettings = appSettings;
+        this._windowsHelloManager = windowsHelloManager;
     }
 
     public HomeViewPresenter GetHomeViewPresenter(IHomeView homeView = null)
     {
-        homeView ??= container.GetInstance<IHomeView>();
+        homeView ??= _container.GetInstance<IHomeView>();
 
-        return new HomeViewPresenter(homeView, fileManager, databaseManager, this, appSettings);
+        return new HomeViewPresenter(homeView, _fileManager, _databaseManager, this, _appSettings);
     }
 
     public LoginViewPresenter GetLoginViewPresenter(ILoginView loginView = null)
     {
-        loginView ??= container.GetInstance<ILoginView>();
-        return new(loginView, loginManager, encryptionManager);
+        loginView ??= _container.GetInstance<ILoginView>();
+        return new LoginViewPresenter(loginView, _loginManager, _encryptionManager);
     }
 
     public AuthenticationModeSelectionViewPresenter GetAuthenticationModeSelectionViewPresenter(IAuthenticationModeSelectionView authenticationModeSelectionView = null)
     {
-        authenticationModeSelectionView ??= container.GetInstance<IAuthenticationModeSelectionView>();
-        return new(authenticationModeSelectionView, appSettings);
+        authenticationModeSelectionView ??= _container.GetInstance<IAuthenticationModeSelectionView>();
+        return new AuthenticationModeSelectionViewPresenter(authenticationModeSelectionView, _appSettings);
     }
 
     public ExportEncryptedFilePresenter GetExportEncryptedFilePresenter(EncryptedFile encryptedFileToExport, IExportEncryptedFileView exportEncryptedFileView = null)
     {
-        exportEncryptedFileView ??= container.GetInstance<IExportEncryptedFileView>();
-        return new(exportEncryptedFileView, fileManager, encryptedFileToExport);
+        exportEncryptedFileView ??= _container.GetInstance<IExportEncryptedFileView>();
+        return new ExportEncryptedFilePresenter(exportEncryptedFileView, _fileManager, encryptedFileToExport);
     }
 
     public ImportEncryptedFilePresenter GetImportEncryptedFilePresenter(IImportEncryptedFileView importEncryptedFileView = null)
     {
-        importEncryptedFileView ??= container.GetInstance<IImportEncryptedFileView>();
-        return new(importEncryptedFileView, fileManager);
+        importEncryptedFileView ??= _container.GetInstance<IImportEncryptedFileView>();
+        return new ImportEncryptedFilePresenter(importEncryptedFileView, _fileManager);
     }
 
     public RegistrationViewPresenter GetRegistrationViewPresenter(IRegisterView registerView = null)
     {
-        registerView ??= container.GetInstance<IRegisterView>();
-        return new(loginManager, registerView);
+        registerView ??= _container.GetInstance<IRegisterView>();
+        return new RegistrationViewPresenter(_loginManager, registerView);
     }
 
     public SettingsViewPresenter GetSettingsViewPresenter(ISettingsView settingsView = null)
     {
-        settingsView ??= container.GetInstance<ISettingsView>();
-        return new(settingsView, fileManager, appSettings, windowsHelloManager, this, loginManager);
+        settingsView ??= _container.GetInstance<ISettingsView>();
+        return new SettingsViewPresenter(settingsView, _fileManager, _appSettings, _windowsHelloManager, this, _loginManager);
     }
 
     public ChangePasswordViewPresenter GetChangePasswordViewManager(IChangePasswordView changePasswordView = null)
     {
-        changePasswordView ??= container.GetInstance<IChangePasswordView>();
-        return new(loginManager, changePasswordView);
+        changePasswordView ??= _container.GetInstance<IChangePasswordView>();
+        return new ChangePasswordViewPresenter(_loginManager, changePasswordView);
+    }
+
+    public WindowsHelloRegisterViewPresenter GetWindowsHelloRegisterViewPresenter(
+        IWindowsHelloRegisterView windowsHelloRegisterView = null)
+    {
+        windowsHelloRegisterView ??= _container.GetInstance<IWindowsHelloRegisterView>();
+        return new WindowsHelloRegisterViewPresenter(windowsHelloRegisterView, _windowsHelloManager, _loginManager);
     }
 }

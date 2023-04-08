@@ -12,7 +12,7 @@ public partial class SettingsView : Form, ISettingsView
     public event EventHandler ConfirmChosenSettingsEvent;
     public event EventHandler UserClosedViewEvent;
 
-    private bool ConfirmedButtonPressed = false;
+    private bool _confirmedButtonPressed = false;
 
     public SettingsView()
     {
@@ -31,14 +31,14 @@ public partial class SettingsView : Form, ISettingsView
         ChangePasswordButton.Click += delegate { ChangePasswordEvent?.Invoke(this, EventArgs.Empty); };
         ConfirmSettingsButton.Click += delegate
         {
-            ConfirmedButtonPressed = true;
+            _confirmedButtonPressed = true;
             ConfirmChosenSettingsEvent?.Invoke(this, EventArgs.Empty);
         };
     }
 
     protected override void OnFormClosing(FormClosingEventArgs e)
     {
-        if (!ConfirmedButtonPressed)
+        if (!_confirmedButtonPressed)
         {
             DialogResult result = MessageBox.Show("Any non confirmed setting changes will be lost. Are you sure you want to continue?", "Warning", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
             if (result == DialogResult.No)

@@ -8,43 +8,43 @@ public class RegistrationViewPresenter
 {
     public bool UserSuccessfullyRegistered { get; private set; }
 
-    private readonly ILoginManager passwordLoginManager;
-    private readonly IRegisterView registerView;
+    private readonly ILoginManager _passwordLoginManager;
+    private readonly IRegisterView _registerView;
 
-    public RegistrationViewPresenter(ILoginManager _passwordLoginManager, IRegisterView _registerView)
+    public RegistrationViewPresenter(ILoginManager passwordLoginManager, IRegisterView registerView)
     {
-        passwordLoginManager = _passwordLoginManager;
-        registerView = _registerView;
-        registerView.RegisterEvent += RegisterEventHandler;
-        registerView.Show();
+        this._passwordLoginManager = passwordLoginManager;
+        this._registerView = registerView;
+        this._registerView.RegisterEvent += RegisterEventHandler;
+        this._registerView.Show();
     }
 
     public void RegisterEventHandler(object sender, EventArgs e)
     {
-        string enteredPassword = registerView.GivenPassword;
-        string enteredSecondPassword = registerView.GivenSecondPassword;
+        string enteredPassword = _registerView.GivenPassword;
+        string enteredSecondPassword = _registerView.GivenSecondPassword;
         var passwordState = GetPasswordState(enteredPassword, enteredSecondPassword);
         switch (passwordState)
         {
             case PasswordState.Valid:
                 CommitPassword(enteredPassword);
-                registerView.Close();
+                _registerView.Close();
                 return;
             case PasswordState.PasswordNotGiven:
-                registerView.ShowBlankPasswordError();
+                _registerView.ShowBlankPasswordError();
                 return;
             case PasswordState.NonMatching:
-                registerView.ShowPasswordMismatchError();
+                _registerView.ShowPasswordMismatchError();
                 return;
             case PasswordState.LengthTooShort:
-                registerView.ShowPasswordTooShortError();
+                _registerView.ShowPasswordTooShortError();
                 return;
         }
     }
 
     private void CommitPassword(string password)
     {
-        passwordLoginManager.SetPassword(password);
+        _passwordLoginManager.SetPassword(password);
         UserSuccessfullyRegistered = true;
     }
 

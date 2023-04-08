@@ -4,13 +4,13 @@ namespace Application.Managers;
 
 public class WindowsHelloManager : IWindowsHelloManager
 {
-    private readonly IFileManager fileManager;
-    private readonly IEncryptionManager encryptionManager;
+    private readonly IFileManager _fileManager;
+    private readonly IEncryptionManager _encryptionManager;
 
     public WindowsHelloManager(IFileManager fileManager, IEncryptionManager encryptionManager)
     {
-        this.fileManager = fileManager;
-        this.encryptionManager = encryptionManager;
+        this._fileManager = fileManager;
+        this._encryptionManager = encryptionManager;
     }
 
     /// <summary>
@@ -42,10 +42,10 @@ public class WindowsHelloManager : IWindowsHelloManager
         bool authenticated = await AuthenticateWithWindowsHelloAsync("Please authenticate to access the Vault.").ConfigureAwait(false);
         if (authenticated)
         {
-            var password = fileManager.ReadAndReturnProtectedPassword();
+            var password = _fileManager.ReadAndReturnProtectedPassword();
             if (password != null)
             {
-                encryptionManager.SetEncryptionPassword(password);
+                _encryptionManager.SetEncryptionPassword(password);
                 return true;
             }
         }
