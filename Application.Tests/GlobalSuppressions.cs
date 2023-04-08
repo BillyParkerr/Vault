@@ -6,3 +6,4 @@
 using System.Diagnostics.CodeAnalysis;
 
 [assembly: SuppressMessage("Assertion", "NUnit2005:Consider using Assert.That(actual, Is.EqualTo(expected)) instead of Assert.AreEqual(expected, actual)", Justification = "<Pending>", Scope = "member", Target = "~M:Application.Tests.HelperTests.EncryptionHelperTests.EncryptStringThenDecrptString_GivenSamePassword_DecryptedStringIsSameAsOriginal")]
+[assembly: SuppressMessage("Assertion", "NUnit2005:Consider using Assert.That(actual, Is.EqualTo(expected)) instead of Assert.AreEqual(expected, actual)", Justification = "<Pending>", Scope = "member", Target = "~M:Application.Tests.DatabaseManagerTests.TestAddAndGetEncryptedFile")]

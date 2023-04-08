@@ -1,78 +1,123 @@
-﻿using Application.Managers;
+﻿using Application.Enums;
+using Application.Managers;
 using Application.Models;
-using Application.Views;
-using Microsoft.WindowsAPICodePack.Dialogs;
+using Application.Views.Interfaces;
 
 namespace Application.Presenters;
 
 public class HomeViewPresenter
 {
-    private IHomeView view;
-    private IFileManager fileManager;
-    private BindingSource filesInVaultBindingSource;
-    private IEnumerable<EncryptedFile> filesInVault;
+    private readonly IHomeView _view;
+    private readonly IFileManager _fileManager;
+    private readonly IPresenterManager _presenterManager;
+    private BindingSource _filesInVaultBindingSource;
+    private IEnumerable<EncryptedFile> _filesInVault;
+    private readonly AppSettings _appSettings;
 
-    public HomeViewPresenter(IHomeView view, IFileManager fileManager)
+    public HomeViewPresenter(IHomeView view, IFileManager fileManager, IDatabaseManager databaseManager, IPresenterManager presenterManager, AppSettings appSettings)
     {
-        this.filesInVaultBindingSource = new BindingSource();
-        this.fileManager = fileManager;
-        this.view = view;
+        this._filesInVaultBindingSource = new BindingSource();
+        this._fileManager = fileManager;
+        this._view = view;
+        this._presenterManager = presenterManager;
+        this._appSettings = appSettings;
 
+        databaseManager.VaultContentsChangedEvent += LoadAllFilesInVault;
         // Subscribe to events
-        this.view.AddFileToVaultEvent += AddFileToVaultEventHandler;
-        this.view.AddFolderToVaultEvent += AddFolderToVaultEventHandler;
-        this.view.DownloadFileFromVaultEvent += DownloadFileFromVaultEventHandler;
-        this.view.DeleteFileFromVaultEvent += DeleteFileFromVaultEventHander;
-        this.view.OpenFileFromVaultEvent += OpenFileFromVaultEventHandler;
-        this.view.ImportFileToVaultEvent += ImportFileToVaultEventHandler;
-        this.view.ExportFileFromVaultEvent += ExportFileFromVaultEventHandler;
-        this.view.FormClosingEvent += FormClosingEventHandler;
-        this.view.SetFilesInVaultListBindingSource(filesInVaultBindingSource);
+        this._view.AddFileToVaultEvent += AddFileToVaultEventHandler;
+        this._view.AddFolderToVaultEvent += AddFolderToVaultEventHandler;
+        this._view.DownloadFileFromVaultEvent += DownloadFileFromVaultEventHandler;
+        this._view.DeleteFileFromVaultEvent += DeleteFileFromVaultEventHandler;
+        this._view.OpenFileFromVaultEvent += OpenFileFromVaultEventHandler;
+        this._view.ImportFileToVaultEvent += ImportFileToVaultEventHandler;
+        this._view.ExportFileFromVaultEvent += ExportFileFromVaultEventHandler;
+        this._view.FormClosingEvent += FormClosingEventHandler;
+        this._view.SearchFilterAppliedEvent += SearchFilterAppliedEventHandler;
+        this._view.OpenSettingsEvent += OpenSettingsEventHandler;
+        this._view.SetFilesInVaultListBindingSource(_filesInVaultBindingSource);
         LoadAllFilesInVault();
+        ConfigureViewBasedUponAppSettings();
     }
 
-    private void AddFileToVaultEventHandler(object? sender, EventArgs e)
+    private void ConfigureViewBasedUponAppSettings()
     {
-        var fileToAdd = GetFileFromExplorer();
+        if (_appSettings.Mode == ApplicationMode.Advanced)
+        {
+            _view.SetAdvancedModeView();
+        }
+        else
+        {
+            _view.SetBasicModeView();
+        }
+    }
+
+    private void OpenSettingsEventHandler(object _, EventArgs e)
+    {
+        _view.PauseView();
+        var settingsViewPresenter = _presenterManager.GetSettingsViewPresenter();
+        settingsViewPresenter.SettingsConfirmed += (_, _) =>
+        {
+            _view.ResumeView();
+            ConfigureViewBasedUponAppSettings();
+        };
+    }
+
+    private void AddFileToVaultEventHandler(object sender, EventArgs e)
+    {
+        string fileToAdd = _fileManager.GetFilePathFromExplorer("All Files (*.*)|*.*");
         if (fileToAdd == null)
         {
             return;
         }
 
-        bool success = fileManager.AddFileToVault(fileToAdd);
-        if (success)
+        bool success = _fileManager.AddFileToVault(fileToAdd);
+        if (!success)
         {
-            LoadAllFilesInVault();
-        }
-        else
-        {
-            MessageBox.Show($"An Error Occurred While Attempting to Encrypt {fileToAdd}");
+            ShowMessageBox($"An Error Occurred While Attempting to Encrypt {fileToAdd}");
         }
     }
 
     private void AddFolderToVaultEventHandler(object sender, EventArgs e)
     {
-        FolderBrowserDialog folderBrowserDialog = new FolderBrowserDialog();
-        folderBrowserDialog.Description = "Select Folder";
-        folderBrowserDialog.ShowNewFolderButton = false;
-        folderBrowserDialog.RootFolder = Environment.SpecialFolder.MyComputer;
-        DialogResult result = folderBrowserDialog.ShowDialog();
-
-        if (result == DialogResult.OK && !string.IsNullOrWhiteSpace(folderBrowserDialog.SelectedPath))
+        var folderToAdd = _fileManager.GetFolderPathFromExplorer();
+        if (folderToAdd != null)
         {
-            bool success = fileManager.ZipFolderAndAddToVault(folderBrowserDialog.SelectedPath);
-            if (success)
+            bool success = _fileManager.ZipFolderAndAddToVault(folderToAdd);
+            if (!success)
             {
-                LoadAllFilesInVault();
-            }
-            else
-            {
-                MessageBox.Show($"An Error Occurred While Attempting to Encrypt the folder.");
+                ShowMessageBox("An Error Occurred While Attempting to Zip & Encrypt the folder.");
             }
         }
     }
 
-    private void DownloadFileFromVaultEventHandler(object? sender, EventArgs e)
+    private void DownloadFileFromVaultEventHandler(object sender, EventArgs e)
+    {
+        var filePath = GetSelectedFilePath();
+        if (string.IsNullOrWhiteSpace(filePath))
+        {
+            return;
+        }
+
+        string selectedPath = _fileManager.GetFolderPathFromExplorer();
+        if (string.IsNullOrWhiteSpace(selectedPath))
+        {
+            return;
+        }
+
+        bool success = _fileManager.DownloadFileFromVault(filePath, selectedPath);
+
+        if (success)
+        {
+            _fileManager.OpenFolderInExplorer(selectedPath);
+        }
+        else
+        {
+            ShowMessageBox("An error occurred while attempting to download the file!");
+            return;
+        }
+    }
+
+    private void OpenFileFromVaultEventHandler(object sender, EventArgs e)
     {
         var filePath = GetSelectedFilePath();
         if (filePath == null)
@@ -80,181 +125,126 @@ public class HomeViewPresenter
             return;
         }
 
-        CommonOpenFileDialog dialog = new CommonOpenFileDialog();
-        dialog.InitialDirectory = "C:\\Users";
-        dialog.IsFolderPicker = true;
-        if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
-        {
-            bool success = fileManager.DownloadFileFromVault(filePath, dialog.FileName);
-
-            if (success)
-            {
-                string argument = "/select, \"" + dialog.FileName + "\"";
-                System.Diagnostics.Process.Start("explorer.exe", argument);
-            }
-            else
-            {
-                MessageBox.Show("An error occured while attempting to download the file!");
-                return;
-            }
-        }
+        _fileManager.OpenFileFromVaultAndReencryptUponClosure(filePath);
     }
 
-    private void OpenFileFromVaultEventHandler(object? sender, EventArgs e)
+    private void DeleteFileFromVaultEventHandler(object sender, EventArgs e)
     {
         var filePath = GetSelectedFilePath();
         if (filePath == null)
         {
             return;
         }
-
-        fileManager.OpenFileFromVaultAndReencryptUponClosure(filePath);
-    }
-
-    private void DeleteFileFromVaultEventHander(object? sender, EventArgs e)
-    {
-        var filePath = GetSelectedFilePath();
-        if (filePath == null)
-        {
-            return;
-        }
-        bool success = fileManager.DeleteFileFromVault(filePath);
+        bool success = _fileManager.DeleteFileFromVault(filePath);
         if (!success)
         {
-            view.ShowFailedToDeleteError();
+            _view.ShowFailedToDeleteError();
         }
-
-        LoadAllFilesInVault();
     }
 
     private void ExportFileFromVaultEventHandler(object sender, EventArgs e)
     {
         var selectedEncryptedFile = GetSelectedEncryptedFile();
-        var exportEncryptedFileView = Program.container.GetInstance<IExportEncryptedFileView>();
-
-        var exportEncryptedFilePresenter = new ExportEncryptedFilePresenter(exportEncryptedFileView);
-        exportEncryptedFilePresenter.PasswordEntered += (_, password) =>
+        if (selectedEncryptedFile == null)
         {
-            if (!string.IsNullOrWhiteSpace(password))
-            {
-                SaveEncryptedFile(password, selectedEncryptedFile);
-            }
-        };
-    }
-
-    private void SaveEncryptedFile(string password, EncryptedFile encryptedFileToExport)
-    {
-        FolderBrowserDialog folderBrowserDialog = new FolderBrowserDialog();
-
-        // Show the dialog box and wait for the user to select a folder
-        DialogResult result = folderBrowserDialog.ShowDialog();
-        if (result == DialogResult.OK)
-        {
-            string selectedPath = folderBrowserDialog.SelectedPath;
-            bool success = fileManager.DownloadEncryptedFileFromVault(encryptedFileToExport.FilePath, selectedPath, password);
-            if (success)
-            {
-                System.Diagnostics.Process.Start("explorer.exe", selectedPath);
-            }
-            else
-            {
-                MessageBox.Show("There was a problem exporting the selected file!");
-            }
+            return;
         }
+
+        _presenterManager.GetExportEncryptedFilePresenter(selectedEncryptedFile);
+        // TODO Potentially pause view while Export view is open
     }
 
     private void ImportFileToVaultEventHandler(object sender, EventArgs e)
     {
-        var fileToImportPath = GetFileFromExplorer("AES files (*.aes)|*.aes");
-        if (fileToImportPath == null)
-        {
-            return;
-        }
-
-        if (Path.GetExtension(fileToImportPath) != ".aes")
-        {
-            MessageBox.Show("The chosen file is not an encrypted file. Please add it to the vault via the Add File To Vault button.");
-            return;
-        }
-
-        var importEncryptedFileView = Program.container.GetInstance<IImportEncryptedFileView>();
-        var importEncryptedFilePresenter = new ImportEncryptedFilePresenter(importEncryptedFileView);
-        importEncryptedFilePresenter.PasswordEntered += (_, password) =>
-        {
-            if (!string.IsNullOrWhiteSpace(password))
-            {
-                var success = fileManager.ImportEncryptedFileToVault(fileToImportPath, password);
-                if (!success)
-                {
-                    MessageBox.Show($"An Error Occurred While Attempting to import the selected file. Perhaps the password was incorrect?");
-                }
-
-                LoadAllFilesInVault();
-            }
-        };
+        _presenterManager.GetImportEncryptedFilePresenter();
+        // TODO Potentially pause view while Import view is open
     }
 
-    private static string GetFileFromExplorer(string filter = null)
+    private void SearchFilterAppliedEventHandler(object sender, EventArgs e)
     {
-        OpenFileDialog openFileDialog1 = new OpenFileDialog();
-        openFileDialog1.Title = "Select File";
-        openFileDialog1.InitialDirectory = @"C:\"; //--"C:\\";
-        openFileDialog1.Filter = filter;
-        openFileDialog1.FilterIndex = 1;
-        openFileDialog1.Multiselect = false;
-        openFileDialog1.CheckFileExists = true;
-        openFileDialog1.ShowDialog();
-
-        if (!string.IsNullOrWhiteSpace(openFileDialog1.FileName))
+        string searchValue = _view.SearchValue;
+        if (!string.IsNullOrWhiteSpace(searchValue))
         {
-            return openFileDialog1.FileName;
+            ApplySearchFilter(searchValue);
+        }
+        else
+        {
+            LoadAllFilesInVault();
+        }
+    }
+
+    private void ApplySearchFilter(string filter)
+    {
+        if (string.IsNullOrWhiteSpace(filter))
+        {
+            return;
         }
 
-        return null;
+        filter = filter.ToLower().Replace("'", "''").Replace("[", "[[]");
+        var filesInVault = _filesInVaultBindingSource.List.OfType<FileInformation>();
+        filesInVault = filesInVault.Where(x => x.FileName.ToLower().Contains(filter) || x.FileExtension.ToLower().Contains(filter));
+        _filesInVaultBindingSource.DataSource = filesInVault;
+    }
+
+    private void LoadAllFilesInVault(object o, EventArgs e)
+    {
+        _filesInVault = _fileManager.GetAllFilesInVault();
+        var fileInfo = _filesInVault.Where(_ => _.UniquePassword == false && _.DecryptedFileInformation != null)
+            .Select(_ => _.DecryptedFileInformation);
+        var newBindSource = new BindingSource();
+        newBindSource.DataSource = fileInfo;
+        _filesInVaultBindingSource = newBindSource;
+        _view.SetFilesInVaultListBindingSource(_filesInVaultBindingSource);
     }
 
     private void LoadAllFilesInVault()
     {
-        filesInVault = fileManager.GetAllFilesInVault();
-        filesInVaultBindingSource.DataSource = filesInVault.Where(_ => _.UniquePassword == false && _.DecryptedFileInformation != null)
-            .Select(_ => _.DecryptedFileInformation)
-            .OfType<FileInformation>();
+        _filesInVault = _fileManager.GetAllFilesInVault();
+        var fileInfo = _filesInVault.Where(_ => _.UniquePassword == false && _.DecryptedFileInformation != null)
+            .Select(_ => _.DecryptedFileInformation);
+        _filesInVaultBindingSource.DataSource = fileInfo;
+        ApplySearchFilter(_view.SearchValue);
     }
 
     private void FormClosingEventHandler(object sender, FormClosingEventArgs e)
     {
-        fileManager.CleanupTempFiles();
+        _fileManager.CleanupTempFiles();
     }
 
     private string GetSelectedFilePath()
     {
-        FileInformation? fileInVault = view.SelectedFile;
+        FileInformation fileInVault = _view.SelectedFile;
         if (fileInVault == null)
         {
             return null;
         }
 
-        if (!filesInVault.Any())
+        if (!_filesInVault.Any())
         {
             return null;
         }
 
-        return filesInVault.First(_ => _.DecryptedFileInformation != null && _.DecryptedFileInformation == fileInVault).FilePath;
+        return _filesInVault.First(_ => _.DecryptedFileInformation != null && _.DecryptedFileInformation == fileInVault).FilePath;
     }
 
     private EncryptedFile GetSelectedEncryptedFile()
     {
-        FileInformation? fileInVault = view.SelectedFile;
+        FileInformation fileInVault = _view.SelectedFile;
         if (fileInVault == null)
         {
             return null;
         }
 
-        if (!filesInVault.Any())
+        if (!_filesInVault.Any())
         {
             return null;
         }
 
-        return filesInVault.First(_ => _.DecryptedFileInformation != null && _.DecryptedFileInformation == fileInVault);
+        return _filesInVault.First(_ => _.DecryptedFileInformation != null && _.DecryptedFileInformation == fileInVault);
+    }
+
+    protected virtual void ShowMessageBox(string message)
+    {
+        MessageBox.Show(message);
     }
 }

@@ -13,14 +13,15 @@ namespace Application.Managers;
 /// </summary>
 public class FileMonitoringManager : IFileMonitoringManager
 {
-    private IEncryptionManager EncryptionManager;
-    private IDatabaseManager DatabaseManager;
-    private string EncryptedFilePath;
+    private readonly SemaphoreSlim _semaphore = new(1);
+    private readonly IEncryptionManager _encryptionManager;
+    private readonly IDatabaseManager _databaseManager;
+    private string _encryptedFilePath;
 
     public FileMonitoringManager(IEncryptionManager encryptionManager, IDatabaseManager databaseManager)
     {
-        EncryptionManager = encryptionManager;
-        DatabaseManager = databaseManager;
+        _encryptionManager = encryptionManager;
+        _databaseManager = databaseManager;
     }
 
     public void Initilise(string fileToMonitorPath, string encryptedFilePath)
@@ -30,14 +31,9 @@ public class FileMonitoringManager : IFileMonitoringManager
             return;
         }
 
-        EncryptedFilePath = encryptedFilePath;
+        _encryptedFilePath = encryptedFilePath;
 
-        // Open the file
-        using Process fileopener = new Process();
-
-        fileopener.StartInfo.FileName = "explorer";
-        fileopener.StartInfo.Arguments = "\"" + fileToMonitorPath + "\"";
-        fileopener.Start();
+        OpenGivenFile(fileToMonitorPath);
 
         // Moniter the file for any changes
         var watcher = new FileSystemWatcher();
@@ -53,21 +49,39 @@ public class FileMonitoringManager : IFileMonitoringManager
     /// </summary>
     /// <param name="sender"></param>
     /// <param name="e"></param>
-    private void OnFileChanged(object sender, FileSystemEventArgs e)
+    private async void OnFileChanged(object sender, FileSystemEventArgs e)
     {
-        // When the file is changed / modified we should refresh the instance that is within the vault.
-        // This means first removing the file from the vault then reencrypting / readding it.
+        await _semaphore.WaitAsync();
 
-        // Delete the encrypted file that we have created earlier.
-        File.Delete(EncryptedFilePath);
-        DatabaseManager.DeleteEncryptedFileByFilePath(EncryptedFilePath);
-        DatabaseManager.SaveChanges(); // Both SaveChanges calls are required as otherwise issues with threading and concurrent DbContext calls can happen.
+        try
+        {
+            // When the file is changed / modified we should refresh the instance that is within the vault.
+            // This means first removing the file from the vault then reencrypting / readding it.
 
-        // Readd the new modified file to the vault.
-        // Encrypt File
-        string newEncryptedFilePath = EncryptionManager.EncryptFile(e.FullPath);
-        DatabaseManager.AddEncryptedFile(newEncryptedFilePath, false);
-        DatabaseManager.SaveChanges();
-        EncryptedFilePath = newEncryptedFilePath;
+            // Delete the encrypted file that we have created earlier.
+            File.Delete(_encryptedFilePath);
+            _databaseManager.DeleteEncryptedFileByFilePath(_encryptedFilePath);
+            _databaseManager.SaveChanges(); // Both SaveChanges calls are required as otherwise issues with threading and concurrent DbContext calls can happen.
+
+            // Readd the new modified file to the vault.
+            // Encrypt File
+            string newEncryptedFilePath = _encryptionManager.EncryptFile(e.FullPath);
+            _databaseManager.AddEncryptedFile(newEncryptedFilePath, false);
+            _databaseManager.SaveChanges();
+            _encryptedFilePath = newEncryptedFilePath;
+        }
+        finally
+        {
+            _semaphore.Release();
+        }
+    }
+
+    protected virtual void OpenGivenFile(string filePath)
+    {
+        // Open the file
+        using Process fileopener = new();
+        fileopener.StartInfo.FileName = "explorer";
+        fileopener.StartInfo.Arguments = "\"" + filePath + "\"";
+        fileopener.Start();
     }
 }

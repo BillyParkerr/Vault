@@ -5,5 +5,6 @@ public enum PasswordState
     NonMatching,
     PasswordNotGiven,
     LengthTooShort,
+    Incorrect,
     Valid
 }

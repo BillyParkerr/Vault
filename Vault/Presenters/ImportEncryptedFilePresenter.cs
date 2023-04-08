@@ -1,34 +1,50 @@
 ﻿using Application.Enums;
 using Application.Managers;
-using Application.Views;
+using Application.Views.Interfaces;
 
 namespace Application.Presenters;
 
 public class ImportEncryptedFilePresenter
 {
-    public event EventHandler<string> PasswordEntered; 
-    private IImportEncryptedFileView View;
+    private readonly IImportEncryptedFileView _view;
+    private readonly IFileManager _fileManager;
+    private readonly string _encryptedFilePath;
 
-    public ImportEncryptedFilePresenter(IImportEncryptedFileView view)
+    public ImportEncryptedFilePresenter(IImportEncryptedFileView view, IFileManager fileManager)
     {
-        View = view;
+        _view = view;
+        this._fileManager = fileManager;
+        _encryptedFilePath = this._fileManager.GetFilePathFromExplorer("AES files (*.aes)|*.aes");
+        if (string.IsNullOrWhiteSpace(_encryptedFilePath))
+        {
+            return;
+        }
         view.ConfirmEvent += ConfirmEventHandler;
         view.Show();
     }
 
     private void ConfirmEventHandler(object sender, EventArgs e)
     {
-        var givenPassword = View.GivenPassword;
+        var givenPassword = _view.GivenPassword;
         var passwordState = GetPasswordState(givenPassword);
         switch (passwordState)
         {
             case PasswordState.Valid:
-                PasswordEntered?.Invoke(this, givenPassword);
-                View.Close();
+                ImportFileToVault(givenPassword);
+                _view.Close();
                 return;
             case PasswordState.PasswordNotGiven:
-                View.ShowBlankPasswordError();
+                _view.ShowBlankPasswordError();
                 return;
+        }
+    }
+
+    private void ImportFileToVault(string password)
+    {
+        var success = _fileManager.ImportEncryptedFileToVault(_encryptedFilePath, password);
+        if (!success)
+        {
+            MessageBox.Show($"An Error Occurred While Attempting to import the selected file. Perhaps the password was incorrect?");
         }
     }
 

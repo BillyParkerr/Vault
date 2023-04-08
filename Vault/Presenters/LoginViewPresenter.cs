@@ -1,41 +1,44 @@
 ﻿using Application.Managers;
-using Application.Views;
+using Application.Views.Interfaces;
 
 namespace Application.Presenters;
 
 public class LoginViewPresenter
 {
     public bool UserSuccessfullyAuthenticated { get; private set; }
-    private ILoginView view;
-    private IEncryptionManager encryptionManager;
+    private readonly ILoginView _view;
+    private readonly ILoginManager _passwordLoginManager;
+    private readonly IEncryptionManager _encryptionManager;
 
-    public LoginViewPresenter(ILoginView view, IEncryptionManager encryptionManager)
+    public LoginViewPresenter(ILoginView view, ILoginManager passwordLoginManager, IEncryptionManager encryptionManager)
     {
-        this.view = view;
-        this.encryptionManager = encryptionManager;
-        this.view.LoginEvent += LoginEventHandler;
+        this._view = view;
+        this._passwordLoginManager = passwordLoginManager;
+        this._view.LoginEvent += LoginEventHandler;
+        this._encryptionManager = encryptionManager;
         view.Show();
     }
 
-    public void LoginEventHandler(object? sender, EventArgs e)
+    public void LoginEventHandler(object sender, EventArgs e)
     {
         // Get the entered password
-        var givenPassword = view.GivenPassword;
+        var givenPassword = _view.GivenPassword;
         if (string.IsNullOrWhiteSpace(givenPassword))
         {
-            view.ShowBlankPasswordGivenError();
+            _view.ShowBlankPasswordGivenError();
             return;
         }
 
-        var validPassword = encryptionManager.VerifyPassword(givenPassword);
+        var validPassword = _passwordLoginManager.VerifyPassword(givenPassword);
         if (validPassword)
         {
+            _encryptionManager.SetEncryptionPassword(givenPassword);
             UserSuccessfullyAuthenticated = true;
-            view.Close();
+            _view.Close();
         }
         else
         {
-            view.ShowIncorrectPasswordError();
+            _view.ShowIncorrectPasswordError();
             return;
         }
     }

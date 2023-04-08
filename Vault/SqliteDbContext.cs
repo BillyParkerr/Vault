@@ -1,6 +1,5 @@
 ﻿using Application.Models;
 using Microsoft.EntityFrameworkCore;
-using System.Reflection;
 
 namespace Application;
 
@@ -15,12 +14,23 @@ public class SqliteDbContext : DbContext
         var programDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
             "PersonalVaultApplication");
         DbPath = Path.Join(programDirectory, "VaultDb.db");
+
+        Database.EnsureCreated();
+    }
+
+    public SqliteDbContext(DbContextOptions<SqliteDbContext> options) : base(options)
+    {
     }
 
     // The following configures EF to create a Sqlite database file in the
     // special "local" folder for your platform.
     protected override void OnConfiguring(DbContextOptionsBuilder options)
-        => options.UseSqlite($"Data Source={DbPath}");
+    {
+        if (!options.IsConfigured)
+        {
+            options.UseSqlite($"Data Source={DbPath}");
+        }
+    }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -28,6 +38,7 @@ public class SqliteDbContext : DbContext
         modelBuilder.Entity<EncryptedFile>(entity =>
         {
             entity.HasKey(k => k.Id);
+            entity.Property(p => p.FilePath).IsRequired();
             entity.HasIndex(i => i.FilePath).IsUnique();
             entity.HasIndex(i => i.UniquePassword);
         });
@@ -36,6 +47,7 @@ public class SqliteDbContext : DbContext
         modelBuilder.Entity<EncryptionKey>(entity =>
         {
             entity.HasKey(k => k.Id);
+            entity.Property(p => p.Key).IsRequired();
             entity.HasIndex(i => i.Key).IsUnique();
         });
         base.OnModelCreating(modelBuilder);

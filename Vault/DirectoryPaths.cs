@@ -10,7 +10,9 @@
     public static string DecryptedFilesCommonDirectory { get; } = CreateDirectory("PersonalVaultApplication", "DecryptedFiles", "Common");
     public static string DecryptedFilesTempDirectory { get; } = CreateDirectory("PersonalVaultApplication", "DecryptedFiles", "Temp");
 
-    public static string ConfigDirectory { get; } = CreateDirectory("PersonalVaultApplication", "Config");
+    public static string EncryptedKeyPath { get; } = Path.Combine(CreateDirectory("PersonalVaultApplication", "EncryptedKey"), "encrypted_key.bin");
+
+    public static string AppSettingsPath { get; } = CreateDirectory("PersonalVaultApplication", "Config");
 
     private static string CreateDirectory(params string[] paths)
     {
