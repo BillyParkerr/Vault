@@ -20,7 +20,7 @@ public class FileMonitoringManagerTests
         _testHelper = new TestHelper();
     }
 
-    // This is used to avoid messages and views showing when running the tests. It only overrides a specific method  so all all other functionality should be equal to FileMonitoringManager.
+    // This is used to avoid files being opened when running the tests. It only overrides a specific method so all all other functionality should be equal to FileMonitoringManager.
     // Overriding methods should be kept to a minimum to ensure tests provide value.
     public class TestFileMonitoringManager : FileMonitoringManager
     {
@@ -35,7 +35,6 @@ public class FileMonitoringManagerTests
         }
     }
 
-    // This test will cause the created file to be opened. This is unavoiable due to the nature of the class.
     [Test]
     public async Task FileMonitoringManager_UpdatesEncryptedFile_WhenMonitoredFileIsChanged()
     {
@@ -54,7 +53,7 @@ public class FileMonitoringManagerTests
             }
 
             // Give some time for the watcher to process the change
-            await Task.Delay(2000);
+            await Task.Delay(3000);
 
             // Verify that the appropriate methods were called to update the encrypted file
             _encryptionManager.Verify(x => x.EncryptFile(testFile, It.IsAny<string>()), Times.AtLeastOnce);

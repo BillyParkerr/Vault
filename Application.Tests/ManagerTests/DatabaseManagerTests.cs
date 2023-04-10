@@ -24,7 +24,7 @@ public class DatabaseManagerTests
     }
 
     [Test]
-    public void TestAddAndGetEncryptedFile()
+    public void AddEncryptedFile_AddsEncryptedFile()
     {
         // Arrange
         var filePath = "test.txt";
@@ -42,7 +42,7 @@ public class DatabaseManagerTests
     }
 
     [Test]
-    public void TestDeleteEncryptedFile()
+    public void DeleteEncryptedFileByFilePath_DeletesEncryptedFile()
     {
         // Arrange
         var filePath = "test.txt";
@@ -61,7 +61,7 @@ public class DatabaseManagerTests
     }
 
     [Test]
-    public void TestSetAndGetEncryptionKey()
+    public void SetEncryptionKey_SetsEncryptionKey()
     {
         // Arrange
         var encryptionKey = "test123";
@@ -77,7 +77,7 @@ public class DatabaseManagerTests
     }
 
     [Test]
-    public void TestChangeEncryptionKey()
+    public void ChangeEncryptionKey_ChangesEncryptionKey()
     {
         // Arrange
         var encryptionKey = "test123";
@@ -96,7 +96,7 @@ public class DatabaseManagerTests
     }
 
     [Test]
-    public void TestIsEncryptionKeySet()
+    public void IsEncryptionKeySet_ReturnsTrueWhenSet()
     {
         // Arrange
         var encryptionKey = "test123";
@@ -108,5 +108,15 @@ public class DatabaseManagerTests
 
         // Assert
         Assert.True(result);
+    }
+
+    [Test]
+    public void IsEncryptionKeySet_ReturnsFalseWhenNotSet()
+    {
+        // Act
+        var result = _databaseManager.IsEncryptionKeySet();
+
+        // Assert
+        Assert.False(result);
     }
 }

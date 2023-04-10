@@ -14,10 +14,10 @@ public class WindowsHelloRegisterViewPresenter
 
     public WindowsHelloRegisterViewPresenter(IWindowsHelloRegisterView view, IWindowsHelloManager windowsHelloManager, ILoginManager loginManager)
     {
-        this._windowsHelloManager = windowsHelloManager;
-        this._loginManager = loginManager;
-        this._view = view;
-        this._view.ConfirmEvent += ConfirmEventHandler;
+        _windowsHelloManager = windowsHelloManager;
+        _loginManager = loginManager;
+        _view = view;
+        _view.ConfirmEvent += ConfirmEventHandler;
     }
 
     private async void ConfirmEventHandler(object _, EventArgs __)
@@ -57,6 +57,12 @@ public class WindowsHelloRegisterViewPresenter
         }
     }
 
+    /// <summary>
+    /// Ensure the password is given and meets security requirements.
+    /// </summary>
+    /// <param name="password"></param>
+    /// <param name="secondPassword"></param>
+    /// <returns></returns>
     private static PasswordState GetPasswordState(string password, string secondPassword)
     {
         if (string.IsNullOrWhiteSpace(password) || string.IsNullOrWhiteSpace(secondPassword))

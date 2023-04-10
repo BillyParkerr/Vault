@@ -5,6 +5,9 @@ using Application.Views.Interfaces;
 
 namespace Application.Presenters;
 
+/// <summary>
+/// This presenter class is responsible for handling events invoked from the ChangePasswordView
+/// </summary>
 public class ChangePasswordViewPresenter
 {
     public event EventHandler<PasswordChangedEventArgs> NewPasswordChosen;
@@ -14,10 +17,10 @@ public class ChangePasswordViewPresenter
 
     public ChangePasswordViewPresenter(ILoginManager loginManager, IChangePasswordView view)
     {
-        this._loginManager = loginManager;
-        this._view = view;
-        this._view.ConfirmPasswordEvent += ConfirmPasswordEventHandler;
-        this._view.Show();
+        _loginManager = loginManager;
+        _view = view;
+        _view.ConfirmPasswordEvent += ConfirmPasswordEventHandler;
+        _view.Show();
     }
 
     private void ConfirmPasswordEventHandler(object sender, EventArgs e)
@@ -55,6 +58,11 @@ public class ChangePasswordViewPresenter
         }
     }
 
+    /// <summary>
+    /// Check if the old password is given and correct.
+    /// </summary>
+    /// <param name="password"></param>
+    /// <returns></returns>
     private PasswordState GetOldPasswordState(string password)
     {
         if (string.IsNullOrWhiteSpace(password))
@@ -70,6 +78,12 @@ public class ChangePasswordViewPresenter
         return PasswordState.Valid;
     }
 
+    /// <summary>
+    /// Check if the new password is given and meets security requirements
+    /// </summary>
+    /// <param name="password"></param>
+    /// <param name="secondPassword"></param>
+    /// <returns></returns>
     private static PasswordState GetNewPasswordState(string password, string secondPassword)
     {
         if (string.IsNullOrWhiteSpace(password) || string.IsNullOrWhiteSpace(secondPassword))

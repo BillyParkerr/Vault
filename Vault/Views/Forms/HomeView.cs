@@ -47,7 +47,7 @@ public partial class HomeView : Form, IHomeView
 
     public void PauseView()
     {
-        foreach (Control control in this.Controls)
+        foreach (Control control in Controls)
         {
             control.Enabled = false;
         }
@@ -55,7 +55,7 @@ public partial class HomeView : Form, IHomeView
 
     public void ResumeView()
     {
-        foreach (Control control in this.Controls)
+        foreach (Control control in Controls)
         {
             control.Enabled = true;
         }
@@ -114,7 +114,7 @@ public partial class HomeView : Form, IHomeView
     {
         if (dataGridView.InvokeRequired)
         {
-            this.Invoke(new MethodInvoker(delegate
+            Invoke(new MethodInvoker(delegate
             {
                 dataGridView.DataSource = filesInVaultList;
             }));

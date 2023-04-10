@@ -14,8 +14,8 @@ public class ExportEncryptedFilePresenter
     public ExportEncryptedFilePresenter(IExportEncryptedFileView view, IFileManager fileManager, EncryptedFile encryptedFile)
     {
         _encryptedFileToExport = encryptedFile;
-        this._view = view;
-        this._fileManager = fileManager;
+        _view = view;
+        _fileManager = fileManager;
         view.ConfirmEvent += ConfirmEventHandler;
         view.Show();
     }
@@ -39,6 +39,11 @@ public class ExportEncryptedFilePresenter
         }
     }
 
+    /// <summary>
+    /// Gets a folder to encrypt to from the user. Downloads the encrypted file from the vault.
+    /// Opens the given folder in explorer.
+    /// </summary>
+    /// <param name="password"></param>
     private void ExportEncryptedFile(string password)
     {
         string selectedPath = _fileManager.GetFolderPathFromExplorer();
@@ -53,6 +58,11 @@ public class ExportEncryptedFilePresenter
         }
     }
 
+    /// <summary>
+    /// Check that the password is given and meets security requirements.
+    /// </summary>
+    /// <param name="password"></param>
+    /// <returns></returns>
     private static PasswordState GetPasswordState(string password)
     {
         if (string.IsNullOrWhiteSpace(password))

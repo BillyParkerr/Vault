@@ -4,8 +4,16 @@ using Application.Views.Interfaces;
 
 namespace Application.Presenters;
 
+/// <summary>
+/// This presenter is responsible for the handling of the SettingsView.
+///
+/// Its main focus is to allow the user to decide there chosen settings and commit them
+/// to the config file once confirmed.
+/// </summary>
 public class SettingsViewPresenter
 {
+    // This event is used to inform any class that subscribes that the user has selected there chosen settings and they
+    // have been commited to the AppSettings.json file. This will allow the class to adjust any view it is responsible for.
     public virtual event EventHandler SettingsConfirmed;
 
     private readonly ISettingsView _view;
@@ -23,26 +31,26 @@ public class SettingsViewPresenter
     public SettingsViewPresenter(ISettingsView view, IFileManager fileManager, AppSettings appSettings, 
         IWindowsHelloManager windowsHelloManager, IPresenterManager presenterManager, ILoginManager loginManager)
     {
-        this._appSettings = appSettings;
-        this._fileManager = fileManager;
-        this._windowsHelloManager = windowsHelloManager;
-        this._presenterManager = presenterManager;
-        this._loginManager = loginManager;
+        _appSettings = appSettings;
+        _fileManager = fileManager;
+        _windowsHelloManager = windowsHelloManager;
+        _presenterManager = presenterManager;
+        _loginManager = loginManager;
 
-        this._view = view;
-        this._view.ToggleUserModeEvent += ToggleUserModeEventHandler;
-        this._view.ToggleAuthenticationModeEvent += ToggleAuthenticationModeEventHandler;
-        this._view.ChangePasswordEvent += ChangePasswordEventHandler;
-        this._view.ToggleAutomaticDeletionOfUploadedFilesEvent += ToggleAutomaticDeletionOfUploadedFilesEventHandler;
-        this._view.ChangeDefaultDownloadLocationEvent += ChangeDefaultDownloadLocationEventHandler;
-        this._view.ConfirmChosenSettingsEvent += ConfirmChosenSettingsEventHandler;
-        this._view.UserClosedViewEvent += UserClosedViewEventHandler;
+        _view = view;
+        _view.ToggleUserModeEvent += ToggleUserModeEventHandler;
+        _view.ToggleAuthenticationModeEvent += ToggleAuthenticationModeEventHandler;
+        _view.ChangePasswordEvent += ChangePasswordEventHandler;
+        _view.ToggleAutomaticDeletionOfUploadedFilesEvent += ToggleAutomaticDeletionOfUploadedFilesEventHandler;
+        _view.ChangeDefaultDownloadLocationEvent += ChangeDefaultDownloadLocationEventHandler;
+        _view.ConfirmChosenSettingsEvent += ConfirmChosenSettingsEventHandler;
+        _view.UserClosedViewEvent += UserClosedViewEventHandler;
 
         // Take a copy of the current appSettings
         _uncommitedAppSettings = CopyAppSettings(appSettings);
         _ = SetupViewBasedUponAppSettings();
 
-        this._view.Show();
+        _view.Show();
     }
 
     private static AppSettings CopyAppSettings(AppSettings settings)
@@ -58,6 +66,9 @@ public class SettingsViewPresenter
         return newSettings;
     }
 
+    /// <summary>
+    /// Commits the newly chosen app settings to the AppSettings.json file via the Program.UpdateAppSettings method.
+    /// </summary>
     private void CommitAppSettings()
     {
         _appSettings.AuthenticationMethod = _uncommitedAppSettings.AuthenticationMethod;
@@ -67,6 +78,12 @@ public class SettingsViewPresenter
         Program.UpdateAppSettings(_appSettings);
     }
 
+    /// <summary>
+    /// This method setups up the SettingsView depending on the existing AppSettings.
+    /// So for example if the user was using password mode, the password button would be disabled and
+    /// the WindowsHelloModeButton would be activated.
+    /// </summary>
+    /// <returns></returns>
     private async Task SetupViewBasedUponAppSettings()
     {
         // Authentication Method.

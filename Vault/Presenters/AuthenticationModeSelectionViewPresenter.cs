@@ -3,6 +3,11 @@ using Application.Views.Interfaces;
 
 namespace Application.Presenters;
 
+/// <summary>
+/// This presenter class is responvile for handing events invoked by the AuthenticationModeSelectionView
+///
+/// When the user selects which authentication method to use from the user. This is then committed to the AppSettings.json file.
+/// </summary>
 public class AuthenticationModeSelectionViewPresenter
 {
     private readonly IAuthenticationModeSelectionView _view;
@@ -10,10 +15,10 @@ public class AuthenticationModeSelectionViewPresenter
 
     public AuthenticationModeSelectionViewPresenter(IAuthenticationModeSelectionView view, AppSettings appSettings)
     {
-        this._view = view;
-        this._view.PasswordModeSelected += PasswordModeSelectedEventHandler;
-        this._view.WindowsHelloModeSelected += WindowsHelloModeSelectedEventHandler;
-        this._appSettings = appSettings;
+        _view = view;
+        _view.PasswordModeSelected += PasswordModeSelectedEventHandler;
+        _view.WindowsHelloModeSelected += WindowsHelloModeSelectedEventHandler;
+        _appSettings = appSettings;
     }
 
     private void PasswordModeSelectedEventHandler(object _, EventArgs __)
