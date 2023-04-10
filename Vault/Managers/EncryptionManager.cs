@@ -12,6 +12,41 @@ using Array = System.Array;
 
 namespace Application.Managers;
 
+// Below I will give a breif explanation as to how the encryption / decrpytion process works
+//
+// An important thing to keep in mind is that the file name and file contents follow different encryption processes. However both use AES encryption.
+//
+// The Encryption process for a file goes as follows:
+// 1 - Encrypting the file name. (The file name is encrypted seperatly so it can be decrypted without having to decrypt the entire file)
+// 1.1 - Generate a random salt.
+// 1.2 - Generate a key based upon the password and salt.
+// 1.3 - We then generate a random nonce
+// 1.4 - The file name is then encrypted using the nonce and key.
+// 1.5 - We then write the salt followed by the nonce to the start of the file name. (This done so that we can use it for decryption)
+// 1.6 - At this point we have a byte array so we convert it to a string and add.aes on the end.
+   
+// 2 - Encrypting the file contents
+// 2.1 - Generate a random initilisation vector (IV). This can also be reffered to as a nonce.
+// 2.2 - Generate a random salt.
+// 2.3 - Generate a key from the password and salt to use for. (This ensures that each key is different even when using the same password)
+// 2.4 - We first write the IV and Salt to the encrypted file using the file name we generated previously.
+// 2.4 - We then encrypt the contents and write it to the file as part of a Crypto and FileStream.
+   
+// The Decryption process for a file goes as follow:
+// 1 - Decrypt the file name
+// 1.1 - Extract the salt from the start of the file
+// 1.2 - Recreate the key used for the encryption using the salt and the password.
+// 1.3 - Seperate the salt and cipher text (encyrpted file contents) into seperate variables.
+// 1.4 - Decrypt the cipher text using the key and nonce. This will give us our decrypted file name.
+//
+// 2 - Decrypt the file contents
+// 2.1 - Get the IV and Salt from the start of the encrypted file contents.
+// 2.2 - Recreate the key used for the encryption using the retreived salt and the password.
+// 2.3 - Decrypt the contents of the file using the key and IV. Ensuring that we skip the length of the IV and Salt at the start.
+
+/// <summary>
+/// This class is responsible for all encryption and decryption that takes place within the application.
+/// </summary>
 public class EncryptionManager : IEncryptionManager
 {
     // These allow for the adjustment of the encryption algorithm variables. In this class AES encryption is used.
@@ -25,9 +60,13 @@ public class EncryptionManager : IEncryptionManager
 
     public EncryptionManager(IDatabaseManager databaseManager)
     {
-        this._databaseManager = databaseManager;
+        _databaseManager = databaseManager;
     }
 
+    /// <summary>
+    /// Sets the encryption password for the EncryptionManager instance.
+    /// </summary>
+    /// <param name="password"></param>
     public void SetEncryptionPassword(string password)
     {
         var encryptionKey = _databaseManager.GetEncryptionKey();
@@ -43,6 +82,14 @@ public class EncryptionManager : IEncryptionManager
         }
     }
 
+    private void IsPasswordSet()
+    {
+        if (DecryptedEncryptionKey == null)
+        {
+            throw new ApplicationException("The password must be set before any encrytion can take place!");
+        }
+    }
+
     private static byte[] GenerateSalt()
     {
         // Generate a 128-bit salt using a CSPRNG.
@@ -53,7 +100,7 @@ public class EncryptionManager : IEncryptionManager
         return salt;
     }
 
-    private byte[] GenerateKeyFromPassword(byte[] salt, string password = null)
+    private byte[] GenerateKeyFromSaltAndPassword(byte[] salt, string password = null)
     {
         password ??= DecryptedEncryptionKey;
 
@@ -76,10 +123,10 @@ public class EncryptionManager : IEncryptionManager
     }
 
     /// <summary>
-    /// 
+    /// Reads the starting contents of an encrypted file in order to retreive the IV and Salt.
     /// </summary>
     /// <param name="fileLocation"></param>
-    /// <returns>IV and Salt in that order</returns>
+    /// <returns>A Tuple containing IV and Salt in that order</returns>
     private static (byte[], byte[]) GetInitisationVectorAndSaltFromEncryptedFile(string fileLocation)
     {
         var buffer = new byte[32];
@@ -107,9 +154,12 @@ public class EncryptionManager : IEncryptionManager
         throw new("Unable to get IV and Salt from EncryptedFile.");
     }
 
-    /// <summary>Encrypt a file.</summary>
+    #region Encryption
+
+    /// <summary>Encrypts a file located at the given sourceFilePath using the specified password (if provided) or the instance password.</summary>
     /// <param name="sourceFilePath">The full path and name of the file to be encrypted.</param>
-    /// <returns>The encrypted files path</returns>
+    /// <param name="password"></param>
+    /// <returns>The path of the encrypted file.</returns>
     public string EncryptFile(string sourceFilePath, string password = null)
     {
         if (password == null)
@@ -118,11 +168,12 @@ public class EncryptionManager : IEncryptionManager
             password = DecryptedEncryptionKey;
         }
 
-        var initilisationVector = GenerateInitilisationVector();
-        var salt = GenerateSalt();
-        var key = GenerateKeyFromPassword(salt, password);
         var destinationFileName = EncryptString(Path.GetFileName(sourceFilePath), password);
         var destinationFilePath = Path.Combine(DirectoryPaths.EncryptedFilesCommonDirectory, destinationFileName + ".aes");
+
+        var initilisationVector = GenerateInitilisationVector();
+        var salt = GenerateSalt();
+        var key = GenerateKeyFromSaltAndPassword(salt, password);
 
         var tempStream = new ByteArrayOutputStream();
         tempStream.Write(initilisationVector);
@@ -137,8 +188,6 @@ public class EncryptionManager : IEncryptionManager
 
         // Create an encryptor to perform the stream transform.
         ICryptoTransform encryptor = aesAlg.CreateEncryptor(aesAlg.Key, aesAlg.IV);
-
-        // TODO Do this asyncronously.
         using var destination = new FileStream(@destinationFilePath, FileMode.CreateNew, FileAccess.Write, FileShare.None);
         destination.BeginWrite(iVAndSalt, 0, iVAndSalt.Length, null, null);
         using var cryptoStream = new CryptoStream(destination, encryptor, CryptoStreamMode.Write);
@@ -149,72 +198,17 @@ public class EncryptionManager : IEncryptionManager
     }
 
     /// <summary>
-    /// Decrypt a file from its path
-    /// </summary>
-    /// <remarks>NB: "Padding is invalid and cannot be removed." is the Universal CryptoServices error.  Make sure the password, salt and iterations are correct before getting nervous.</remarks>
-    /// <returns>The path of the DecryptedFile</returns>
-    /// <exception cref="ApplicationException"></exception>
-    public string DecryptFile(string sourceFilePath, string destinationPath = null, string password = null)
-    {
-        if (password == null)
-        {
-            IsPasswordSet();
-            password = DecryptedEncryptionKey;
-        }
-        if (destinationPath == null)
-        {
-            destinationPath = DirectoryPaths.DecryptedFilesCommonDirectory;
-        }
-
-        // Create an Aes object
-        // with the specified key and IV.
-        using Aes aesAlg = Aes.Create();
-        var ivAndSalt = GetInitisationVectorAndSaltFromEncryptedFile(sourceFilePath);
-        var iv = ivAndSalt.Item1;
-        var salt = ivAndSalt.Item2;
-        var key = GenerateKeyFromPassword(salt, password);
-        var destinationFileName = DecryptString(Path.GetFileNameWithoutExtension(sourceFilePath), password);
-        var destinationFileLocation = Path.Combine(destinationPath, destinationFileName);
-
-        aesAlg.Key = key;
-        aesAlg.IV = iv;
-
-        ICryptoTransform transform = aesAlg.CreateDecryptor(aesAlg.Key, aesAlg.IV);
-
-        using FileStream destination = new(destinationFileLocation, FileMode.CreateNew, FileAccess.Write, FileShare.None);
-        using CryptoStream cryptoStream = new(destination, transform, CryptoStreamMode.Write);
-        try
-        {
-            using FileStream source = new(sourceFilePath, FileMode.Open, FileAccess.Read, FileShare.Read);
-            source.Position = 32; // Skip the IV and Salt porition of the stream
-            source.CopyTo(cryptoStream);
-        }
-        catch (CryptographicException exception)
-        {
-            if (exception.Message == "Padding is invalid and cannot be removed.")
-            {
-                throw new ApplicationException("Universal Microsoft Cryptographic Exception (Not to be believed!)", exception);
-            }
-            else
-            {
-                throw;
-            }
-        }
-
-        return destinationFileLocation;
-    }
-
-    /// <summary>
-    /// Encrypts a string using AES Encryption.
+    /// Encrypts a given plaintext string using the specified password (if provided) or the instance password.
     /// </summary>
     /// <param name="plaintext">The text which is to be encrypted</param>
+    /// <param name="password"></param>
     /// <returns>Encrypted string</returns>
     public string EncryptString(string plaintext, string password = null)
     {
         password ??= DecryptedEncryptionKey;
 
         var salt = GenerateSalt();
-        var key = GenerateKeyFromPassword(salt, password);
+        var key = GenerateKeyFromSaltAndPassword(salt, password);
 
         // Encrypt and prepend salt.
         byte[] ciphertextAndNonce = Encrypt(Encoding.UTF8.GetBytes(plaintext), key);
@@ -253,10 +247,69 @@ public class EncryptionManager : IEncryptionManager
         return ciphertextAndNonce;
     }
 
+    #endregion
+
+    #region Decryption
+
     /// <summary>
-    /// Decrypts a given file name using a given password as the key.
+    /// Decrypts a file located at the given sourceFilePath using the specified password (if provided) or the instance password.
+    /// If the destinationPath is provided, the decrypted file will be saved there, otherwise it will be saved in the default decrypted files location.
+    /// </summary>
+    /// <remarks>NB: "Padding is invalid and cannot be removed." is the Universal CryptoServices error.  Make sure the password, salt and iterations are correct before getting nervous.</remarks>
+    /// <returns>The path of the DecryptedFile</returns>
+    /// <exception cref="ApplicationException"></exception>
+    public string DecryptFile(string sourceFilePath, string destinationPath = null, string password = null)
+    {
+        if (password == null)
+        {
+            IsPasswordSet();
+            password = DecryptedEncryptionKey;
+        }
+        destinationPath ??= DirectoryPaths.DecryptedFilesCommonDirectory;
+
+        var destinationFileName = DecryptString(Path.GetFileNameWithoutExtension(sourceFilePath), password);
+        var destinationFileLocation = Path.Combine(destinationPath, destinationFileName);
+
+        // Create an Aes object
+        // with the specified key and IV.
+        using Aes aesAlg = Aes.Create();
+        var ivAndSalt = GetInitisationVectorAndSaltFromEncryptedFile(sourceFilePath);
+        var iv = ivAndSalt.Item1;
+        var salt = ivAndSalt.Item2;
+        var key = GenerateKeyFromSaltAndPassword(salt, password);
+        aesAlg.Key = key;
+        aesAlg.IV = iv;
+
+        ICryptoTransform transform = aesAlg.CreateDecryptor(aesAlg.Key, aesAlg.IV);
+
+        using FileStream destination = new(destinationFileLocation, FileMode.CreateNew, FileAccess.Write, FileShare.None);
+        using CryptoStream cryptoStream = new(destination, transform, CryptoStreamMode.Write);
+        try
+        {
+            using FileStream source = new(sourceFilePath, FileMode.Open, FileAccess.Read, FileShare.Read);
+            source.Position = AlgorithmnNonceSize + Pbkdf2SaltSize; // Skip the IV and Salt porition of the stream
+            source.CopyTo(cryptoStream);
+        }
+        catch (CryptographicException exception)
+        {
+            if (exception.Message == "Padding is invalid and cannot be removed.")
+            {
+                throw new ApplicationException("Universal Microsoft Cryptographic Exception (Not to be believed!)", exception);
+            }
+            else
+            {
+                throw;
+            }
+        }
+
+        return destinationFileLocation;
+    }
+
+    /// <summary>
+    /// Decrypts an encrypted file name using the specified password (if provided) or the instance password.
     /// </summary>
     /// <param name="encryptedFileName">A combiniation of the ciphertext, nonce and salt in the form of a file name</param>
+    /// <param name="password"></param>
     /// <returns>The decrypted string</returns>
     public string DecryptString(string encryptedFileName, string password = null)
     {
@@ -274,7 +327,7 @@ public class EncryptionManager : IEncryptionManager
         Array.Copy(ciphertextAndNonceAndSalt, 0, salt, 0, salt.Length);
         Array.Copy(ciphertextAndNonceAndSalt, salt.Length, ciphertextAndNonce, 0, ciphertextAndNonce.Length);
 
-        var key = GenerateKeyFromPassword(salt, password);
+        var key = GenerateKeyFromSaltAndPassword(salt, password);
 
         // Decrypt and return result.
         return Encoding.UTF8.GetString(Decrypt(ciphertextAndNonce, key));
@@ -302,11 +355,5 @@ public class EncryptionManager : IEncryptionManager
         return plaintext;
     }
 
-    private void IsPasswordSet()
-    {
-        if (DecryptedEncryptionKey == null)
-        {
-            throw new ApplicationException("The password must be set before any encrytion can take place!");
-        }
-    }
+    #endregion
 }

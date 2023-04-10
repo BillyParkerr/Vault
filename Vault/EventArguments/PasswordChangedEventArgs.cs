@@ -1,6 +1,6 @@
 ﻿namespace Application.EventArguments;
 
-public class PasswordChangedEventArgs : System.EventArgs
+public class PasswordChangedEventArgs : EventArgs
 {
     public string EnteredOldPassword { get; set; }
     public string EnteredNewPassword { get; set; }

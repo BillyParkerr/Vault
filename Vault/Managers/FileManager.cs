@@ -14,10 +14,10 @@ public class FileManager : IFileManager
 
     public FileManager(IEncryptionManager encryptionManager, IDatabaseManager databaseManager, IFileMonitoringManager fileMonitoringManager, AppSettings appSettings)
     {
-        this._encryptionManager = encryptionManager;
-        this._databaseManager = databaseManager;
-        this._fileMonitoringManager = fileMonitoringManager;
-        this._appSettings = appSettings;
+        _encryptionManager = encryptionManager;
+        _databaseManager = databaseManager;
+        _fileMonitoringManager = fileMonitoringManager;
+        _appSettings = appSettings;
     }
 
     /// <summary>
@@ -47,9 +47,10 @@ public class FileManager : IFileManager
 
     /// <summary>
     /// Adds a file to the vault by encrypting the file then adding the information to the database.
-    /// This will use the default encryption password.
+    /// Uses the default password unless a password is given.
     /// </summary>
     /// <param name="filePath"></param>
+    /// <param name="password"></param>
     /// <returns>True if success, False if failure.</returns>
     public bool AddFileToVault(string filePath, string password = null)
     {
@@ -86,6 +87,13 @@ public class FileManager : IFileManager
         return true;
     }
 
+    /// <summary>
+    /// Decrypts and downloads an encrypted file from the vault to a given destination.
+    /// </summary>
+    /// <param name="encryptedFilePath"></param>
+    /// <param name="destinationFilePath"></param>
+    /// <param name="password"></param>
+    /// <returns>True upon success, False upon failure</returns>
     public bool DownloadFileFromVault(string encryptedFilePath, string destinationFilePath, string password = null)
     {
         try
@@ -104,6 +112,11 @@ public class FileManager : IFileManager
         }
     }
 
+    /// <summary>
+    /// Deletes the file from the system and removes the EncryptedFile from the database.
+    /// </summary>
+    /// <param name="filePath"></param>
+    /// <returns>True upon success, False upon failure</returns>
     public bool DeleteFileFromVault(string filePath)
     {
         try
@@ -126,6 +139,9 @@ public class FileManager : IFileManager
         }
     }
 
+    /// <summary>
+    /// Deletes any Files that were created for temporary purposes suchas opening a file within the vault.
+    /// </summary>
     public void CleanupTempFiles()
     {
         foreach (string filePath in Directory.GetFiles(DirectoryPaths.DecryptedFilesTempDirectory))
@@ -141,6 +157,11 @@ public class FileManager : IFileManager
         }
     }
 
+    /// <summary>
+    /// Decrypts a file within the vault to a temporary location and initilises the file monitering process.
+    /// </summary>
+    /// <param name="filePath"></param>
+    /// <returns>True upon success, False upon failure</returns>
     public bool OpenFileFromVaultAndReencryptUponClosure(string filePath)
     {
         try
@@ -173,6 +194,13 @@ public class FileManager : IFileManager
         return Path.Combine(DirectoryPaths.DecryptedFilesTempDirectory, destinationFileName);
     }
 
+    /// <summary>
+    /// Adds a fodler to the vault by zipping then encrypting the folder then adding the information to the database.
+    /// Uses the default password unless a password is given.
+    /// </summary>
+    /// <param name="folderPath"></param>
+    /// <param name="password"></param>
+    /// <returns>True if success, False if failure.</returns>
     public bool ZipFolderAndAddToVault(string folderPath, string password = null)
     {
         try
@@ -242,6 +270,17 @@ public class FileManager : IFileManager
         }
     }
 
+    /// <summary>
+    /// Imports an existing EncryptedFile. This follows the following process:
+    /// 
+    /// 1 - Decrpyt the encrypted file to a temp location.
+    /// 2 - Encrypted the decrypted file from the temp location.
+    /// 3 - Add the encrypted file to the database.
+    /// 4 - Delete the temp decrypted file.
+    /// </summary>
+    /// <param name="filePath">File path for the encrypted file.</param>
+    /// <param name="encryptionPassword">Password which the given file was encrypted with.</param>
+    /// <returns>True upon success or False upon failure</returns>
     public bool ImportEncryptedFileToVault(string filePath, string encryptionPassword)
     {
         try
@@ -269,6 +308,10 @@ public class FileManager : IFileManager
         }
     }
 
+    /// <summary>
+    /// Creates a protected file containing the given password. If a protected file already exists this is deleted.
+    /// </summary>
+    /// <param name="password"></param>
     public void ProtectAndSavePassword(string password)
     {
         if (ProtectedPasswordExists())
@@ -281,6 +324,10 @@ public class FileManager : IFileManager
         File.WriteAllBytes(DirectoryPaths.EncryptedKeyPath, encryptedPassword);
     }
 
+    /// <summary>
+    /// Decrypts and reads the protected file.
+    /// </summary>
+    /// <returns>Password from the protected file.</returns>
     public string ReadAndReturnProtectedPassword()
     {
         if (!ProtectedPasswordExists())
@@ -294,11 +341,22 @@ public class FileManager : IFileManager
         return decryptedPassword;
     }
 
+    /// <summary>
+    /// Checks if an protected password file exists.
+    /// </summary>
+    /// <returns>True if exists, False if not</returns>
     public bool ProtectedPasswordExists()
     {
         return File.Exists(DirectoryPaths.EncryptedKeyPath);
     }
 
+    /// <summary>
+    /// Executes the specified function on a Single Thread Apartment (STA) thread.
+    /// This method should be used when interacting with components that require
+    /// the STA threading model, such as OpenFileDialog, FolderBrowserDialog, and
+    /// some COM components.
+    /// </summary>
+    /// <param name="func">The function to execute on the STA thread.</param>
     private static T RunOnSTAThread<T>(Func<T> func)
     {
         var result = default(T);
@@ -309,6 +367,12 @@ public class FileManager : IFileManager
         return result;
     }
 
+    /// <summary>
+    /// Displays a file picker dialog to the user and returns the selected file path.
+    /// This method ensures that the file picker dialog is run on an STA thread, as required.
+    /// </summary>
+    /// <param name="filter">Optional file filter string to show only specific file types in the dialog.</param>
+    /// <returns>The file path of the selected file, or null if no file was selected.</returns>
     public string GetFilePathFromExplorer(string filter = null)
     {
         return RunOnSTAThread(() =>
@@ -335,6 +399,11 @@ public class FileManager : IFileManager
         });
     }
 
+    /// <summary>
+    /// Displays a folder picker dialog to the user and returns the selected folder path.
+    /// This method ensures that the folder picker dialog is run on an STA thread, as required.
+    /// </summary>
+    /// <returns>The folder path of the selected folder, or null if no folder was selected.</returns>
     public string GetFolderPathFromExplorer()
     {
         return RunOnSTAThread(() =>
@@ -356,6 +425,10 @@ public class FileManager : IFileManager
         });
     }
 
+    /// <summary>
+    /// Opens Windows Explorer and selects the specified file or folder.
+    /// </summary>
+    /// <param name="path">The path of the file or folder to be selected in Windows Explorer.</param>
     public void OpenFolderInExplorer(string path)
     {
         string argument = "/select, \"" + path + "\"";

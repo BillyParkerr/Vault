@@ -16,29 +16,32 @@ public class HomeViewPresenter
 
     public HomeViewPresenter(IHomeView view, IFileManager fileManager, IDatabaseManager databaseManager, IPresenterManager presenterManager, AppSettings appSettings)
     {
-        this._filesInVaultBindingSource = new BindingSource();
-        this._fileManager = fileManager;
-        this._view = view;
-        this._presenterManager = presenterManager;
-        this._appSettings = appSettings;
+        _filesInVaultBindingSource = new BindingSource();
+        _fileManager = fileManager;
+        _view = view;
+        _presenterManager = presenterManager;
+        _appSettings = appSettings;
 
         databaseManager.VaultContentsChangedEvent += LoadAllFilesInVault;
         // Subscribe to events
-        this._view.AddFileToVaultEvent += AddFileToVaultEventHandler;
-        this._view.AddFolderToVaultEvent += AddFolderToVaultEventHandler;
-        this._view.DownloadFileFromVaultEvent += DownloadFileFromVaultEventHandler;
-        this._view.DeleteFileFromVaultEvent += DeleteFileFromVaultEventHandler;
-        this._view.OpenFileFromVaultEvent += OpenFileFromVaultEventHandler;
-        this._view.ImportFileToVaultEvent += ImportFileToVaultEventHandler;
-        this._view.ExportFileFromVaultEvent += ExportFileFromVaultEventHandler;
-        this._view.FormClosingEvent += FormClosingEventHandler;
-        this._view.SearchFilterAppliedEvent += SearchFilterAppliedEventHandler;
-        this._view.OpenSettingsEvent += OpenSettingsEventHandler;
-        this._view.SetFilesInVaultListBindingSource(_filesInVaultBindingSource);
+        _view.AddFileToVaultEvent += AddFileToVaultEventHandler;
+        _view.AddFolderToVaultEvent += AddFolderToVaultEventHandler;
+        _view.DownloadFileFromVaultEvent += DownloadFileFromVaultEventHandler;
+        _view.DeleteFileFromVaultEvent += DeleteFileFromVaultEventHandler;
+        _view.OpenFileFromVaultEvent += OpenFileFromVaultEventHandler;
+        _view.ImportFileToVaultEvent += ImportFileToVaultEventHandler;
+        _view.ExportFileFromVaultEvent += ExportFileFromVaultEventHandler;
+        _view.FormClosingEvent += FormClosingEventHandler;
+        _view.SearchFilterAppliedEvent += SearchFilterAppliedEventHandler;
+        _view.OpenSettingsEvent += OpenSettingsEventHandler;
+        _view.SetFilesInVaultListBindingSource(_filesInVaultBindingSource);
         LoadAllFilesInVault();
         ConfigureViewBasedUponAppSettings();
     }
 
+    /// <summary>
+    /// Disable or enable several view components based upon the AppSettings
+    /// </summary>
     private void ConfigureViewBasedUponAppSettings()
     {
         if (_appSettings.Mode == ApplicationMode.Advanced)

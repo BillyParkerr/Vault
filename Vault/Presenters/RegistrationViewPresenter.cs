@@ -13,10 +13,10 @@ public class RegistrationViewPresenter
 
     public RegistrationViewPresenter(ILoginManager passwordLoginManager, IRegisterView registerView)
     {
-        this._passwordLoginManager = passwordLoginManager;
-        this._registerView = registerView;
-        this._registerView.RegisterEvent += RegisterEventHandler;
-        this._registerView.Show();
+        _passwordLoginManager = passwordLoginManager;
+        _registerView = registerView;
+        _registerView.RegisterEvent += RegisterEventHandler;
+        _registerView.Show();
     }
 
     public void RegisterEventHandler(object sender, EventArgs e)
@@ -48,6 +48,12 @@ public class RegistrationViewPresenter
         UserSuccessfullyRegistered = true;
     }
 
+    /// <summary>
+    /// Ensure the password is given and meets security requirements.
+    /// </summary>
+    /// <param name="password"></param>
+    /// <param name="secondPassword"></param>
+    /// <returns></returns>
     private static PasswordState GetPasswordState(string password, string secondPassword)
     {
         if (string.IsNullOrWhiteSpace(password) || string.IsNullOrWhiteSpace(secondPassword))

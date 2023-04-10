@@ -9,7 +9,6 @@ namespace Application.Tests.ManagerTests;
 public class PresenterManagerTests
 {
     private Mock<IDatabaseManager> _databaseManagerMock;
-    private Mock<IEncryptionManager> _encryptionManagerMock;
     private Mock<IFileManager> _fileManagerMock;
     private Mock<ILoginManager> _loginManagerMock;
     private Mock<IWindowsHelloManager> _windowsHelloManagerMock;
@@ -20,7 +19,6 @@ public class PresenterManagerTests
     public void Setup()
     {
         _databaseManagerMock = new Mock<IDatabaseManager>();
-        _encryptionManagerMock = new Mock<IEncryptionManager>();
         _fileManagerMock = new Mock<IFileManager>();
         _loginManagerMock = new Mock<ILoginManager>();
         _windowsHelloManagerMock = new Mock<IWindowsHelloManager>();
@@ -28,7 +26,6 @@ public class PresenterManagerTests
 
         _presenterManager = new PresenterManager(
             _databaseManagerMock.Object,
-            _encryptionManagerMock.Object,
             _fileManagerMock.Object,
             _loginManagerMock.Object,
             _windowsHelloManagerMock.Object,
@@ -37,7 +34,7 @@ public class PresenterManagerTests
     }
 
     [Test]
-    public void TestGetHomeViewPresenter()
+    public void GetHomeViewPresenter_ReturnsHomeViewPresenter()
     {
         // Arrange
         var homeViewMock = new Mock<IHomeView>();
@@ -64,33 +61,7 @@ public class PresenterManagerTests
     }
 
     [Test]
-    public void TestGetLoginViewPresenter()
-    {
-        // Arrange
-        var loginViewMock = new Mock<ILoginView>();
-
-        // Act
-        var result = _presenterManager.GetLoginViewPresenter(loginViewMock.Object);
-
-        // Assert
-        Assert.IsInstanceOf<LoginViewPresenter>(result);
-    }
-
-    [Test]
-    public void TestGetAuthenticationModeSelectionViewPresenter()
-    {
-        // Arrange
-        var authenticationModeSelectionViewMock = new Mock<IAuthenticationModeSelectionView>();
-
-        // Act
-        var result = _presenterManager.GetAuthenticationModeSelectionViewPresenter(authenticationModeSelectionViewMock.Object);
-
-        // Assert
-        Assert.IsInstanceOf<AuthenticationModeSelectionViewPresenter>(result);
-    }
-
-    [Test]
-    public void TestGetExportEncryptedFilePresenter()
+    public void GetExportEncryptedFilePresenter_ReturnsExportEncryptedFilePresenter()
     {
         // Arrange
         var encryptedFileToExport = new EncryptedFile();
@@ -104,7 +75,7 @@ public class PresenterManagerTests
     }
 
     [Test]
-    public void TestGetImportEncryptedFilePresenter()
+    public void GetImportEncryptedFilePresenter_ReturnsImportEncryptedFilePresenter()
     {
         // Arrange
         var importEncryptedFileViewMock = new Mock<IImportEncryptedFileView>();
@@ -117,20 +88,7 @@ public class PresenterManagerTests
     }
 
     [Test]
-    public void TestGetRegistrationViewPresenter()
-    {
-        // Arrange
-        var registerViewMock = new Mock<IRegisterView>();
-
-        // Act
-        var result = _presenterManager.GetRegistrationViewPresenter(registerViewMock.Object);
-
-        // Assert
-        Assert.IsInstanceOf<RegistrationViewPresenter>(result);
-    }
-
-    [Test]
-    public void TestGetSettingsViewPresenter()
+    public void GetSettingsViewPresenter_ReturnsSettingsViewPresenter()
     {
         // Arrange
         var settingsViewMock = new Mock<ISettingsView>();
@@ -143,7 +101,7 @@ public class PresenterManagerTests
     }
 
     [Test]
-    public void TestGetChangePasswordViewManager()
+    public void GetChangePasswordViewPresenter_ReturnsChangePasswordViewPresenter()
     {
         // Arrange
         var changePasswordViewMock = new Mock<IChangePasswordView>();
@@ -153,5 +111,18 @@ public class PresenterManagerTests
 
         // Assert
         Assert.IsInstanceOf<ChangePasswordViewPresenter>(result);
+    }
+
+    [Test]
+    public void GetWindowsHelloRegisterViewPresenter_ReturnsWindowsHelloRegisterView()
+    {
+        // Arrange
+        var windowsHelloRegisterViewMock = new Mock<IWindowsHelloRegisterView>();
+
+        // Act
+        var result = _presenterManager.GetWindowsHelloRegisterViewPresenter(windowsHelloRegisterViewMock.Object);
+
+        // Assert
+        Assert.IsInstanceOf<WindowsHelloRegisterViewPresenter>(result);
     }
 }

@@ -12,10 +12,10 @@ public class LoginViewPresenter
 
     public LoginViewPresenter(ILoginView view, ILoginManager passwordLoginManager, IEncryptionManager encryptionManager)
     {
-        this._view = view;
-        this._passwordLoginManager = passwordLoginManager;
-        this._view.LoginEvent += LoginEventHandler;
-        this._encryptionManager = encryptionManager;
+        _view = view;
+        _passwordLoginManager = passwordLoginManager;
+        _view.LoginEvent += LoginEventHandler;
+        _encryptionManager = encryptionManager;
         view.Show();
     }
 

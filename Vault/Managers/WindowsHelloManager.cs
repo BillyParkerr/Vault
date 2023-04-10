@@ -9,15 +9,15 @@ public class WindowsHelloManager : IWindowsHelloManager
 
     public WindowsHelloManager(IFileManager fileManager, IEncryptionManager encryptionManager)
     {
-        this._fileManager = fileManager;
-        this._encryptionManager = encryptionManager;
+        _fileManager = fileManager;
+        _encryptionManager = encryptionManager;
     }
 
     /// <summary>
-    /// Creates a windows hello window for he user to authenticate themselves with.
+    /// Authenticates the user with Windows Hello. This is done by showing the windows hello authentication window to the user
     /// </summary>
-    /// <param name="message">This is the message that will be displayed to the user.</param>
-    /// <returns>true if authenticated, false is not</returns>
+    /// <param name="message">The message to display during the authentication process.</param>
+    /// <returns>A task that represents the asynchronous operation. The result of the task is true if the authentication was successful, otherwise false.</returns>
     public async Task<bool> AuthenticateWithWindowsHelloAsync(string message)
     {
         if (!await IsWindowsHelloAvailable().ConfigureAwait(false))
@@ -37,6 +37,10 @@ public class WindowsHelloManager : IWindowsHelloManager
         }
     }
 
+    /// <summary>
+    /// Authenticates the user using Windows Hello. If authenticated the protected password is read and the encryption password is set.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation. The result of the task is true if the login process was successful, otherwise false.</returns>
     public async Task<bool> WindowsHelloLoginProcess()
     {
         bool authenticated = await AuthenticateWithWindowsHelloAsync("Please authenticate to access the Vault.").ConfigureAwait(false);
@@ -53,6 +57,10 @@ public class WindowsHelloManager : IWindowsHelloManager
         return false;
     }
 
+    /// <summary>
+    /// Checks if Windows Hello is available on the device.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation. The result of the task is true if Windows Hello is available, otherwise false.</returns>
     public async Task<bool> IsWindowsHelloAvailable()
     {
         // Check if Windows Hello is available on the device

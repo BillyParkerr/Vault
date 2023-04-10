@@ -13,8 +13,8 @@ public class ImportEncryptedFilePresenter
     public ImportEncryptedFilePresenter(IImportEncryptedFileView view, IFileManager fileManager)
     {
         _view = view;
-        this._fileManager = fileManager;
-        _encryptedFilePath = this._fileManager.GetFilePathFromExplorer("AES files (*.aes)|*.aes");
+        _fileManager = fileManager;
+        _encryptedFilePath = _fileManager.GetFilePathFromExplorer("AES files (*.aes)|*.aes");
         if (string.IsNullOrWhiteSpace(_encryptedFilePath))
         {
             return;
@@ -48,6 +48,11 @@ public class ImportEncryptedFilePresenter
         }
     }
 
+    /// <summary>
+    /// Ensure the password is given
+    /// </summary>
+    /// <param name="password"></param>
+    /// <returns></returns>
     private static PasswordState GetPasswordState(string password)
     {
         if (string.IsNullOrWhiteSpace(password))
