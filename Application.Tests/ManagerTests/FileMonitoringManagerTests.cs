@@ -59,7 +59,7 @@ public class FileMonitoringManagerTests
             _encryptionManager.Verify(x => x.EncryptFile(testFile, It.IsAny<string>()), Times.AtLeastOnce);
             _databaseManager.Verify(x => x.DeleteEncryptedFileByFilePath(encryptedFilePath), Times.AtLeastOnce);
             _databaseManager.Verify(x => x.SaveChanges(), Times.AtLeast(2));
-            _databaseManager.Verify(x => x.AddEncryptedFile(It.IsAny<string>(), false), Times.AtLeastOnce);
+            _databaseManager.Verify(x => x.AddEncryptedFile(It.IsAny<string>()), Times.AtLeastOnce);
         }
         finally
         {

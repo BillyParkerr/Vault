@@ -45,8 +45,8 @@ public class HomeViewPresenterTests
 
         _filesInVault = new List<EncryptedFile>
         {
-            new EncryptedFile { FilePath = "path1", UniquePassword = false, DecryptedFileInformation = fileInformation},
-            new EncryptedFile { FilePath = "path2", UniquePassword = false, DecryptedFileInformation = fileInformation2}
+            new EncryptedFile { FilePath = "path1", DecryptedFileInformation = fileInformation},
+            new EncryptedFile { FilePath = "path2", DecryptedFileInformation = fileInformation2}
         };
 
         _fileManagerMock.Setup(x => x.GetAllFilesInVault()).Returns(_filesInVault);
@@ -140,13 +140,13 @@ public class HomeViewPresenterTests
         // Arrange
         string testFilePath = "testfile.txt";
         _fileManagerMock.Setup(x => x.GetFilePathFromExplorer(It.IsAny<string>())).Returns(testFilePath);
-        _fileManagerMock.Setup(x => x.AddFileToVault(testFilePath, It.IsAny<string>())).Returns(true);
+        _fileManagerMock.Setup(x => x.AddFileToVault(testFilePath)).Returns(true);
 
         // Act
         _viewMock.Raise(_ => _.AddFileToVaultEvent += null, EventArgs.Empty);
 
         // Assert
-        _fileManagerMock.Verify(x => x.AddFileToVault(testFilePath, It.IsAny<string>()), Times.Once);
+        _fileManagerMock.Verify(x => x.AddFileToVault(testFilePath), Times.Once);
     }
 
     [Test]
@@ -159,7 +159,7 @@ public class HomeViewPresenterTests
         _viewMock.Raise(_ => _.AddFileToVaultEvent += null, EventArgs.Empty);
 
         // Assert
-        _fileManagerMock.Verify(x => x.AddFileToVault(It.IsAny<string>(), It.IsAny<string>()), Times.Never);
+        _fileManagerMock.Verify(x => x.AddFileToVault(It.IsAny<string>()), Times.Never);
     }
 
     [Test]
@@ -168,13 +168,13 @@ public class HomeViewPresenterTests
         // Arrange
         string testFolderPath = "testfolder";
         _fileManagerMock.Setup(x => x.GetFolderPathFromExplorer()).Returns(testFolderPath);
-        _fileManagerMock.Setup(x => x.ZipFolderAndAddToVault(testFolderPath, It.IsAny<string>())).Returns(true);
+        _fileManagerMock.Setup(x => x.ZipFolderAndAddToVault(testFolderPath)).Returns(true);
 
         // Act
         _viewMock.Raise(_ => _.AddFolderToVaultEvent += null, EventArgs.Empty);
 
         // Assert
-        _fileManagerMock.Verify(x => x.ZipFolderAndAddToVault(testFolderPath, It.IsAny<string>()), Times.Once);
+        _fileManagerMock.Verify(x => x.ZipFolderAndAddToVault(testFolderPath), Times.Once);
     }
 
     [Test]
@@ -187,7 +187,7 @@ public class HomeViewPresenterTests
         _viewMock.Raise(_ => _.AddFolderToVaultEvent += null, EventArgs.Empty);
 
         // Assert
-        _fileManagerMock.Verify(x => x.ZipFolderAndAddToVault(It.IsAny<string>(), It.IsAny<string>()), Times.Never);
+        _fileManagerMock.Verify(x => x.ZipFolderAndAddToVault(It.IsAny<string>()), Times.Never);
     }
 
     [Test]

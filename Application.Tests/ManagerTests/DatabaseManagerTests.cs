@@ -28,17 +28,15 @@ public class DatabaseManagerTests
     {
         // Arrange
         var filePath = "test.txt";
-        var uniquePassword = true;
 
         // Act
-        _databaseManager.AddEncryptedFile(filePath, uniquePassword);
+        _databaseManager.AddEncryptedFile(filePath);
         _databaseManager.SaveChanges();
         var result = _databaseManager.GetEncryptedFileByFilePath(filePath);
 
         // Assert
         Assert.NotNull(result);
         Assert.AreEqual(filePath, result.FilePath);
-        Assert.AreEqual(uniquePassword, result.UniquePassword);
     }
 
     [Test]
@@ -46,8 +44,7 @@ public class DatabaseManagerTests
     {
         // Arrange
         var filePath = "test.txt";
-        var uniquePassword = true;
-        var encryptedFile = new EncryptedFile { FilePath = filePath, UniquePassword = uniquePassword };
+        var encryptedFile = new EncryptedFile { FilePath = filePath };
         _dbContext.EncryptedFiles.Add(encryptedFile);
         _dbContext.SaveChanges();
 

@@ -53,8 +53,8 @@ public class FileManagerTests
 
         var encryptedFiles = new List<EncryptedFile>
         {
-            new EncryptedFile { FilePath = testFile, UniquePassword = false},
-            new EncryptedFile { FilePath = secondTestFile, UniquePassword = false}
+            new EncryptedFile { FilePath = testFile},
+            new EncryptedFile { FilePath = secondTestFile}
         };
 
         _databaseManager.Setup(x => x.GetAllEncryptedFiles()).Returns(encryptedFiles);
@@ -76,7 +76,7 @@ public class FileManagerTests
     {
         // Arrange
         string filePath = "file.txt";
-        _databaseManager.Setup(x => x.AddEncryptedFile(It.IsAny<string>(), It.IsAny<bool>())).Verifiable();
+        _databaseManager.Setup(x => x.AddEncryptedFile(It.IsAny<string>())).Verifiable();
 
         // Act
         bool result = _fileManager.AddFileToVault(filePath);
@@ -196,7 +196,7 @@ public class FileManagerTests
         _encryptionManager.Setup(x => x.DecryptFile(testFile, DirectoryPaths.DecryptedFilesTempDirectory, It.IsAny<string>())).Returns(copiedFilePath);
 
         // Mock the DatabaseManager to not throw an exception when adding an encrypted file
-        _databaseManager.Setup(x => x.AddEncryptedFile(It.IsAny<string>(), It.IsAny<bool>())).Verifiable();
+        _databaseManager.Setup(x => x.AddEncryptedFile(It.IsAny<string>())).Verifiable();
         _databaseManager.Setup(x => x.SaveChanges()).Verifiable();
 
         _filesToDelete.Add(Path.Combine(DirectoryPaths.DecryptedFilesTempDirectory, Path.GetFileName(copiedFilePath)));
@@ -206,7 +206,7 @@ public class FileManagerTests
 
         // Assert
         Assert.IsTrue(result);
-        _databaseManager.Verify(x => x.AddEncryptedFile(It.IsAny<string>(), It.IsAny<bool>()), Times.Once);
+        _databaseManager.Verify(x => x.AddEncryptedFile(It.IsAny<string>()), Times.Once);
         _databaseManager.Verify(x => x.SaveChanges(), Times.Once);
     }
 

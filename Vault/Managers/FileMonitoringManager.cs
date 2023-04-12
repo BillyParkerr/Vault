@@ -71,7 +71,7 @@ public class FileMonitoringManager : IFileMonitoringManager
             // Readd the new modified file to the vault.
             // Encrypt File
             string newEncryptedFilePath = _encryptionManager.EncryptFile(e.FullPath);
-            _databaseManager.AddEncryptedFile(newEncryptedFilePath, false);
+            _databaseManager.AddEncryptedFile(newEncryptedFilePath);
             _databaseManager.SaveChanges();
             _encryptedFilePath = newEncryptedFilePath;
         }

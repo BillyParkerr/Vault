@@ -30,7 +30,7 @@ public class FileManager : IFileManager
         _databaseManager.SaveChanges();
         var encryptedFiles = _databaseManager.GetAllEncryptedFiles();
 
-        foreach (var encryptedFile in encryptedFiles.Where(_ => _.UniquePassword == false))
+        foreach (var encryptedFile in encryptedFiles)
         {
             var decryptedFile = _encryptionManager.DecryptString(Path.GetFileNameWithoutExtension(encryptedFile.FilePath));
             FileInformation fileInformation = new()
@@ -47,12 +47,10 @@ public class FileManager : IFileManager
 
     /// <summary>
     /// Adds a file to the vault by encrypting the file then adding the information to the database.
-    /// Uses the default password unless a password is given.
     /// </summary>
     /// <param name="filePath"></param>
-    /// <param name="password"></param>
     /// <returns>True if success, False if failure.</returns>
-    public bool AddFileToVault(string filePath, string password = null)
+    public bool AddFileToVault(string filePath)
     {
         try
         {
@@ -60,20 +58,13 @@ public class FileManager : IFileManager
             string encryptedFilePath = _encryptionManager.EncryptFile(filePath);
 
             // Add file to database
-            if (password == null)
-            {
-                _databaseManager.AddEncryptedFile(encryptedFilePath, false);
+            _databaseManager.AddEncryptedFile(encryptedFilePath);
 
-                // If the user has chosen to delete the original file once it has been added to the vault
-                // we will proceed to delete the file.
-                if (_appSettings.DeleteUnencryptedFileUponUpload)
-                {
-                    File.Delete(filePath);
-                }
-            }
-            else
+            // If the user has chosen to delete the original file once it has been added to the vault
+            // we will proceed to delete the file.
+            if (_appSettings.DeleteUnencryptedFileUponUpload)
             {
-                _databaseManager.AddEncryptedFile(encryptedFilePath, true);
+                File.Delete(filePath);
             }
 
             _databaseManager.SaveChanges();
@@ -201,7 +192,7 @@ public class FileManager : IFileManager
     /// <param name="folderPath"></param>
     /// <param name="password"></param>
     /// <returns>True if success, False if failure.</returns>
-    public bool ZipFolderAndAddToVault(string folderPath, string password = null)
+    public bool ZipFolderAndAddToVault(string folderPath)
     {
         try
         {
@@ -212,7 +203,7 @@ public class FileManager : IFileManager
             // Create a new ZIP file and add the contents of the folder to it
             ZipFile.CreateFromDirectory(folderPath, zipFilePath);
 
-            bool success = AddFileToVault(zipFilePath, password);
+            bool success = AddFileToVault(zipFilePath);
             return success;
         }
         catch (Exception e)

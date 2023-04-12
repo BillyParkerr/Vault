@@ -192,7 +192,7 @@ public class HomeViewPresenter
     private void LoadAllFilesInVault(object o, EventArgs e)
     {
         _filesInVault = _fileManager.GetAllFilesInVault();
-        var fileInfo = _filesInVault.Where(_ => _.UniquePassword == false && _.DecryptedFileInformation != null)
+        var fileInfo = _filesInVault.Where(_ => _.DecryptedFileInformation != null)
             .Select(_ => _.DecryptedFileInformation);
         var newBindSource = new BindingSource();
         newBindSource.DataSource = fileInfo;
@@ -203,7 +203,7 @@ public class HomeViewPresenter
     private void LoadAllFilesInVault()
     {
         _filesInVault = _fileManager.GetAllFilesInVault();
-        var fileInfo = _filesInVault.Where(_ => _.UniquePassword == false && _.DecryptedFileInformation != null)
+        var fileInfo = _filesInVault.Where(_ => _.DecryptedFileInformation != null)
             .Select(_ => _.DecryptedFileInformation);
         _filesInVaultBindingSource.DataSource = fileInfo;
         ApplySearchFilter(_view.SearchValue);

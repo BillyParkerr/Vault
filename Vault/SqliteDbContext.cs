@@ -40,7 +40,6 @@ public class SqliteDbContext : DbContext
             entity.HasKey(k => k.Id);
             entity.Property(p => p.FilePath).IsRequired();
             entity.HasIndex(i => i.FilePath).IsUnique();
-            entity.HasIndex(i => i.UniquePassword);
         });
 
         modelBuilder.Entity<EncryptionKey>().ToTable("EncryptionKey", "Vault");
