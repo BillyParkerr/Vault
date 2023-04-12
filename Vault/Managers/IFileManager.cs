@@ -15,18 +15,15 @@ public interface IFileManager
     /// Uses the default password unless a password is given.
     /// </summary>
     /// <param name="filePath"></param>
-    /// <param name="password"></param>
     /// <returns>True if success, False if failure.</returns>
-    bool AddFileToVault(string filePath, string password = null);
+    bool AddFileToVault(string filePath);
 
     /// <summary>
     /// Adds a fodler to the vault by zipping then encrypting the folder then adding the information to the database.
-    /// Uses the default password unless a password is given.
     /// </summary>
     /// <param name="folderPath"></param>
-    /// <param name="password"></param>
     /// <returns>True if success, False if failure.</returns>
-    bool ZipFolderAndAddToVault(string folderPath, string password = null);
+    bool ZipFolderAndAddToVault(string folderPath);
 
     /// <summary>
     /// Decrypts and downloads an encrypted file from the vault to a given destination.

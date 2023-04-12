@@ -38,8 +38,7 @@ public interface IDatabaseManager
     /// Creates and adds an EncryptedFile to the database.
     /// </summary>
     /// <param name="filePath"></param>
-    /// <param name="uniquePassword"></param>
-    void AddEncryptedFile(string filePath, bool uniquePassword);
+    void AddEncryptedFile(string filePath);
 
     /// <summary>
     /// Attempts to delete an EncryptedFile with a given file path.

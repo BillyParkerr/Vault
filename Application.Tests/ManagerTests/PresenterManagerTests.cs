@@ -47,8 +47,8 @@ public class PresenterManagerTests
 
         var encryptedFiles = new List<EncryptedFile>
         {
-            new EncryptedFile { FilePath = "path1", UniquePassword = false, DecryptedFileInformation = fileInformation},
-            new EncryptedFile { FilePath = "path2", UniquePassword = false, DecryptedFileInformation = fileInformation}
+            new EncryptedFile { FilePath = "path1", DecryptedFileInformation = fileInformation},
+            new EncryptedFile { FilePath = "path2", DecryptedFileInformation = fileInformation}
         };
 
         _fileManagerMock.Setup(x => x.GetAllFilesInVault()).Returns(encryptedFiles);

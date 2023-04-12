@@ -65,10 +65,9 @@ public class DatabaseManager : IDatabaseManager
     /// Creates and adds an EncryptedFile to the database.
     /// </summary>
     /// <param name="filePath"></param>
-    /// <param name="uniquePassword"></param>
-    public void AddEncryptedFile(string filePath, bool uniquePassword)
+    public void AddEncryptedFile(string filePath)
     {
-        _dbContext.Add(new EncryptedFile { FilePath = filePath, UniquePassword = uniquePassword });
+        _dbContext.Add(new EncryptedFile { FilePath = filePath });
         VaultContentsChangedEvent?.Invoke(this, EventArgs.Empty);
     }
 
