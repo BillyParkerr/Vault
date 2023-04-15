@@ -104,6 +104,14 @@ public interface IFileManager
     string GetFilePathFromExplorer(string filter = null);
 
     /// <summary>
+    /// Displays a file picker dialog to the user and returns the selected file paths.
+    /// This method ensures that the file picker dialog is run on an STA thread, as required.
+    /// </summary>
+    /// <param name="filter">Optional file filter string to show only specific file types in the dialog.</param>
+    /// <returns>A list of paths of all selected files</returns>
+    List<string> GetFilePathsFromExplorer(string filter = null);
+
+    /// <summary>
     /// Displays a folder picker dialog to the user and returns the selected folder path.
     /// This method ensures that the folder picker dialog is run on an STA thread, as required.
     /// </summary>

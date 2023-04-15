@@ -157,6 +157,7 @@
             // 
             // SettingsButton
             // 
+            this.SettingsButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.SettingsButton.Font = new System.Drawing.Font("Segoe UI Variable Text", 15F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
             this.SettingsButton.Location = new System.Drawing.Point(1002, 7);
             this.SettingsButton.Name = "SettingsButton";
@@ -182,7 +183,7 @@
             this.Controls.Add(this.DownloadButton);
             this.Controls.Add(this.Logo);
             this.Controls.Add(this.UploadButton);
-            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.Fixed3D;
+            this.MinimumSize = new System.Drawing.Size(687, 618);
             this.Name = "HomeView";
             this.Text = "Vault";
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView)).EndInit();

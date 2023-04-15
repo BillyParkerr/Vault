@@ -139,7 +139,7 @@ public class HomeViewPresenterTests
     {
         // Arrange
         string testFilePath = "testfile.txt";
-        _fileManagerMock.Setup(x => x.GetFilePathFromExplorer(It.IsAny<string>())).Returns(testFilePath);
+        _fileManagerMock.Setup(x => x.GetFilePathsFromExplorer(It.IsAny<string>())).Returns(new List<string> { testFilePath });
         _fileManagerMock.Setup(x => x.AddFileToVault(testFilePath)).Returns(true);
 
         // Act
@@ -150,10 +150,28 @@ public class HomeViewPresenterTests
     }
 
     [Test]
-    public void AddFileToVaultEventHandler_DoesNotAddFileWhenNotSelected()
+    public void AddFileToVaultEventHandler_WithMultipleFiles_AddsFilesWhenSelected()
     {
         // Arrange
-        _fileManagerMock.Setup(x => x.GetFilePathFromExplorer(It.IsAny<string>())).Returns((string)null);
+        string testFilePath = "testfile.txt";
+        string secondTestFilePath = "secondtestfile.txt";
+        _fileManagerMock.Setup(x => x.GetFilePathsFromExplorer(It.IsAny<string>())).Returns(new List<string> { testFilePath, secondTestFilePath });
+        _fileManagerMock.Setup(x => x.AddFileToVault(testFilePath)).Returns(true);
+        _fileManagerMock.Setup(x => x.AddFileToVault(secondTestFilePath)).Returns(true);
+
+        // Act
+        _viewMock.Raise(_ => _.AddFileToVaultEvent += null, EventArgs.Empty);
+
+        // Assert
+        _fileManagerMock.Verify(x => x.AddFileToVault(testFilePath), Times.Once);
+        _fileManagerMock.Verify(x => x.AddFileToVault(secondTestFilePath), Times.Once);
+    }
+
+    [Test]
+    public void AddFileToVaultEventHandler_DoesNotAddFileWhenNoneSelected()
+    {
+        // Arrange
+        _fileManagerMock.Setup(x => x.GetFilePathsFromExplorer(It.IsAny<string>())).Returns(new List<string>());
 
         // Act
         _viewMock.Raise(_ => _.AddFileToVaultEvent += null, EventArgs.Empty);

@@ -391,6 +391,44 @@ public class FileManager : IFileManager
     }
 
     /// <summary>
+    /// Displays a file picker dialog to the user and returns the selected file paths.
+    /// This method ensures that the file picker dialog is run on an STA thread, as required.
+    /// </summary>
+    /// <param name="filter">Optional file filter string to show only specific file types in the dialog.</param>
+    /// <returns>A list of paths of all selected files</returns>
+    public List<string> GetFilePathsFromExplorer(string filter = null)
+    {
+        return RunOnSTAThread(() =>
+        {
+            List<string> result = new List<string>();
+            OpenFileDialog openFileDialog1 = new()
+            {
+                Title = "Select File",
+                InitialDirectory = @"C:\", //--"C:\\";
+                Filter = filter,
+                FilterIndex = 1,
+                Multiselect = true,
+                CheckFileExists = true
+            };
+
+            openFileDialog1.ShowDialog();
+
+            if (openFileDialog1.FileNames.Length > 0)
+            {
+                foreach (string filePath in openFileDialog1.FileNames)
+                {
+                    if (!string.IsNullOrWhiteSpace(filePath))
+                    {
+                        result.Add(filePath);
+                    }
+                }
+            }
+
+            return result;
+        });
+    }
+
+    /// <summary>
     /// Displays a folder picker dialog to the user and returns the selected folder path.
     /// This method ensures that the folder picker dialog is run on an STA thread, as required.
     /// </summary>
