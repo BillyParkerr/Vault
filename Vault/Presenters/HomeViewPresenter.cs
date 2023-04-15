@@ -67,16 +67,19 @@ public class HomeViewPresenter
 
     private void AddFileToVaultEventHandler(object sender, EventArgs e)
     {
-        string fileToAdd = _fileManager.GetFilePathFromExplorer("All Files (*.*)|*.*");
-        if (fileToAdd == null)
+        List<string> filesToAdd = _fileManager.GetFilePathsFromExplorer("All Files (*.*)|*.*");
+        if (!filesToAdd.Any())
         {
             return;
         }
 
-        bool success = _fileManager.AddFileToVault(fileToAdd);
-        if (!success)
+        foreach (var filePath in filesToAdd)
         {
-            ShowMessageBox($"An Error Occurred While Attempting to Encrypt {fileToAdd}");
+            bool success = _fileManager.AddFileToVault(filePath);
+            if (!success)
+            {
+                ShowMessageBox($"An Error Occurred While Attempting to Encrypt {filePath}");
+            }
         }
     }
 
