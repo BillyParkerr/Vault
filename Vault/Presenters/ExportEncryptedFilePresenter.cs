@@ -46,7 +46,7 @@ public class ExportEncryptedFilePresenter
     /// <param name="password"></param>
     private void ExportEncryptedFile(string password)
     {
-        string selectedPath = _fileManager.GetFolderPathFromExplorer();
+        string selectedPath = _fileManager.GetFolderPathFromExplorer("Select export location");
         bool success = _fileManager.DownloadEncryptedFileFromVault(_encryptedFileToExport.FilePath, selectedPath, password);
         if (success)
         {

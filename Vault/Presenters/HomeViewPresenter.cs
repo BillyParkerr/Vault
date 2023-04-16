@@ -85,7 +85,7 @@ public class HomeViewPresenter
 
     private void AddFolderToVaultEventHandler(object sender, EventArgs e)
     {
-        var folderToAdd = _fileManager.GetFolderPathFromExplorer();
+        var folderToAdd = _fileManager.GetFolderPathFromExplorer("Select folder to add");
         if (folderToAdd != null)
         {
             bool success = _fileManager.ZipFolderAndAddToVault(folderToAdd);
@@ -104,7 +104,7 @@ public class HomeViewPresenter
             return;
         }
 
-        string selectedPath = _fileManager.GetFolderPathFromExplorer();
+        string selectedPath = _fileManager.GetFolderPathFromExplorer("Select download location");
         if (string.IsNullOrWhiteSpace(selectedPath))
         {
             return;

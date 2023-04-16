@@ -116,7 +116,7 @@ public interface IFileManager
     /// This method ensures that the folder picker dialog is run on an STA thread, as required.
     /// </summary>
     /// <returns>The folder path of the selected folder, or null if no folder was selected.</returns>
-    string GetFolderPathFromExplorer();
+    string GetFolderPathFromExplorer(string description = null);
 
     /// <summary>
     /// Opens Windows Explorer and selects the specified file or folder.

@@ -114,7 +114,7 @@ public class SettingsViewPresenterTests
     {
         // Arrange
         _windowsHelloManagerMock.Setup(x => x.IsWindowsHelloAvailable()).ReturnsAsync(true);
-        _fileManagerMock.Setup(x => x.GetFolderPathFromExplorer()).Returns("NewPath");
+        _fileManagerMock.Setup(x => x.GetFolderPathFromExplorer(It.IsAny<string>())).Returns("NewPath");
         var presenter = new SettingsViewPresenter(
             _viewMock.Object, _fileManagerMock.Object, _appSettings,
             _windowsHelloManagerMock.Object, _presenterManagerMock.Object, _loginManagerMock.Object);

@@ -63,9 +63,6 @@ public partial class HomeView : Form, IHomeView
 
     public void SetBasicModeView()
     {
-        DownloadButton.Enabled = false;
-        DownloadButton.Visible = false;
-
         UploadFolderButton.Enabled = false;
         UploadFolderButton.Visible = false;
 
@@ -78,9 +75,6 @@ public partial class HomeView : Form, IHomeView
 
     public void SetAdvancedModeView()
     {
-        DownloadButton.Enabled = true;
-        DownloadButton.Visible = true;
-
         UploadFolderButton.Enabled = true;
         UploadFolderButton.Visible = true;
 

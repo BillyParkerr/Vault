@@ -433,13 +433,13 @@ public class FileManager : IFileManager
     /// This method ensures that the folder picker dialog is run on an STA thread, as required.
     /// </summary>
     /// <returns>The folder path of the selected folder, or null if no folder was selected.</returns>
-    public string GetFolderPathFromExplorer()
+    public string GetFolderPathFromExplorer(string description = null)
     {
         return RunOnSTAThread(() =>
         {
             FolderBrowserDialog folderBrowserDialog = new()
             {
-                Description = "Select Folder",
+                Description = description ?? "Select Folder",
                 InitialDirectory = _appSettings.DefaultDownloadLocation
             };
 

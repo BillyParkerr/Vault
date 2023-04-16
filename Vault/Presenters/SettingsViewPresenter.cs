@@ -198,7 +198,7 @@ public class SettingsViewPresenter
 
     private void ChangeDefaultDownloadLocationEventHandler(object _, EventArgs __)
     {
-        var newDefaultLocation = _fileManager.GetFolderPathFromExplorer();
+        var newDefaultLocation = _fileManager.GetFolderPathFromExplorer("Select default download location");
         _uncommitedAppSettings.DefaultDownloadLocation = newDefaultLocation;
     }
 }

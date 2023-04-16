@@ -185,7 +185,7 @@ public class HomeViewPresenterTests
     {
         // Arrange
         string testFolderPath = "testfolder";
-        _fileManagerMock.Setup(x => x.GetFolderPathFromExplorer()).Returns(testFolderPath);
+        _fileManagerMock.Setup(x => x.GetFolderPathFromExplorer(It.IsAny<string>())).Returns(testFolderPath);
         _fileManagerMock.Setup(x => x.ZipFolderAndAddToVault(testFolderPath)).Returns(true);
 
         // Act
@@ -199,7 +199,7 @@ public class HomeViewPresenterTests
     public void AddFolderToVaultEventHandler_DoesNotAddFolderWhenNotSelected()
     {
         // Arrange
-        _fileManagerMock.Setup(x => x.GetFolderPathFromExplorer()).Returns((string)null);
+        _fileManagerMock.Setup(x => x.GetFolderPathFromExplorer(It.IsAny<string>())).Returns((string)null);
 
         // Act
         _viewMock.Raise(_ => _.AddFolderToVaultEvent += null, EventArgs.Empty);
@@ -215,7 +215,7 @@ public class HomeViewPresenterTests
         _viewMock.SetupGet(_ => _.SelectedFile).Returns(_filesInVault.First().DecryptedFileInformation);
 
         var selectedPath = @"C:\\TEST";
-        _fileManagerMock.Setup(_ => _.GetFolderPathFromExplorer()).Returns(selectedPath);
+        _fileManagerMock.Setup(_ => _.GetFolderPathFromExplorer(It.IsAny<string>())).Returns(selectedPath);
         _fileManagerMock.Setup(_ => _.DownloadFileFromVault(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>())).Returns(true);
 
         // Act
@@ -245,7 +245,7 @@ public class HomeViewPresenterTests
     {
         // Arrange
         _viewMock.SetupGet(_ => _.SelectedFile).Returns(_filesInVault.First().DecryptedFileInformation);
-        _fileManagerMock.Setup(_ => _.GetFolderPathFromExplorer()).Returns((string)null);
+        _fileManagerMock.Setup(_ => _.GetFolderPathFromExplorer(It.IsAny<string>())).Returns((string)null);
 
         // Act
         _viewMock.Raise(_ => _.DownloadFileFromVaultEvent += null, EventArgs.Empty);
@@ -262,7 +262,7 @@ public class HomeViewPresenterTests
         _viewMock.SetupGet(_ => _.SelectedFile).Returns(_filesInVault.First().DecryptedFileInformation);
 
         var selectedPath = @"C:\\TEST";
-        _fileManagerMock.Setup(_ => _.GetFolderPathFromExplorer()).Returns(selectedPath);
+        _fileManagerMock.Setup(_ => _.GetFolderPathFromExplorer(It.IsAny<string>())).Returns(selectedPath);
         _fileManagerMock.Setup(_ => _.DownloadFileFromVault(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>())).Returns(false);
 
         // Act

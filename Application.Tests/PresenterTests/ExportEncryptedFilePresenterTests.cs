@@ -36,7 +36,7 @@ public class ExportEncryptedFilePresenterTests
         string password = "validPass";
         string selectedPath = "selectedPath";
         _viewMock.Setup(v => v.GivenPassword).Returns(password);
-        _fileManagerMock.Setup(m => m.GetFolderPathFromExplorer()).Returns(selectedPath);
+        _fileManagerMock.Setup(m => m.GetFolderPathFromExplorer(It.IsAny<string>())).Returns(selectedPath);
         _fileManagerMock.Setup(m => m.DownloadEncryptedFileFromVault(_sampleEncryptedFile.FilePath, selectedPath, password)).Returns(true);
 
         // Act
