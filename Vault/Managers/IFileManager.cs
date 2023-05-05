@@ -46,7 +46,7 @@ public interface IFileManager
     /// </summary>
     /// <param name="filePath"></param>
     /// <returns>True upon success, False upon failure</returns>
-    bool OpenFileFromVaultAndReencryptUponClosure(string filePath);
+    bool OpenFileFromVault(string filePath);
 
     /// <summary>
     /// Downloads a encrypted file to a specified destination.

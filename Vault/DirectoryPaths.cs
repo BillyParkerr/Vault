@@ -1,4 +1,6 @@
-﻿public static class DirectoryPaths
+﻿namespace Application;
+
+public static class DirectoryPaths
 {
     public static string ProgramDirectory { get; } = CreateDirectory("PersonalVaultApplication");
 

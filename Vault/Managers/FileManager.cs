@@ -153,7 +153,7 @@ public class FileManager : IFileManager
     /// </summary>
     /// <param name="filePath"></param>
     /// <returns>True upon success, False upon failure</returns>
-    public bool OpenFileFromVaultAndReencryptUponClosure(string filePath)
+    public bool OpenFileFromVault(string filePath)
     {
         try
         {

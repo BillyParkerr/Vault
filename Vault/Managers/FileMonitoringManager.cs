@@ -31,18 +31,19 @@ public class FileMonitoringManager : IFileMonitoringManager
     /// <param name="encryptedFilePath">The path of the encrypted file.</param>
     public void Initilise(string fileToMonitorPath, string encryptedFilePath)
     {
-        if(string.IsNullOrWhiteSpace(fileToMonitorPath) || string.IsNullOrWhiteSpace(encryptedFilePath))
+        _encryptedFilePath = encryptedFilePath;
+        string fileDirectory = Path.GetDirectoryName(fileToMonitorPath);
+
+        if (string.IsNullOrWhiteSpace(fileToMonitorPath) || string.IsNullOrWhiteSpace(encryptedFilePath) || string.IsNullOrWhiteSpace(fileDirectory))
         {
             return;
         }
-
-        _encryptedFilePath = encryptedFilePath;
 
         OpenGivenFile(fileToMonitorPath);
 
         // Moniter the file for any changes
         var watcher = new FileSystemWatcher();
-        watcher.Path = Path.GetDirectoryName(fileToMonitorPath);
+        watcher.Path = fileDirectory;
         watcher.Filter = Path.GetFileName(fileToMonitorPath);
         watcher.EnableRaisingEvents = true;
         watcher.Changed += OnFileChanged;

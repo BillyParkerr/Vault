@@ -1,7 +1,6 @@
 using Application.Enums;
 using Application.Managers;
 using Application.Presenters;
-using Application.Views;
 using Application.Views.Forms;
 using Application.Views.Interfaces;
 using Microsoft.Extensions.Configuration;

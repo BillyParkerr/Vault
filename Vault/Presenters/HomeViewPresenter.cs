@@ -131,7 +131,7 @@ public class HomeViewPresenter
             return;
         }
 
-        _fileManager.OpenFileFromVaultAndReencryptUponClosure(filePath);
+        _fileManager.OpenFileFromVault(filePath);
     }
 
     private void DeleteFileFromVaultEventHandler(object sender, EventArgs e)
@@ -157,13 +157,11 @@ public class HomeViewPresenter
         }
 
         _presenterManager.GetExportEncryptedFilePresenter(selectedEncryptedFile);
-        // TODO Potentially pause view while Export view is open
     }
 
     private void ImportFileToVaultEventHandler(object sender, EventArgs e)
     {
         _presenterManager.GetImportEncryptedFilePresenter();
-        // TODO Potentially pause view while Import view is open
     }
 
     private void SearchFilterAppliedEventHandler(object sender, EventArgs e)

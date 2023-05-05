@@ -39,7 +39,6 @@ public class LoginViewPresenter
         else
         {
             _view.ShowIncorrectPasswordError();
-            return;
         }
     }
 }

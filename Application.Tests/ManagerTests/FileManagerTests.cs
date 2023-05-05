@@ -141,7 +141,7 @@ public class FileManagerTests
             .Returns(Path.GetFileName(testFile));
 
         // Act
-        var result = _fileManager.OpenFileFromVaultAndReencryptUponClosure(testFile);
+        var result = _fileManager.OpenFileFromVault(testFile);
 
         // Assert
         Assert.IsTrue(result);

@@ -282,7 +282,7 @@ public class HomeViewPresenterTests
         _viewMock.Raise(_ => _.OpenFileFromVaultEvent += null, EventArgs.Empty);
 
         // Assert
-        _fileManagerMock.Verify(_ => _.OpenFileFromVaultAndReencryptUponClosure(It.IsAny<string>()), Times.Once);
+        _fileManagerMock.Verify(_ => _.OpenFileFromVault(It.IsAny<string>()), Times.Once);
     }
 
     [Test]
@@ -295,7 +295,7 @@ public class HomeViewPresenterTests
         _viewMock.Raise(_ => _.OpenFileFromVaultEvent += null, EventArgs.Empty);
 
         // Assert
-        _fileManagerMock.Verify(_ => _.OpenFileFromVaultAndReencryptUponClosure(It.IsAny<string>()), Times.Never);
+        _fileManagerMock.Verify(_ => _.OpenFileFromVault(It.IsAny<string>()), Times.Never);
     }
 
     [Test]
