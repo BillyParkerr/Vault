@@ -14,7 +14,7 @@ public partial class WindowsHelloRegisterView : Form, IWindowsHelloRegisterView
 
     public string GivenPassword
     {
-        get { return PasswordTextBox.Text;  }
+        get { return PasswordTextBox.Text; }
     }
 
     public string GivenSecondPassword

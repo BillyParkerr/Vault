@@ -8,7 +8,7 @@ namespace Application.Managers;
 /// <summary>
 /// Class responsible for the generation of presenters.
 ///
-/// The main benifit of having this class is that it allows classes that require other presenters to be created to Mock the required presenter.
+/// The main benefit of having this class is that it allows classes that require other presenters to be created to Mock the required presenter.
 /// This allows for easier and more isolated unit testing and ensures classes conform to SOLID principles.
 /// </summary>
 public class PresenterManager: IPresenterManager
@@ -101,5 +101,11 @@ public class PresenterManager: IPresenterManager
     {
         windowsHelloRegisterView ??= _container.GetInstance<IWindowsHelloRegisterView>();
         return new WindowsHelloRegisterViewPresenter(windowsHelloRegisterView, _windowsHelloManager, _loginManager);
+    }
+
+    public VerifyPasswordViewPresenter GetVerifyPasswordViewPresenter(IVerifyPasswordView verifyPasswordView = null)
+    {
+        verifyPasswordView ??= _container.GetInstance<IVerifyPasswordView>();
+        return new VerifyPasswordViewPresenter(verifyPasswordView, _loginManager);
     }
 }

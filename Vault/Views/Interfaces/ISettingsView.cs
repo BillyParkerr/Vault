@@ -22,4 +22,5 @@ public interface ISettingsView
     void SetDeletionOfUploadedFilesToNo();
     void Show();
     void Close();
+    void ShowMessageBox(string message);
 }

@@ -120,4 +120,9 @@ public partial class SettingsView : Form, ISettingsView
     {
         DeleteUploadedFilesButton.Text = "Deletion of uploaded files [No]";
     }
+
+    public void ShowMessageBox(string message)
+    {
+        MessageBox.Show(message);
+    }
 }

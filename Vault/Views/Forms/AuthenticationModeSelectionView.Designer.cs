@@ -28,54 +28,60 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.EnterPasswordBelowText = new System.Windows.Forms.Label();
-            this.PasswordModeButton = new System.Windows.Forms.Button();
-            this.WindowsHelloModeButton = new System.Windows.Forms.Button();
-            this.SuspendLayout();
+            EnterPasswordBelowText = new Label();
+            PasswordModeButton = new Button();
+            WindowsHelloModeButton = new Button();
+            SuspendLayout();
             // 
             // EnterPasswordBelowText
             // 
-            this.EnterPasswordBelowText.AutoSize = true;
-            this.EnterPasswordBelowText.Location = new System.Drawing.Point(15, 9);
-            this.EnterPasswordBelowText.Name = "EnterPasswordBelowText";
-            this.EnterPasswordBelowText.Size = new System.Drawing.Size(199, 15);
-            this.EnterPasswordBelowText.TabIndex = 1;
-            this.EnterPasswordBelowText.Text = "Choose your authentication method";
-            this.EnterPasswordBelowText.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            EnterPasswordBelowText.Anchor = AnchorStyles.Top;
+            EnterPasswordBelowText.AutoSize = true;
+            EnterPasswordBelowText.Location = new Point(15, 26);
+            EnterPasswordBelowText.Margin = new Padding(6, 0, 6, 0);
+            EnterPasswordBelowText.Name = "EnterPasswordBelowText";
+            EnterPasswordBelowText.Size = new Size(498, 41);
+            EnterPasswordBelowText.TabIndex = 1;
+            EnterPasswordBelowText.Text = "Choose your authentication method";
+            EnterPasswordBelowText.TextAlign = ContentAlignment.MiddleCenter;
             // 
             // PasswordModeButton
             // 
-            this.PasswordModeButton.Location = new System.Drawing.Point(12, 37);
-            this.PasswordModeButton.Name = "PasswordModeButton";
-            this.PasswordModeButton.Size = new System.Drawing.Size(98, 64);
-            this.PasswordModeButton.TabIndex = 2;
-            this.PasswordModeButton.Text = "Password";
-            this.PasswordModeButton.UseVisualStyleBackColor = true;
+            PasswordModeButton.Location = new Point(28, 98);
+            PasswordModeButton.Margin = new Padding(6, 8, 6, 8);
+            PasswordModeButton.Name = "PasswordModeButton";
+            PasswordModeButton.Size = new Size(224, 170);
+            PasswordModeButton.TabIndex = 2;
+            PasswordModeButton.Text = "Password";
+            PasswordModeButton.UseVisualStyleBackColor = true;
             // 
             // WindowsHelloModeButton
             // 
-            this.WindowsHelloModeButton.Location = new System.Drawing.Point(116, 37);
-            this.WindowsHelloModeButton.Name = "WindowsHelloModeButton";
-            this.WindowsHelloModeButton.Size = new System.Drawing.Size(98, 64);
-            this.WindowsHelloModeButton.TabIndex = 3;
-            this.WindowsHelloModeButton.Text = "Windows Hello";
-            this.WindowsHelloModeButton.UseVisualStyleBackColor = true;
+            WindowsHelloModeButton.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            WindowsHelloModeButton.Location = new Point(278, 98);
+            WindowsHelloModeButton.Margin = new Padding(6, 8, 6, 8);
+            WindowsHelloModeButton.Name = "WindowsHelloModeButton";
+            WindowsHelloModeButton.Size = new Size(224, 170);
+            WindowsHelloModeButton.TabIndex = 3;
+            WindowsHelloModeButton.Text = "Windows Hello";
+            WindowsHelloModeButton.UseVisualStyleBackColor = true;
             // 
             // AuthenticationModeSelectionView
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(224, 113);
-            this.Controls.Add(this.WindowsHelloModeButton);
-            this.Controls.Add(this.PasswordModeButton);
-            this.Controls.Add(this.EnterPasswordBelowText);
-            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
-            this.Name = "AuthenticationModeSelectionView";
-            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "Auth Method";
-            this.ResumeLayout(false);
-            this.PerformLayout();
-
+            AutoScaleDimensions = new SizeF(240F, 240F);
+            AutoScaleMode = AutoScaleMode.Dpi;
+            ClientSize = new Size(526, 302);
+            Controls.Add(WindowsHelloModeButton);
+            Controls.Add(PasswordModeButton);
+            Controls.Add(EnterPasswordBelowText);
+            FormBorderStyle = FormBorderStyle.FixedSingle;
+            Margin = new Padding(6, 8, 6, 8);
+            MaximizeBox = false;
+            Name = "AuthenticationModeSelectionView";
+            StartPosition = FormStartPosition.CenterScreen;
+            Text = "Auth Method";
+            ResumeLayout(false);
+            PerformLayout();
         }
 
         #endregion

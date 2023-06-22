@@ -129,15 +129,53 @@ public class SettingsViewPresenter
         SettingsConfirmed?.Invoke(this, EventArgs.Empty);
     }
 
-    private void ConfirmChosenSettingsEventHandler(object _, EventArgs __)
+    private async void ConfirmChosenSettingsEventHandler(object _, EventArgs __)
     {
-        CommitAppSettings();
         if (!string.IsNullOrWhiteSpace(GivenNewPassword))
         {
             _loginManager.ChangePassword(GivenNewPassword, GivenOldPassword);
         }
+
+        if (_uncommitedAppSettings.AuthenticationMethod == AuthenticationMethod.WindowsHello
+            && _appSettings.AuthenticationMethod == AuthenticationMethod.Password)
+        {
+            await WindowsHelloPasswordVerification();
+        }
+
+        CommitAppSettings();
         _view.Close();
         SettingsConfirmed?.Invoke(this, EventArgs.Empty);
+    }
+
+
+    private async Task WindowsHelloPasswordVerification()
+    {
+        // If the user has changed their password we can use this
+        if (!string.IsNullOrWhiteSpace(GivenNewPassword))
+        {
+            _fileManager.ProtectAndSavePassword(GivenNewPassword);
+        }
+        else
+        {
+            var verifyPasswordPresenter = _presenterManager.GetVerifyPasswordViewPresenter();
+
+            var passwordVerificationTaskCompletion = new TaskCompletionSource<bool>();
+            verifyPasswordPresenter.PasswordVerificationFinished += (_, passwordVerifiedEventArgs) =>
+            {
+                if (passwordVerifiedEventArgs.PasswordVerified && !string.IsNullOrWhiteSpace(passwordVerifiedEventArgs.GivenPassword))
+                {
+                    _fileManager.ProtectAndSavePassword(passwordVerifiedEventArgs.GivenPassword);
+                    passwordVerificationTaskCompletion.SetResult(true);
+                }
+                else
+                {
+                    _uncommitedAppSettings.AuthenticationMethod = AuthenticationMethod.Password;
+                    passwordVerificationTaskCompletion.SetResult(false);
+                }
+            };
+
+            await passwordVerificationTaskCompletion.Task;
+        }
     }
 
     private void ToggleUserModeEventHandler(object _, EventArgs __)
@@ -156,13 +194,31 @@ public class SettingsViewPresenter
         }
     }
 
-    private void ToggleAuthenticationModeEventHandler(object _, EventArgs __)
+    private async void ToggleAuthenticationModeEventHandler(object _, EventArgs __)
     {
         if (_uncommitedAppSettings.AuthenticationMethod == AuthenticationMethod.Password)
         {
-            _uncommitedAppSettings.AuthenticationMethod = AuthenticationMethod.WindowsHello;
-            _view.DisableWindowsHelloModeButton();
-            _view.EnablePasswordModeButton();
+            if (_appSettings.AuthenticationMethod == AuthenticationMethod.Password)
+            {
+                bool authenticated = await _windowsHelloManager.AuthenticateWithWindowsHelloAsync("Please authenticate to use windows hello");
+                if (authenticated)
+                {
+                    _uncommitedAppSettings.AuthenticationMethod = AuthenticationMethod.WindowsHello;
+                    _view.DisableWindowsHelloModeButton();
+                    _view.EnablePasswordModeButton();
+                }
+                else
+                {
+                    _view.ShowMessageBox("Failed to authenticate with Windows Hello.Vault will remain using password authentication.");
+                    return;
+                }
+            }
+            else
+            {
+                _uncommitedAppSettings.AuthenticationMethod = AuthenticationMethod.WindowsHello;
+                _view.DisableWindowsHelloModeButton();
+                _view.EnablePasswordModeButton();
+            }
         }
         else
         {

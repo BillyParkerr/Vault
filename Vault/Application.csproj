@@ -36,6 +36,9 @@
     <Compile Update="Views\Forms\ChangePasswordView.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Update="Views\Forms\VerifyPasswordView.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Update="Views\Forms\WindowsHelloRegisterView.cs">
       <SubType>Form</SubType>
     </Compile>

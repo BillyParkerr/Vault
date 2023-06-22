@@ -28,56 +28,63 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.ConfirmButton = new System.Windows.Forms.Button();
-            this.EnterPasswordBelowText = new System.Windows.Forms.Label();
-            this.PasswordTextBox = new System.Windows.Forms.TextBox();
-            this.SuspendLayout();
+            ConfirmButton = new Button();
+            EnterPasswordBelowText = new Label();
+            PasswordTextBox = new TextBox();
+            SuspendLayout();
             // 
             // ConfirmButton
             // 
-            this.ConfirmButton.Location = new System.Drawing.Point(74, 81);
-            this.ConfirmButton.Name = "ConfirmButton";
-            this.ConfirmButton.Size = new System.Drawing.Size(75, 28);
-            this.ConfirmButton.TabIndex = 0;
-            this.ConfirmButton.Text = "Confirm";
-            this.ConfirmButton.UseVisualStyleBackColor = true;
+            ConfirmButton.Anchor = AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            ConfirmButton.Location = new Point(180, 221);
+            ConfirmButton.Margin = new Padding(7, 8, 7, 8);
+            ConfirmButton.Name = "ConfirmButton";
+            ConfirmButton.Size = new Size(182, 77);
+            ConfirmButton.TabIndex = 0;
+            ConfirmButton.Text = "Confirm";
+            ConfirmButton.UseVisualStyleBackColor = true;
             // 
             // EnterPasswordBelowText
             // 
-            this.EnterPasswordBelowText.Location = new System.Drawing.Point(12, 9);
-            this.EnterPasswordBelowText.Name = "EnterPasswordBelowText";
-            this.EnterPasswordBelowText.Size = new System.Drawing.Size(200, 40);
-            this.EnterPasswordBelowText.TabIndex = 1;
-            this.EnterPasswordBelowText.Text = "Please enter a password for this file to be encrypted with.";
-            this.EnterPasswordBelowText.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            EnterPasswordBelowText.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            EnterPasswordBelowText.Location = new Point(29, 25);
+            EnterPasswordBelowText.Margin = new Padding(7, 0, 7, 0);
+            EnterPasswordBelowText.Name = "EnterPasswordBelowText";
+            EnterPasswordBelowText.Size = new Size(486, 109);
+            EnterPasswordBelowText.TabIndex = 1;
+            EnterPasswordBelowText.Text = "Please enter a password for this file to be encrypted with.";
+            EnterPasswordBelowText.TextAlign = ContentAlignment.MiddleCenter;
             // 
             // PasswordTextBox
             // 
-            this.PasswordTextBox.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.PasswordTextBox.ForeColor = System.Drawing.SystemColors.ControlDark;
-            this.PasswordTextBox.Location = new System.Drawing.Point(12, 52);
-            this.PasswordTextBox.Name = "PasswordTextBox";
-            this.PasswordTextBox.PlaceholderText = "Enter password here";
-            this.PasswordTextBox.Size = new System.Drawing.Size(200, 23);
-            this.PasswordTextBox.TabIndex = 3;
-            this.PasswordTextBox.TabStop = false;
-            this.PasswordTextBox.UseSystemPasswordChar = true;
+            PasswordTextBox.Anchor = AnchorStyles.Left | AnchorStyles.Right;
+            PasswordTextBox.BorderStyle = BorderStyle.FixedSingle;
+            PasswordTextBox.ForeColor = SystemColors.ControlDark;
+            PasswordTextBox.Location = new Point(32, 142);
+            PasswordTextBox.Margin = new Padding(7, 8, 7, 8);
+            PasswordTextBox.Name = "PasswordTextBox";
+            PasswordTextBox.PlaceholderText = "Enter password here";
+            PasswordTextBox.Size = new Size(483, 47);
+            PasswordTextBox.TabIndex = 3;
+            PasswordTextBox.TabStop = false;
+            PasswordTextBox.UseSystemPasswordChar = true;
             // 
             // ExportEncryptedFileView
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(224, 113);
-            this.Controls.Add(this.PasswordTextBox);
-            this.Controls.Add(this.EnterPasswordBelowText);
-            this.Controls.Add(this.ConfirmButton);
-            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
-            this.Name = "ExportEncryptedFileView";
-            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "Export File";
-            this.ResumeLayout(false);
-            this.PerformLayout();
-
+            AutoScaleDimensions = new SizeF(17F, 41F);
+            AutoScaleMode = AutoScaleMode.Font;
+            ClientSize = new Size(544, 309);
+            Controls.Add(PasswordTextBox);
+            Controls.Add(EnterPasswordBelowText);
+            Controls.Add(ConfirmButton);
+            FormBorderStyle = FormBorderStyle.FixedSingle;
+            Margin = new Padding(7, 8, 7, 8);
+            MaximizeBox = false;
+            Name = "ExportEncryptedFileView";
+            StartPosition = FormStartPosition.CenterScreen;
+            Text = "Export File";
+            ResumeLayout(false);
+            PerformLayout();
         }
 
         #endregion

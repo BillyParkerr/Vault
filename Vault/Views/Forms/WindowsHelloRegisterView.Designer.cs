@@ -28,71 +28,80 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.ConfirmButton = new System.Windows.Forms.Button();
-            this.EnterBackupPasswordBelowText = new System.Windows.Forms.Label();
-            this.PasswordTextBox = new System.Windows.Forms.TextBox();
-            this.ReEnterPasswordTextBox = new System.Windows.Forms.TextBox();
-            this.SuspendLayout();
+            ConfirmButton = new Button();
+            EnterBackupPasswordBelowText = new Label();
+            PasswordTextBox = new TextBox();
+            ReEnterPasswordTextBox = new TextBox();
+            SuspendLayout();
             // 
             // ConfirmButton
             // 
-            this.ConfirmButton.Location = new System.Drawing.Point(74, 81);
-            this.ConfirmButton.Name = "ConfirmButton";
-            this.ConfirmButton.Size = new System.Drawing.Size(75, 22);
-            this.ConfirmButton.TabIndex = 0;
-            this.ConfirmButton.Text = "Confirm";
-            this.ConfirmButton.UseVisualStyleBackColor = true;
+            ConfirmButton.Anchor = AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            ConfirmButton.Location = new Point(180, 221);
+            ConfirmButton.Margin = new Padding(7, 8, 7, 8);
+            ConfirmButton.Name = "ConfirmButton";
+            ConfirmButton.Size = new Size(182, 60);
+            ConfirmButton.TabIndex = 0;
+            ConfirmButton.Text = "Confirm";
+            ConfirmButton.UseVisualStyleBackColor = true;
             // 
             // EnterBackupPasswordBelowText
             // 
-            this.EnterBackupPasswordBelowText.AutoSize = true;
-            this.EnterBackupPasswordBelowText.Location = new System.Drawing.Point(23, 9);
-            this.EnterBackupPasswordBelowText.Name = "EnterBackupPasswordBelowText";
-            this.EnterBackupPasswordBelowText.Size = new System.Drawing.Size(173, 15);
-            this.EnterBackupPasswordBelowText.TabIndex = 1;
-            this.EnterBackupPasswordBelowText.Text = "Enter a Backup Password Below";
-            this.EnterBackupPasswordBelowText.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            EnterBackupPasswordBelowText.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            EnterBackupPasswordBelowText.AutoSize = true;
+            EnterBackupPasswordBelowText.Location = new Point(56, 25);
+            EnterBackupPasswordBelowText.Margin = new Padding(7, 0, 7, 0);
+            EnterBackupPasswordBelowText.Name = "EnterBackupPasswordBelowText";
+            EnterBackupPasswordBelowText.Size = new Size(434, 41);
+            EnterBackupPasswordBelowText.TabIndex = 1;
+            EnterBackupPasswordBelowText.Text = "Enter a Backup Password Below";
+            EnterBackupPasswordBelowText.TextAlign = ContentAlignment.MiddleCenter;
             // 
             // PasswordTextBox
             // 
-            this.PasswordTextBox.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.PasswordTextBox.ForeColor = System.Drawing.SystemColors.ControlDark;
-            this.PasswordTextBox.Location = new System.Drawing.Point(12, 27);
-            this.PasswordTextBox.Name = "PasswordTextBox";
-            this.PasswordTextBox.PlaceholderText = "Enter password here.";
-            this.PasswordTextBox.Size = new System.Drawing.Size(200, 23);
-            this.PasswordTextBox.TabIndex = 2;
-            this.PasswordTextBox.TabStop = false;
-            this.PasswordTextBox.UseSystemPasswordChar = true;
+            PasswordTextBox.Anchor = AnchorStyles.Left | AnchorStyles.Right;
+            PasswordTextBox.BorderStyle = BorderStyle.FixedSingle;
+            PasswordTextBox.ForeColor = SystemColors.ControlDark;
+            PasswordTextBox.Location = new Point(29, 74);
+            PasswordTextBox.Margin = new Padding(7, 8, 7, 8);
+            PasswordTextBox.Name = "PasswordTextBox";
+            PasswordTextBox.PlaceholderText = "Enter password here.";
+            PasswordTextBox.Size = new Size(483, 47);
+            PasswordTextBox.TabIndex = 2;
+            PasswordTextBox.TabStop = false;
+            PasswordTextBox.UseSystemPasswordChar = true;
             // 
             // ReEnterPasswordTextBox
             // 
-            this.ReEnterPasswordTextBox.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.ReEnterPasswordTextBox.ForeColor = System.Drawing.SystemColors.ControlDark;
-            this.ReEnterPasswordTextBox.Location = new System.Drawing.Point(12, 52);
-            this.ReEnterPasswordTextBox.Name = "ReEnterPasswordTextBox";
-            this.ReEnterPasswordTextBox.PlaceholderText = "Repeat password here.";
-            this.ReEnterPasswordTextBox.Size = new System.Drawing.Size(200, 23);
-            this.ReEnterPasswordTextBox.TabIndex = 3;
-            this.ReEnterPasswordTextBox.TabStop = false;
-            this.ReEnterPasswordTextBox.UseSystemPasswordChar = true;
+            ReEnterPasswordTextBox.Anchor = AnchorStyles.Left | AnchorStyles.Right;
+            ReEnterPasswordTextBox.BorderStyle = BorderStyle.FixedSingle;
+            ReEnterPasswordTextBox.ForeColor = SystemColors.ControlDark;
+            ReEnterPasswordTextBox.Location = new Point(29, 142);
+            ReEnterPasswordTextBox.Margin = new Padding(7, 8, 7, 8);
+            ReEnterPasswordTextBox.Name = "ReEnterPasswordTextBox";
+            ReEnterPasswordTextBox.PlaceholderText = "Repeat password here.";
+            ReEnterPasswordTextBox.Size = new Size(483, 47);
+            ReEnterPasswordTextBox.TabIndex = 3;
+            ReEnterPasswordTextBox.TabStop = false;
+            ReEnterPasswordTextBox.UseSystemPasswordChar = true;
             // 
             // WindowsHelloRegisterView
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(224, 113);
-            this.Controls.Add(this.ReEnterPasswordTextBox);
-            this.Controls.Add(this.PasswordTextBox);
-            this.Controls.Add(this.EnterBackupPasswordBelowText);
-            this.Controls.Add(this.ConfirmButton);
-            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
-            this.Name = "WindowsHelloRegisterView";
-            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "Backup Password";
-            this.ResumeLayout(false);
-            this.PerformLayout();
-
+            AutoScaleDimensions = new SizeF(17F, 41F);
+            AutoScaleMode = AutoScaleMode.Font;
+            ClientSize = new Size(544, 309);
+            Controls.Add(ReEnterPasswordTextBox);
+            Controls.Add(PasswordTextBox);
+            Controls.Add(EnterBackupPasswordBelowText);
+            Controls.Add(ConfirmButton);
+            FormBorderStyle = FormBorderStyle.FixedSingle;
+            Margin = new Padding(7, 8, 7, 8);
+            MaximizeBox = false;
+            Name = "WindowsHelloRegisterView";
+            StartPosition = FormStartPosition.CenterScreen;
+            Text = "Backup Password";
+            ResumeLayout(false);
+            PerformLayout();
         }
 
         #endregion

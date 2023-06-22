@@ -14,7 +14,7 @@ public partial class RegisterView : Form, IRegisterView
 
     public string GivenPassword
     {
-        get { return PasswordTextBox.Text;  }
+        get { return PasswordTextBox.Text; }
     }
 
     public string GivenSecondPassword

@@ -48,4 +48,6 @@ public interface IPresenterManager
     /// <param name="windowsHelloRegisterView">The optional IWindowsHelloRegisterView instance to be used, defaults to null.</param>
     /// <returns>A new instance of WindowsHelloRegisterViewPresenter.</returns>
     WindowsHelloRegisterViewPresenter GetWindowsHelloRegisterViewPresenter(IWindowsHelloRegisterView windowsHelloRegisterView = null);
+
+    VerifyPasswordViewPresenter GetVerifyPasswordViewPresenter(IVerifyPasswordView verifyPasswordView = null);
 }

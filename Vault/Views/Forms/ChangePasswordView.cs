@@ -19,7 +19,7 @@ public partial class ChangePasswordView : Form, IChangePasswordView
 
     public string GivenNewPassword
     {
-        get { return PasswordTextBox.Text;  }
+        get { return PasswordTextBox.Text; }
     }
 
     public string GivenSecondNewPassword

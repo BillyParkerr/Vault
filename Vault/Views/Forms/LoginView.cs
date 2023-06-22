@@ -14,7 +14,7 @@ public partial class LoginView : Form, ILoginView
 
     public string GivenPassword
     {
-        get { return textBox1.Text;  }
+        get { return textBox1.Text; }
     }
 
     private void AssociateAndRaiseViewEvents()

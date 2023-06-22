@@ -14,7 +14,7 @@ public partial class ImportEncryptedFileView : Form, IImportEncryptedFileView
 
     public string GivenPassword
     {
-        get { return PasswordTextBox.Text;  }
+        get { return PasswordTextBox.Text; }
     }
 
     public void ShowBlankPasswordError()

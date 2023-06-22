@@ -28,57 +28,64 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.LoginButton = new System.Windows.Forms.Button();
-            this.EnterPasswordBelowText = new System.Windows.Forms.Label();
-            this.textBox1 = new System.Windows.Forms.TextBox();
-            this.SuspendLayout();
+            this.LoginButton = new Button();
+            this.EnterPasswordBelowText = new Label();
+            this.textBox1 = new TextBox();
+            SuspendLayout();
             // 
             // LoginButton
             // 
-            this.LoginButton.Location = new System.Drawing.Point(74, 86);
+            this.LoginButton.Anchor = AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            this.LoginButton.Location = new Point(180, 220);
+            this.LoginButton.Margin = new Padding(7, 8, 7, 8);
             this.LoginButton.Name = "LoginButton";
-            this.LoginButton.Size = new System.Drawing.Size(75, 23);
+            this.LoginButton.Size = new Size(182, 59);
             this.LoginButton.TabIndex = 0;
             this.LoginButton.Text = "Login";
             this.LoginButton.UseVisualStyleBackColor = true;
             // 
             // EnterPasswordBelowText
             // 
+            this.EnterPasswordBelowText.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             this.EnterPasswordBelowText.AutoSize = true;
-            this.EnterPasswordBelowText.Location = new System.Drawing.Point(32, 19);
+            this.EnterPasswordBelowText.Location = new Point(78, 49);
+            this.EnterPasswordBelowText.Margin = new Padding(7, 0, 7, 0);
             this.EnterPasswordBelowText.Name = "EnterPasswordBelowText";
-            this.EnterPasswordBelowText.Size = new System.Drawing.Size(149, 16);
+            this.EnterPasswordBelowText.Size = new Size(374, 41);
             this.EnterPasswordBelowText.TabIndex = 1;
             this.EnterPasswordBelowText.Text = "Enter Your Password Below";
-            this.EnterPasswordBelowText.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            this.EnterPasswordBelowText.TextAlign = ContentAlignment.MiddleCenter;
             // 
             // textBox1
             // 
-            this.textBox1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.textBox1.ForeColor = System.Drawing.SystemColors.ControlDark;
-            this.textBox1.Location = new System.Drawing.Point(12, 48);
+            this.textBox1.Anchor = AnchorStyles.Left | AnchorStyles.Right;
+            this.textBox1.BorderStyle = BorderStyle.FixedSingle;
+            this.textBox1.ForeColor = SystemColors.ControlDark;
+            this.textBox1.Location = new Point(29, 123);
+            this.textBox1.Margin = new Padding(7, 8, 7, 8);
             this.textBox1.Name = "textBox1";
             this.textBox1.PlaceholderText = "Enter password here.";
-            this.textBox1.Size = new System.Drawing.Size(200, 23);
+            this.textBox1.Size = new Size(483, 47);
             this.textBox1.TabIndex = 2;
             this.textBox1.TabStop = false;
             this.textBox1.UseSystemPasswordChar = true;
             // 
-            // Login
+            // LoginView
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 16F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(224, 121);
-            this.Controls.Add(this.textBox1);
-            this.Controls.Add(this.EnterPasswordBelowText);
-            this.Controls.Add(this.LoginButton);
-            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
-            this.Name = "Login";
-            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "Login";
-            this.ResumeLayout(false);
-            this.PerformLayout();
-
+            AutoScaleDimensions = new SizeF(240F, 240F);
+            AutoScaleMode = AutoScaleMode.Dpi;
+            ClientSize = new Size(544, 310);
+            Controls.Add(this.textBox1);
+            Controls.Add(this.EnterPasswordBelowText);
+            Controls.Add(this.LoginButton);
+            FormBorderStyle = FormBorderStyle.FixedSingle;
+            Margin = new Padding(7, 8, 7, 8);
+            MaximizeBox = false;
+            Name = "LoginView";
+            StartPosition = FormStartPosition.CenterScreen;
+            Text = "Login";
+            ResumeLayout(false);
+            PerformLayout();
         }
 
         #endregion

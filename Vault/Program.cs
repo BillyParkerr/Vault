@@ -45,6 +45,7 @@ internal static class Program
         Container.Register<IWindowsHelloRegisterView, WindowsHelloRegisterView>(Lifestyle.Transient);
         Container.Register<ISettingsView, SettingsView>(Lifestyle.Transient);
         Container.Register<IChangePasswordView, ChangePasswordView>(Lifestyle.Transient);
+        Container.Register<IVerifyPasswordView, VerifyPasswordView>(Lifestyle.Transient);
 
         SuppressTransientWarning(typeof(IImportEncryptedFileView));
         SuppressTransientWarning(typeof(IExportEncryptedFileView));
@@ -55,6 +56,7 @@ internal static class Program
         SuppressTransientWarning(typeof(IWindowsHelloRegisterView));
         SuppressTransientWarning(typeof(ISettingsView));
         SuppressTransientWarning(typeof(IChangePasswordView));
+        SuppressTransientWarning(typeof(IVerifyPasswordView));
 
         // Register Managers
         Container.Register<IEncryptionManager, EncryptionManager>(Lifestyle.Singleton);

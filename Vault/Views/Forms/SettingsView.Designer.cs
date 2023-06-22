@@ -28,129 +28,140 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.Logo = new System.Windows.Forms.Label();
-            this.BasicModeButton = new System.Windows.Forms.Button();
-            this.AdvancedModeButton = new System.Windows.Forms.Button();
-            this.WindowsHelloModeButton = new System.Windows.Forms.Button();
-            this.PasswordModeButton = new System.Windows.Forms.Button();
-            this.DeleteUploadedFilesButton = new System.Windows.Forms.Button();
-            this.ChangeDefaultDownloadLocationButton = new System.Windows.Forms.Button();
-            this.ConfirmSettingsButton = new System.Windows.Forms.Button();
-            this.ChangePasswordButton = new System.Windows.Forms.Button();
-            this.SuspendLayout();
+            Logo = new Label();
+            BasicModeButton = new Button();
+            AdvancedModeButton = new Button();
+            WindowsHelloModeButton = new Button();
+            PasswordModeButton = new Button();
+            DeleteUploadedFilesButton = new Button();
+            ChangeDefaultDownloadLocationButton = new Button();
+            ConfirmSettingsButton = new Button();
+            ChangePasswordButton = new Button();
+            SuspendLayout();
             // 
             // Logo
             // 
-            this.Logo.AutoSize = true;
-            this.Logo.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
-            this.Logo.Font = new System.Drawing.Font("Segoe UI Variable Text", 22F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.Logo.ForeColor = System.Drawing.Color.Transparent;
-            this.Logo.Location = new System.Drawing.Point(12, 9);
-            this.Logo.Name = "Logo";
-            this.Logo.Size = new System.Drawing.Size(318, 40);
-            this.Logo.TabIndex = 3;
-            this.Logo.Text = "Personal Vault Settings";
+            Logo.AutoSize = true;
+            Logo.BackColor = Color.FromArgb(64, 64, 64);
+            Logo.Font = new Font("Segoe UI Variable Text", 22F, FontStyle.Regular, GraphicsUnit.Point);
+            Logo.ForeColor = Color.Transparent;
+            Logo.Location = new Point(29, 25);
+            Logo.Margin = new Padding(7, 0, 7, 0);
+            Logo.Name = "Logo";
+            Logo.Size = new Size(784, 99);
+            Logo.TabIndex = 3;
+            Logo.Text = "Personal Vault Settings";
             // 
             // BasicModeButton
             // 
-            this.BasicModeButton.Font = new System.Drawing.Font("Segoe UI Variable Text", 15F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.BasicModeButton.Location = new System.Drawing.Point(12, 69);
-            this.BasicModeButton.Name = "BasicModeButton";
-            this.BasicModeButton.Size = new System.Drawing.Size(198, 78);
-            this.BasicModeButton.TabIndex = 4;
-            this.BasicModeButton.Text = "Basic Mode";
-            this.BasicModeButton.UseVisualStyleBackColor = true;
+            BasicModeButton.Font = new Font("Segoe UI Variable Text", 15F, FontStyle.Regular, GraphicsUnit.Point);
+            BasicModeButton.Location = new Point(29, 189);
+            BasicModeButton.Margin = new Padding(7, 8, 7, 8);
+            BasicModeButton.Name = "BasicModeButton";
+            BasicModeButton.Size = new Size(481, 213);
+            BasicModeButton.TabIndex = 4;
+            BasicModeButton.Text = "Basic Mode";
+            BasicModeButton.UseVisualStyleBackColor = true;
             // 
             // AdvancedModeButton
             // 
-            this.AdvancedModeButton.Font = new System.Drawing.Font("Segoe UI Variable Text", 15F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.AdvancedModeButton.Location = new System.Drawing.Point(235, 69);
-            this.AdvancedModeButton.Name = "AdvancedModeButton";
-            this.AdvancedModeButton.Size = new System.Drawing.Size(198, 78);
-            this.AdvancedModeButton.TabIndex = 5;
-            this.AdvancedModeButton.Text = "Advanced Mode";
-            this.AdvancedModeButton.UseVisualStyleBackColor = true;
+            AdvancedModeButton.Font = new Font("Segoe UI Variable Text", 15F, FontStyle.Regular, GraphicsUnit.Point);
+            AdvancedModeButton.Location = new Point(571, 189);
+            AdvancedModeButton.Margin = new Padding(7, 8, 7, 8);
+            AdvancedModeButton.Name = "AdvancedModeButton";
+            AdvancedModeButton.Size = new Size(481, 213);
+            AdvancedModeButton.TabIndex = 5;
+            AdvancedModeButton.Text = "Advanced Mode";
+            AdvancedModeButton.UseVisualStyleBackColor = true;
             // 
             // WindowsHelloModeButton
             // 
-            this.WindowsHelloModeButton.Font = new System.Drawing.Font("Segoe UI Variable Text", 15F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.WindowsHelloModeButton.Location = new System.Drawing.Point(12, 153);
-            this.WindowsHelloModeButton.Name = "WindowsHelloModeButton";
-            this.WindowsHelloModeButton.Size = new System.Drawing.Size(198, 78);
-            this.WindowsHelloModeButton.TabIndex = 6;
-            this.WindowsHelloModeButton.Text = "Windows Hello Mode";
-            this.WindowsHelloModeButton.UseVisualStyleBackColor = true;
+            WindowsHelloModeButton.Font = new Font("Segoe UI Variable Text", 15F, FontStyle.Regular, GraphicsUnit.Point);
+            WindowsHelloModeButton.Location = new Point(29, 418);
+            WindowsHelloModeButton.Margin = new Padding(7, 8, 7, 8);
+            WindowsHelloModeButton.Name = "WindowsHelloModeButton";
+            WindowsHelloModeButton.Size = new Size(481, 213);
+            WindowsHelloModeButton.TabIndex = 6;
+            WindowsHelloModeButton.Text = "Windows Hello Mode";
+            WindowsHelloModeButton.UseVisualStyleBackColor = true;
             // 
             // PasswordModeButton
             // 
-            this.PasswordModeButton.Font = new System.Drawing.Font("Segoe UI Variable Text", 15F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.PasswordModeButton.Location = new System.Drawing.Point(235, 153);
-            this.PasswordModeButton.Name = "PasswordModeButton";
-            this.PasswordModeButton.Size = new System.Drawing.Size(198, 78);
-            this.PasswordModeButton.TabIndex = 7;
-            this.PasswordModeButton.Text = "Password Mode";
-            this.PasswordModeButton.UseVisualStyleBackColor = true;
+            PasswordModeButton.Font = new Font("Segoe UI Variable Text", 15F, FontStyle.Regular, GraphicsUnit.Point);
+            PasswordModeButton.Location = new Point(571, 418);
+            PasswordModeButton.Margin = new Padding(7, 8, 7, 8);
+            PasswordModeButton.Name = "PasswordModeButton";
+            PasswordModeButton.Size = new Size(481, 213);
+            PasswordModeButton.TabIndex = 7;
+            PasswordModeButton.Text = "Password Mode";
+            PasswordModeButton.UseVisualStyleBackColor = true;
             // 
             // DeleteUploadedFilesButton
             // 
-            this.DeleteUploadedFilesButton.Font = new System.Drawing.Font("Segoe UI Variable Text", 15F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.DeleteUploadedFilesButton.Location = new System.Drawing.Point(12, 237);
-            this.DeleteUploadedFilesButton.Name = "DeleteUploadedFilesButton";
-            this.DeleteUploadedFilesButton.Size = new System.Drawing.Size(198, 78);
-            this.DeleteUploadedFilesButton.TabIndex = 8;
-            this.DeleteUploadedFilesButton.Text = "Deletion of uploaded files [No]";
-            this.DeleteUploadedFilesButton.UseVisualStyleBackColor = true;
+            DeleteUploadedFilesButton.Font = new Font("Segoe UI Variable Text", 15F, FontStyle.Regular, GraphicsUnit.Point);
+            DeleteUploadedFilesButton.Location = new Point(29, 648);
+            DeleteUploadedFilesButton.Margin = new Padding(7, 8, 7, 8);
+            DeleteUploadedFilesButton.Name = "DeleteUploadedFilesButton";
+            DeleteUploadedFilesButton.Size = new Size(481, 213);
+            DeleteUploadedFilesButton.TabIndex = 8;
+            DeleteUploadedFilesButton.Text = "Deletion of uploaded files [No]";
+            DeleteUploadedFilesButton.UseVisualStyleBackColor = true;
             // 
             // ChangeDefaultDownloadLocationButton
             // 
-            this.ChangeDefaultDownloadLocationButton.Font = new System.Drawing.Font("Segoe UI Variable Text", 15F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.ChangeDefaultDownloadLocationButton.Location = new System.Drawing.Point(12, 321);
-            this.ChangeDefaultDownloadLocationButton.Name = "ChangeDefaultDownloadLocationButton";
-            this.ChangeDefaultDownloadLocationButton.Size = new System.Drawing.Size(198, 78);
-            this.ChangeDefaultDownloadLocationButton.TabIndex = 9;
-            this.ChangeDefaultDownloadLocationButton.Text = "Change Default Download Location";
-            this.ChangeDefaultDownloadLocationButton.UseVisualStyleBackColor = true;
+            ChangeDefaultDownloadLocationButton.Font = new Font("Segoe UI Variable Text", 15F, FontStyle.Regular, GraphicsUnit.Point);
+            ChangeDefaultDownloadLocationButton.Location = new Point(29, 877);
+            ChangeDefaultDownloadLocationButton.Margin = new Padding(7, 8, 7, 8);
+            ChangeDefaultDownloadLocationButton.Name = "ChangeDefaultDownloadLocationButton";
+            ChangeDefaultDownloadLocationButton.Size = new Size(481, 213);
+            ChangeDefaultDownloadLocationButton.TabIndex = 9;
+            ChangeDefaultDownloadLocationButton.Text = "Change Default Download Location";
+            ChangeDefaultDownloadLocationButton.UseVisualStyleBackColor = true;
             // 
             // ConfirmSettingsButton
             // 
-            this.ConfirmSettingsButton.Font = new System.Drawing.Font("Segoe UI Variable Text", 15F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.ConfirmSettingsButton.Location = new System.Drawing.Point(12, 509);
-            this.ConfirmSettingsButton.Name = "ConfirmSettingsButton";
-            this.ConfirmSettingsButton.Size = new System.Drawing.Size(421, 78);
-            this.ConfirmSettingsButton.TabIndex = 11;
-            this.ConfirmSettingsButton.Text = "Confirm Settings";
-            this.ConfirmSettingsButton.UseVisualStyleBackColor = true;
+            ConfirmSettingsButton.Font = new Font("Segoe UI Variable Text", 15F, FontStyle.Regular, GraphicsUnit.Point);
+            ConfirmSettingsButton.Location = new Point(29, 1391);
+            ConfirmSettingsButton.Margin = new Padding(7, 8, 7, 8);
+            ConfirmSettingsButton.Name = "ConfirmSettingsButton";
+            ConfirmSettingsButton.Size = new Size(1022, 213);
+            ConfirmSettingsButton.TabIndex = 11;
+            ConfirmSettingsButton.Text = "Confirm Settings";
+            ConfirmSettingsButton.UseVisualStyleBackColor = true;
             // 
             // ChangePasswordButton
             // 
-            this.ChangePasswordButton.Font = new System.Drawing.Font("Segoe UI Variable Text", 15F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.ChangePasswordButton.Location = new System.Drawing.Point(12, 405);
-            this.ChangePasswordButton.Name = "ChangePasswordButton";
-            this.ChangePasswordButton.Size = new System.Drawing.Size(198, 78);
-            this.ChangePasswordButton.TabIndex = 12;
-            this.ChangePasswordButton.Text = "Change Password";
-            this.ChangePasswordButton.UseVisualStyleBackColor = true;
+            ChangePasswordButton.Font = new Font("Segoe UI Variable Text", 15F, FontStyle.Regular, GraphicsUnit.Point);
+            ChangePasswordButton.Location = new Point(29, 1107);
+            ChangePasswordButton.Margin = new Padding(7, 8, 7, 8);
+            ChangePasswordButton.Name = "ChangePasswordButton";
+            ChangePasswordButton.Size = new Size(481, 213);
+            ChangePasswordButton.TabIndex = 12;
+            ChangePasswordButton.Text = "Change Password";
+            ChangePasswordButton.UseVisualStyleBackColor = true;
             // 
-            // Settings
+            // SettingsView
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
-            this.ClientSize = new System.Drawing.Size(446, 594);
-            this.Controls.Add(this.ChangePasswordButton);
-            this.Controls.Add(this.ConfirmSettingsButton);
-            this.Controls.Add(this.ChangeDefaultDownloadLocationButton);
-            this.Controls.Add(this.DeleteUploadedFilesButton);
-            this.Controls.Add(this.PasswordModeButton);
-            this.Controls.Add(this.WindowsHelloModeButton);
-            this.Controls.Add(this.AdvancedModeButton);
-            this.Controls.Add(this.BasicModeButton);
-            this.Controls.Add(this.Logo);
-            this.Name = "SettingsView";
-            this.Text = "SettingsView";
-            this.ResumeLayout(false);
-            this.PerformLayout();
-
+            AutoScaleDimensions = new SizeF(17F, 41F);
+            AutoScaleMode = AutoScaleMode.Font;
+            BackColor = Color.FromArgb(64, 64, 64);
+            ClientSize = new Size(1083, 1624);
+            Controls.Add(ChangePasswordButton);
+            Controls.Add(ConfirmSettingsButton);
+            Controls.Add(ChangeDefaultDownloadLocationButton);
+            Controls.Add(DeleteUploadedFilesButton);
+            Controls.Add(PasswordModeButton);
+            Controls.Add(WindowsHelloModeButton);
+            Controls.Add(AdvancedModeButton);
+            Controls.Add(BasicModeButton);
+            Controls.Add(Logo);
+            Margin = new Padding(7, 8, 7, 8);
+            MaximizeBox = false;
+            Name = "SettingsView";
+            StartPosition = FormStartPosition.CenterScreen;
+            Text = "SettingsView";
+            ResumeLayout(false);
+            PerformLayout();
         }
 
         #endregion
